@@ -16,6 +16,9 @@
 *.exe
 *.out
 *.app
+spreadSource 
+spreadSink
+
 # Packages
 *.deb
 *.opk
@@ -24,7 +27,6 @@ debian-i386/*
 # Doxygen
 html/*
 latex/*
-
-spreadSource 
-spreadSink
+# Misc
+.connectToSpread.c.swp
 
