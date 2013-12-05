@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -x
+
+DESTDIR=opkg-arm 
+export DESTDIR
+
+HERE=`pwd`
+cd $DESTDIR
+rm -rf usr
+cd $HERE
+
+echo "Build opkg package"
+
+if [ ! -d ./${DESTDIR}/usr/local/bin ]; then
+    mkdir -p ./${DESTDIR}/usr/local/bin
+fi
+
+if [ ! -d ./${DESTDIR}/usr/local/etc/lightToSpread/App ]; then
+    mkdir -p ./${DESTDIR}/usr/local/etc/lightToSpread/App
+fi
+
+make install
+
+opkg-build -O -o root -g root ./${DESTDIR} 
+

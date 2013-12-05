@@ -1,0 +1,28 @@
+#
+# Save Date:Mon Sep 30 12:56:42 2013
+#
+# toSpread startup file.
+# Comments MUST be at the start of a line.
+# Any comments added will be lost.
+#
+^set GET_FORMAT $K
+^set START_FILE ./redis_start.rc
+^lock START_FILE
+^set USER sink
+^set ADD_CR true
+^set SET_FORMAT set $K $V EX 960
+^lock SET_FORMAT
+^set CLIENT format
+^lock CLIENT
+^set MODE local
+^set APP_DIR 
+^set DEFAULT_GROUP global
+^lock DEFAULT_GROUP
+^set SAVE_ALLOWED true
+^set SPREAD_SERVER 4803
+^set INTERACTIVE false
+^set TO_FORTH false
+^set GROUP 
+^set AUTOCONNECT true
+^set ON_CONNECT 
+^set EXIT_ALLOWED true

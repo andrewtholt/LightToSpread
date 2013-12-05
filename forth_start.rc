@@ -1,0 +1,28 @@
+#
+# Save Date:Tue Oct 29 13:35:04 2013
+#
+# Startup file.
+# Comments MUST be at the start of a line.
+# Any comments added will be lost.
+#
+^set GET_FORMAT $K
+^set ADD_SENDER false
+^set START_FILE ./forth_start.rc
+^lock START_FILE
+^set USER sink
+^set ADD_CR true
+^set SET_FORMAT $K $V
+^set CLIENT format
+^set DEFAULT_GROUP global
+^lock DEFAULT_GROUP
+^set DEBUG true
+^lock DEBUG
+^set SAVE_ALLOWED true
+^set CMD_FORMAT log $K $V
+^set SPREAD_SERVER 4803
+^set INTERACTIVE true
+^set GROUP 
+^set TO_FORTH true
+^set ON_CONNECT 
+^set EXIT_ALLOWED true
+^set MODE local

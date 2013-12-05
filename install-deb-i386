@@ -1,0 +1,36 @@
+#!/bin/sh
+
+set -x
+
+echo "Build debian package"
+echo "First make everything."
+make 
+DESTDIR=./debian-i386 
+export DESTDIR
+
+HERE=`pwd`
+cd $DESTDIR
+rm -rf $DESTDIR
+cd $HERE
+
+if [ ! -d $DESTDIR ]; then
+    mkdir $DESTDIR
+fi
+
+if [ ! -d ./${DESTDIR}/usr/local/bin ]; then
+    mkdir -p ./${DESTDIR}/usr/local/bin
+    chmod 755 ./${DESTDIR}/usr/local/bin
+fi
+
+if [ ! -d ./${DESTDIR}/usr/local/etc/LightToSpread/App ]; then
+    mkdir -p ./${DESTDIR}/usr/local/etc/LightToSpread/App
+    chmod 755 ./${DESTDIR}/usr/local/etc
+    chmod 755 ./${DESTDIR}/usr/local/etc/LightToSpread
+    chmod 755 ./${DESTDIR}/usr/local/etc/LightToSpread/App
+fi
+
+./build.sh install
+
+chmod 0755 ${DESTDIR}/DEBIAN
+
+dpkg -b ./debian-i386 .

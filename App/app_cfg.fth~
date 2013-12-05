@@ -1,0 +1,18 @@
+only forth also oop definitions
+
+.( Loading app_cfg.fth ) cr
+
+: getFiclParam
+    --> get-value
+;
+
+: getFiclBoolean ( c-addr -- t|f ) 
+    count s" true" compare 0=
+;
+
+: bye
+    c" false" dup count 1+ nip
+    interactive swap move
+
+;
+

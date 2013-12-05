@@ -1,0 +1,29 @@
+#
+# Save Date:Tue Oct  1 14:40:23 2013
+#
+# toSpread startup file.
+# Comments MUST be at the start of a line.
+# Any comments added will be lost.
+#
+^set GET_FORMAT $K
+^set START_FILE /tmp/start_2.rc
+^lock START_FILE
+^set USER sink
+^set ADD_CR true
+^set SET_FORMAT $K $V
+^set CLIENT cmd
+^set MODE local
+^set APP_DIR 
+^set DEFAULT_GROUP global
+^lock DEFAULT_GROUP
+^set DEBUG true
+^lock DEBUG
+^set SAVE_ALLOWED true
+^set CMD_FORMAT ./log.sh $K $V
+^set SPREAD_SERVER 4803
+^set INTERACTIVE false
+^set TO_FORTH false
+^set GROUP 
+^set AUTOCONNECT false
+^set ON_CONNECT 
+^set EXIT_ALLOWED true

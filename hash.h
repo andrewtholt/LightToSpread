@@ -1,0 +1,45 @@
+#define MAX_MESSLEN     102400
+#define HASHSIZE 31
+#define LOCAL 0
+#define GLOBAL 1
+
+#define LOCK 0
+#define UNLOCK 1
+
+#include <stdlib.h>
+#include <pthread.h>
+
+#define BUFFSIZE 255
+
+pthread_mutex_t hashLock;
+int symbolCount;
+
+void setSymbol(char *, void *, int ,int );
+void lockSymbol(char *);
+void mkLocal(char *);
+void mkGlobal(char *);
+struct nlist *install (char *, void *, int , int );
+
+struct cString *getSymbol(char *);
+char *getFiclParam(char *);
+int exists(char *);
+void loadSymbols();
+
+struct cString {
+    unsigned char length;
+    char text[255];
+};
+
+
+struct nlist {
+    char           *name;
+    struct cString *value;
+
+    int             ro;     // 0 if ro 1 if rw
+    int             local;  // Some variables I do not want to write on a ^save, so set  this non-zero.
+
+    struct nlist   *next;
+};
+
+
+struct nlist   *lookup(char *);

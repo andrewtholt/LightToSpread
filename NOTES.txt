@@ -1,0 +1,67 @@
+
+
+version of redis protocol
+
+e.g.
+
+MULTI
+*3
+$3
+SET
+$6
+SENDER
+$15
+#fred#localhost
+*2
+$3
+GET
+$6
+ONBATT
+EXEC
+
+This sets SENDER to indicate where the message coame from, and where any reply should go.  
+It then requests the value from 'ONBATT'.
+
+These two commands are bracketed by 'MULTI' and 'EXEC'.  
+
+The encapsulates the two, or more copmmands as a single transaction.
+
+e.g. 2
+
+MULTI
+*3
+$3
+SET
+$6
+SENDER
+$15
+#fred#localhost
+
+*3
+$3
+SET
+$6
+ONBATT
+$5
+false
+
+*3
+$3
+SET
+$6
+ONLINE
+$5
+true
+
+*3
+$3
+SET
+$7
+LOWBATT
+$5
+false
+EXEC
+
+This will set the values of ONBATT, ONLINE & LOWBATT as a single transaction.
+
+

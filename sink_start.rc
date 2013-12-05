@@ -1,0 +1,23 @@
+#
+# Save Date:Sun Sep 29 17:06:05 2013
+#
+# toSpread startup file.
+# Comments MUST be at the start of a line.
+# Any comments added will be lost.
+#
+^set GET_FORMAT $K
+^set USER sink
+^set ADD_CR true
+^set SET_FORMAT $K $V
+^set CLIENT raw
+^set DEFAULT_GROUP global
+^set DEBUG false
+^lock DEBUG
+^set SAVE_ALLOWED true
+^set SPREAD_SERVER 4803
+^set INTERACTIVE false
+^set TO_FORTH false
+^set AUTOCONNECT false
+^set EXIT_ALLOWED true
+^set APP_DIR /usr/local/etc/lightToSpread/App
+^set MODE local

@@ -1,0 +1,111 @@
+only forth also oop definitions seal
+
+.( Loading classes.fth ) cr
+
+object --> sub c-boolean
+c-byte obj: .state
+: init { 2:this -- }
+    this --> super --> init
+    0 this --> .state --> set
+;
+
+: set { 2:this -- }
+    0xff this --> .state --> set
+;
+
+: clr { 2:this -- }
+    0 this --> .state --> set
+;
+
+: get { 2:this -- flag }
+    this --> .state --> get 0<>
+;
+
+: to-string { 2:this -- addr len }
+    this --> .state --> get
+    if
+        s" true"
+    else
+        s" false"
+    then
+;
+
+: type { 2:this -- }
+    this --> .state --> get
+    if
+        ." true"
+    else
+        ." false"
+    then
+;
+
+end-class
+
+object --> sub c-param
+c-ptr obj: .entry
+c-ptr obj: .name
+c-ptr obj: .value
+c-ptr obj: .scratch
+c-ptr obj: .locked
+c-ptr obj: .global
+
+: init { tmp 2:this -- }
+    this --> super --> init
+
+    255 allocate abort" Allocate failed"
+    dup 255 erase
+
+    this --> .scratch --> set-ptr
+    tmp this --> .entry --> set-ptr
+
+    tmp       @
+    this --> .name --> set-ptr
+
+    tmp cell+ @
+    this --> .value --> set-ptr
+
+    tmp 2 cells +
+    this --> .locked --> set-ptr
+
+    tmp 3 cells +
+    this --> .global --> set-ptr
+;
+
+: get-name { 2:this -- ptr n }
+    this --> .name --> get-ptr dup strlen
+;
+
+: get-value { 2:this -- ptr n }
+    this --> .value --> get-ptr count
+;
+
+: get-locked { 2:this -- }
+    this --> .locked --> get-ptr @
+;
+
+: set-value { addr len 2:this -- }
+    this --> get-locked 0<> if
+        len this --> .value --> get-ptr c!
+
+        addr
+        this --> .value --> get-ptr 1+  \ tgt
+        len move
+    then
+;
+
+: lock { 2:this -- }
+    0 this --> .locked --> get-ptr !
+;
+
+: dump { 2:this -- }
+    cr
+    ." Name    :" this --> get-name type cr
+    ." Value   :" this --> get-value type cr
+    ." Unlocked:( " this --> get-locked dup . ." )" 
+    0= if ." No" else ." Yes" then cr
+
+    ." Global  :( " this --> get-locked dup . ." )" 
+    0= if ." no" else ." Yes" then cr
+;
+
+end-class

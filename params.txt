@@ -1,0 +1,56 @@
+ADD_CR
+    Append a CR to the end of messages sent to the client.
+
+APP_DIR
+    Location of the config files.
+
+AUTOCONNECT
+    After config files have been read connect to spread.
+
+BUILD
+    Compile date.
+
+CFG_FILE
+
+CLASS
+    What type of s/w client, server or both. If a server it does not respond to any queries.
+    If a client then it can makes requests, and both can do both.
+
+CLIENT
+    Protocol understood, raw is no protocol, redis is redis like.
+
+DEBUG
+DEFAULT_GROUP
+GET_FORMAT
+GROUP
+INTERACTIVE
+ME
+MODE
+ON_CONNECT
+SAVE_ALLOWED
+SET_FORMAT
+SPREAD_SERVER
+START_FILE
+
+TO_FORTH
+    If true then unrecognized commands (i.e. strings beginning with ^ not implemented internally)
+    Pass them to the ficl interpreter.
+    
+    Called:
+    
+    key len value len 2 
+    or
+    key len 1
+    or
+    0
+    
+    The ficl word must return: 
+    
+    addr len 0          Success
+    or
+            -1          Command failed.
+    
+    
+USER
+    Spread username.
+

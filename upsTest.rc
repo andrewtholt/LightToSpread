@@ -1,0 +1,27 @@
+#
+# Save Date:Tue Oct  8 10:59:12 2013
+#
+# Startup file.
+# Comments MUST be at the start of a line.
+# Any comments added will be lost.
+#
+^set GET_FORMAT $K
+^set ADD_SENDER false
+^set START_FILE ./upsTest.rc
+^set USER ups
+^set ADD_CR true
+^set SET_FORMAT $K $V
+^set CLIENT raw
+^set DEFAULT_GROUP global
+^lock DEFAULT_GROUP
+^set DEBUG false
+^set SAVE_ALLOWED true
+^set CMD_FORMAT log $K $V
+^set SPREAD_SERVER 4803
+^set INTERACTIVE false
+^lock INTERACTIVE
+^set GROUP POWER
+^set AUTOCONNECT true
+^set ON_CONNECT 
+^set EXIT_ALLOWED true
+^set MODE remote
