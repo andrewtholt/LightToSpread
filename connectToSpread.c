@@ -863,7 +863,10 @@ int loadFile(char *file) {
     }
     bzero(buffer,BUFFSIZE);
     bzero(cmd,BUFFSIZE);
-
+//
+// Check here if file starts with a /
+// If so do not prepend APPLIB.
+//
     sprintf(buffer,"%s/%s",dir,file);
 
     if( (access(buffer,R_OK)) != 0 ) {
