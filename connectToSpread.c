@@ -858,7 +858,7 @@ int loadFile(char *file) {
     if(!dir) {
         dir=strsave("/usr/local/etc/lightToSpread/App");
         
-        fprintf(stderr,"Config variable APP_DIR Not set.\n");
+        fprintf(stderr,"Config variable APPLIB Not set.\n");
         fprintf(stderr,"APPLIB set to default: %s\n",dir);
     }
     bzero(buffer,BUFFSIZE);
