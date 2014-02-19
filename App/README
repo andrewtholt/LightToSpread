@@ -1,6 +1,6 @@
 
 
 If you need to pass a result back the the constant result-buffer points to a 255 byte
-buffer.  Initialise it to 0 and copy any return data, or leave as 0'd if nothging to return.
+buffer.  Initialise it to 0 and copy any return data, or leave as 0'd if nothing to return.
 
 
