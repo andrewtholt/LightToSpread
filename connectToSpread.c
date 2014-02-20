@@ -44,6 +44,7 @@ sem_t connected;
 
 /*! \brief Pass in a pointer to a string, allocate sufficient space to hold it and copy.
 */
+/*
 char *strsave (char *s) { 
     char *p;
 
@@ -53,6 +54,7 @@ char *strsave (char *s) {
 
     return (p);
 }
+*/
 
 //! \brief Send a message to stderr.
 
