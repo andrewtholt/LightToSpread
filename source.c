@@ -95,7 +95,8 @@ int main(int argc, char* argv[]) {
     global.system = ficlSystemCreate(NULL);
     ficlSystemCompileExtras(global.system);
     global.vm = ficlSystemCreateVm(global.system);
-    ficlSystemCompileExtras(global.system);
+
+//    ficlSystemCompileExtras(global.system);
     sprintf(cmdBuffer,"only forth also oop definitions seal\n");
     ficlVmEvaluate(global.vm, cmdBuffer);
 
