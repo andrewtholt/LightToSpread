@@ -4,13 +4,14 @@ CFLAGS=-g -m32 -DFICL # -Wall
 INC=-I/usr/local/include
 
 BINS=spreadSource spreadSink # mine # PthreadsExample
-LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
+# LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
+LIBS=-lpthread -lspread -ldl /usr/local/lib/libficl.a -lm
 LFLAGS=-Wl,--no-as-needed 
 
 all:	$(BINS)
 
 spreadSource:	source.o hash.o  connectToSpread.o
-	$(CC) $(INC) $(CFLAGS) $(LFLAGS) source.o hash.o connectToSpread.o -o spreadSource -lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) source.o hash.o connectToSpread.o -o spreadSource $(LIBS)
 
 source.o:	source.c mine.h hash.h hash.o
 	$(CC) $(INC) -c $(CFLAGS) -Wall source.c -o source.o 
