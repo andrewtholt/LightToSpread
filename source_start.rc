@@ -11,10 +11,10 @@
 ^set SET_FORMAT $K $V
 ^set CLIENT raw
 ^set DEFAULT_GROUP global
-^set DEBUG false
+^set DEBUG true
 ^set SAVE_ALLOWED true
 ^set SPREAD_SERVER 4803
-^set INTERACTIVE false
+^set INTERACTIVE true
 ^set TO_FORTH false
 ^set AUTOCONNECT false
 ^set EXIT_ALLOWED true
