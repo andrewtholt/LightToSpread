@@ -31,3 +31,4 @@ latex/*
 .connectToSpread.c.swp
 spreadSink
 spreadSource
+*~
