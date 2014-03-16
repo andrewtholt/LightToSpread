@@ -148,12 +148,6 @@ int main(int argc, char* argv[]) {
     setFiclParam("START_FILE","/dev/null");
     setFiclParam("USER","sink");
 
-    /*
-       setFiclParam("STDERR","/dev/tty");
-       setFiclParam("STDIN","/dev/tty");
-       setFiclParam("STDOUT","/dev/tty");
-     */
-
     while ((ch = getopt (argc, (char **) argv, "c:dhig:p:u:s:")) != -1) {
         switch(ch) {
             case 'c':
@@ -189,7 +183,6 @@ int main(int argc, char* argv[]) {
                 //
                 break;
             case 'g':
-                //                group = strsave( optarg );
                 setFiclParam("GROUP",optarg);
                 lockSymbol("GROUP");
                 break;
@@ -214,7 +207,6 @@ int main(int argc, char* argv[]) {
         if((char *)NULL == env) {
             fprintf(stderr,"Environment variable APPLIB not set, goodbye.\n");
             env = strsave("/usr/local/etc/lightToSpread/App");
-//            exit(-1);
         } 
         setFiclParam("APP_DIR", env);
     }
@@ -236,23 +228,6 @@ int main(int argc, char* argv[]) {
         mkfifo(buff,0600);
     }
 
-    /*
-       global.in = fopen("/dev/tty","r");
-       global.out = fopen("/dev/tty","w");
-       global.err = fopen("/dev/tty","w");
-     */
-
-    /*
-    if(loadFile("lib.fth") != 0) {
-        fprintf(stderr,"lib.fth: Failed to load file.\n");
-        exit(-3);
-    }
-
-    if(loadFile("classes.fth") != 0) {
-        fprintf(stderr,"app_cfg.fth: Failed to load file.\n");
-        exit(-3);
-    }
-*/
 
 #ifdef FICL
     if(loadFile("app_cfg.fth") != 0) {
@@ -316,19 +291,12 @@ int main(int argc, char* argv[]) {
 
     }
 
-    /*
-       if( getFiclBoolean("AUTOCONNECT") ) {
-       connectToSpread();
-       }
-     */
     while(global.connected == 0) {
         fromIn(global.in,buff);
         cmdInterp(0, buff);
     }
 
     while(1) {
-        //    while(runFlag) {
-
         while( global.connected ==0 ) {
             connectToSpread();
         }
