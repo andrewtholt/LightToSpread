@@ -851,15 +851,23 @@ int loadFile(char *file) {
     int status=0;
     int returnValue=0;
     char *dir;
+    struct cString *tmp;
 
 #ifdef FICL
     dir=getenv("APPLIB");
 
     if(!dir) {
-        dir=strsave("/usr/local/etc/lightToSpread/App");
+        tmp=getSymbol("APPLIB");
+
+        if(!tmp) {
+            setSymbol("APPLIB", "/usr/local/etc/lightToSpread/App",UNLOCK,GLOBAL);
+            dir=strsave("/usr/local/etc/lightToSpread/App");
         
-        fprintf(stderr,"Config variable APPLIB Not set.\n");
-        fprintf(stderr,"APPLIB set to default: %s\n",dir);
+            fprintf(stderr,"Config variable APPLIB Not set.\n");
+            fprintf(stderr,"APPLIB set to default: %s\n",dir);
+        } else {
+            dir=tmp->text;
+        }
     }
     bzero(buffer,BUFFSIZE);
     bzero(cmd,BUFFSIZE);
