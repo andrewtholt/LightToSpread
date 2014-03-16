@@ -89,7 +89,6 @@ int main(int argc, char* argv[]) {
         env = strsave("/usr/local/etc/lightToSpread/App");
 
         fprintf(stderr,"... %s\n",env);
-//        exit(-1);
     }
     global.appDir = strsave(env);
     global.defaultGroup = strsave("global");
@@ -98,12 +97,10 @@ int main(int argc, char* argv[]) {
     ficlSystemCompileExtras(global.system);
     global.vm = ficlSystemCreateVm(global.system);
 
-//    ficlSystemCompileExtras(global.system);
     sprintf(cmdBuffer,"only forth also oop definitions seal\n");
     ficlVmEvaluate(global.vm, cmdBuffer);
 
 #ifdef FICL
-//    if( getFiclBoolean("TO_FORTH")) {
         if(loadFile("lib.fth") != 0) {
             fprintf(global.err,"lib.fth: Failed to load file.\n");
             exit(-3);
@@ -228,31 +225,6 @@ int main(int argc, char* argv[]) {
         mkfifo(buff,0600);
     }
 
-    /*
-#ifdef FICL
-    if( getFiclBoolean("TO_FORTH")) {
-        if(loadFile("lib.fth") != 0) {
-            fprintf(global.err,"lib.fth: Failed to load file.\n");
-            exit(-3);
-        }
-
-        if(loadFile("classes.fth") != 0) {
-            fprintf(global.err,"app_cfg.fth: Failed to load file.\n");
-            exit(-3);
-        }
-
-        sprintf(cmdBuffer,"only forth also oop definitions seal\n");
-        ficlVmEvaluate(global.vm, cmdBuffer);
-
-        if(loadFile("app_cfg.fth") != 0) {
-            fprintf(global.err,"app_cfg.fth: Failed to load file.\n");
-            exit(-3);
-        }
-
-        loadFile("local_cfgapp.fth");
-    }
-#endif   
-*/
     loopFlag=getFiclBoolean("INTERACTIVE");
 
     printDebug("Opening STDIN ...");
