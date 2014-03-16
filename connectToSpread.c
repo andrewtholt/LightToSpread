@@ -444,9 +444,7 @@ void remoteCmdInterp(char *sender,char *data,char *buffer) {
     char *value;
     char safe[255];
 
-    if(global.debug != 0) {
-        fprintf(stderr,"remoteCmdInterp\n");
-    }
+    printDebug("remoteCmdInterp\n");
 
     if(global.rawClient != 0) {
         return;
@@ -459,22 +457,21 @@ void remoteCmdInterp(char *sender,char *data,char *buffer) {
     strcpy(safe,data);
 
     if(!strncmp(data,"^set ", 5)) {
-        printf("\tremoteCmdInterp: ^set\n");
+        printDebug("\tremoteCmdInterp: ^set\n");
+
         cmd=strtok(data," ");  // split the command line held in data.
         key=strtok(NULL," \n");
         value=strtok(NULL,"\n");
         remoteSet(sender,key,value,buffer);
     } else if(!strncmp(data,"^get ", 5)) {
-        printf("\tremoteCmdInterp: ^get\n");
+        printDebug("\tremoteCmdInterp: ^get\n");
         cmd=strtok(data," ");  // split the command line held in data.
         key=strtok(NULL," \n");
         remoteSet(sender,key,value,buffer);
     } else {
         if( getFiclBoolean("TO_FORTH")) {
-            printf("\tremoteCmdInterp: Ficl\n");
+            printDebug("\tremoteCmdInterp: Ficl\n");
             cmdToForth(data,buffer);
-            //                cmd=strtok(data," ");  // split the command line held in data.
-            //                cmdToForth(cmd,(char *)NULL,(char *)NULL,buffer);
         }
     }
 
@@ -567,9 +564,10 @@ int cmdInterp(int src, char *cmd) {
     char *ptr;
     char *x;
 
+    printDebug("cmdInterp\n");
     if( src == 0) {
         if(global.cmdClient != 0) {
-            //            printf("%s\n", getFiclParam("CMD_FORMAT"));
+
             bzero(scratch,BUFFSIZE);
             bzero(pipeBuffer,BUFFSIZE);
             bzero(resBuffer,BUFFSIZE);

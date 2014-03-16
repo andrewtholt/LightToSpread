@@ -11,17 +11,16 @@
 ^set USER ups
 ^set ADD_CR true
 ^set SET_FORMAT $K $V
-^set CLIENT raw
+^set CLIENT format
 ^set DEFAULT_GROUP global
 ^lock DEFAULT_GROUP
-^set DEBUG false
+^set DEBUG true
 ^set SAVE_ALLOWED true
 ^set CMD_FORMAT log $K $V
 ^set SPREAD_SERVER 4803
-^set INTERACTIVE false
-^lock INTERACTIVE
+^set INTERACTIVE true
 ^set GROUP POWER
-^set AUTOCONNECT true
+^set AUTOCONNECT false
 ^set ON_CONNECT 
 ^set EXIT_ALLOWED true
-^set MODE remote
+^set MODE local

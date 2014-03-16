@@ -23,7 +23,7 @@ struct nlist   *lookup(char *s) {
     for (np = hashtab[hash(s)]; np != NULL; np = np->next)
         if (!strcmp(s, np->name))
             return (np);
-    return ((struct nlist *) NULL);
+        return ((struct nlist *) NULL);
 }
 
 int exists(char *key) {
@@ -139,15 +139,15 @@ void dumpInteractive () {
     struct nlist *np;
 
     fprintf (stdout,
-            "==============================================================|\n");
+             "==============================================================|\n");
     fprintf (stdout, "|\tBuild Date:%s\n", getFiclParam ("BUILD"));
     fprintf (stdout,
-            "==============================================================|\n");
+             "==============================================================|\n");
 
     strcpy (fmt, "|%-20s|%-25s|%-6s|%-7s|\n");
     fprintf (stdout, fmt, "Name", "Value", "Locked", "Scope");
     fprintf (stdout,
-            "==============================================================|\n");
+             "==============================================================|\n");
 
     for (i = 0; i < HASHSIZE; i++) {
         if (hashtab[i] != 0) {
@@ -168,7 +168,7 @@ void dumpInteractive () {
         }
     }
     fprintf (stdout,
-            "|=============================================================|\n");
+             "|=============================================================|\n");
     fflush (stdout);
 }
 
@@ -180,32 +180,32 @@ void dumpSymbols () {
     int interactive = 0;
 
     /*
-       tmp = getSymbol ("INTERACTIVE");
-       format = getSymbol ("FORMAT");
-
-       if (!tmp) {
-       interactive = 0;
-       }
-       else {
-       interactive = (strcmp (tmp, "false") != 0);
-       }
-     */
+     *       tmp = getSymbol ("INTERACTIVE");
+     *       format = getSymbol ("FORMAT");
+     *
+     *       if (!tmp) {
+     *       interactive = 0;
+}
+else {
+    interactive = (strcmp (tmp, "false") != 0);
+}
+*/
 
 
     dumpInteractive ();
     /*
-       if (interactive) {
-       dumpInteractive ();
-       }
-       else {
-       if (!strcmp (format, "csv")) {
-       dumpCsv ();
-       }
-       if (!strcmp (format, "redis")) {
-       dumpRedis ();
-       }
-       }
-     */
+     *       if (interactive) {
+     *       dumpInteractive ();
+}
+else {
+    if (!strcmp (format, "csv")) {
+        dumpCsv ();
+}
+if (!strcmp (format, "redis")) {
+    dumpRedis ();
+}
+}
+*/
 }
 
 void saveParam(FILE *fp,struct nlist *np) {
@@ -242,7 +242,7 @@ void saveSymbols () {
         setSymbol ("START_FILE", "./start.rc", UNLOCK, LOCAL);
         fileName = getFiclParam ("START_FILE");
     }
-    
+
     fp = fopen (fileName, "w");
 
     if (!fp) {
@@ -263,22 +263,13 @@ void saveSymbols () {
         if (hashtab[i] != 0) {
             for (np = hashtab[i]; np != NULL; np = np->next) {
                 if (np->local == GLOBAL) {
-                //
-                // Convert this to a procedure
-                // e.g.
-                //
-                if(strcmp(np->name,"MODE") ) {
-                    saveParam(fp,np);
-                }
-                //
-//                     fprintf (fp, "^set %s ", np->name);
-//                     fprintf (fp, "%s", (char *) np->value->text);
-// 
-//                     fprintf (fp, "\n");
-// 
-//                     if (np->ro == LOCK) {
-//                         fprintf (fp, "^lock %s\n", np->name);
-//                     }
+                    //
+                    // Convert this to a procedure
+                    // e.g.
+                    //
+                    if(strcmp(np->name,"MODE") ) {
+                        saveParam(fp,np);
+                    }
                 }
             }
         }

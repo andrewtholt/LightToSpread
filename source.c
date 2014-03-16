@@ -66,6 +66,7 @@ int main(int argc, char* argv[]) {
     char buff[BUFFSIZE];
 
     char *tmp=(char *)NULL;
+    int verbose=0;
 
     global.connected=0;
     global.Group=(char *)NULL;
@@ -75,6 +76,7 @@ int main(int argc, char* argv[]) {
     global.rawClient =1;
 
     global.debug = 0;
+    int scratch=0;
 //    int runFlag=1;
 
     char *group=(char *)NULL;
@@ -158,9 +160,12 @@ int main(int argc, char* argv[]) {
 
     setFiclParam("USER","source");
 
-    while ((ch = getopt (argc, (char **) argv, "c:dhig:p:u:s:")) != -1) {
+    while ((ch = getopt (argc, (char **) argv, "c:dhig:p:u:vs:")) != -1) {
         switch(ch) {
             case 'c':
+                if(verbose) {
+                    fprintf(stderr,"Setting startfile to %s\n",optarg);
+                }
                 setFiclParam("START_FILE",optarg);
                 break;
             case 'd':
@@ -197,6 +202,9 @@ int main(int argc, char* argv[]) {
             case 's':
                 setFiclParam("SPREAD_SERVER",optarg);
                 lockSymbol("SPREAD_SERVER");
+                break;
+            case 'v':
+                verbose=1;
                 break;
         }
     }
@@ -280,6 +288,7 @@ int main(int argc, char* argv[]) {
     }
 
     loadFile("local_cfgapp.fth");
+
     while(loopFlag !=0) {
         printf("OK>");
         fflush(stdout);
@@ -299,15 +308,12 @@ int main(int argc, char* argv[]) {
         connectToSpread();
     }
 
-//    runFlag=1;
     group=getFiclParam("GROUP");
     
     if(strlen(group) == 0) {
-//    if(!strcmp(group,"NOT-SET")) {
         group=getFiclParam("DEFAULT_GROUP");
     }
 
-//    while(runFlag) {
     while(1) {
         if( global.connected ==0 ) {
             connectToSpread();

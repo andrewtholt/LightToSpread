@@ -22,7 +22,7 @@
 ^set SPREAD_SERVER 4803
 ^set INTERACTIVE false
 ^set TO_FORTH false
-^set GROUP 
+^set GROUP POWER
 ^set AUTOCONNECT true
 ^set ON_CONNECT 
 ^set EXIT_ALLOWED true

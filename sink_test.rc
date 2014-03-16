@@ -9,14 +9,16 @@
 ^set USER sink
 ^set ADD_CR true
 ^set SET_FORMAT $K $V
-^set CLIENT raw
+^set CLIENT format
 ^set DEFAULT_GROUP global
-^set DEBUG true
+^set DEBUG false
+^set GROUP POWER
+^lock GROUP
 ^set SAVE_ALLOWED false
 ^set SPREAD_SERVER 4803
 ^set INTERACTIVE false
-^set TO_FORTH true
-^set AUTOCONNECT false
+^set TO_FORTH false
+^set AUTOCONNECT true
 ^set EXIT_ALLOWED true
 ^set APP_DIR /usr/local/etc/lightToSpread/App
 ^set MODE local

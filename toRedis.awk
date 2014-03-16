@@ -9,7 +9,9 @@ BEGIN {
 
 /ONLINE/    {
                 online=$2;
+
                 cmd=sprintf("redis-cli set ONLINE %s EX 130 > /dev/null", online)
+                print cmd
                 system( cmd )
             }
 
