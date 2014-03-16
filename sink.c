@@ -119,8 +119,8 @@ int main(int argc, char* argv[]) {
 #endif
 
     setFiclParam("ADD_CR","true");
-    setFiclParam("APP_DIR","");
-    mkLocal("APP_DIR");
+//    setFiclParam("APP_DIR","");
+//    mkLocal("APP_DIR");
     setFiclParam("AUTOCONNECT","false");
     setFiclParam("BUILD",__DATE__);
     mkLocal("BUILD");

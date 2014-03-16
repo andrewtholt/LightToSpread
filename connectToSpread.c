@@ -857,10 +857,10 @@ int loadFile(char *file) {
     dir=getenv("APPLIB");
 
     if(!dir) {
-        tmp=getSymbol("APPLIB");
+        tmp=getSymbol("APP_DIR");
 
         if(!tmp) {
-            setSymbol("APPLIB", "/usr/local/etc/lightToSpread/App",UNLOCK,GLOBAL);
+            setSymbol("APP_DIR", "/usr/local/etc/lightToSpread/App",UNLOCK,GLOBAL);
             dir=strsave("/usr/local/etc/lightToSpread/App");
         
             fprintf(stderr,"Config variable APPLIB Not set.\n");
