@@ -841,7 +841,7 @@ void toSpread(char *recipient, char *buffer) {
     rc = pthread_mutex_unlock(&spreadMutex);
 }
 /*! \brief loadFile Loads a ficl source file.
- * @param [in] file Filename.
+ * @param[in] file Filename.
  * @details Reads APPLIB from the environment and, if set, uses this as a prefix to the name of the parameter.  If this is not set or empty it is set to the default  /usr/local/etc/lightToSpread/App.
  */
 int loadFile(char *file) {
@@ -875,7 +875,11 @@ int loadFile(char *file) {
 // Check here if file starts with a /
 // If so do not prepend APPLIB.
 //
-    sprintf(buffer,"%s/%s",dir,file);
+    if(file[0] == '/') {
+        strcpy(buffer,file);
+    } else {
+        sprintf(buffer,"%s/%s",dir,file);
+    }
 
     if( (access(buffer,R_OK)) != 0 ) {
         returnValue=1;
