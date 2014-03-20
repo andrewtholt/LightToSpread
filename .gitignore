@@ -32,3 +32,6 @@ latex/*
 spreadSink
 spreadSource
 *~
+.kdev4
+LightToSpread.kdev4
+
