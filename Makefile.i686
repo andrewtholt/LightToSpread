@@ -3,10 +3,14 @@ CFLAGS=-g -m32 -DFICL # -Wall
 # CFLAGS=-g # -Wall
 INC=-I/usr/local/include
 
-BINS=spreadSource spreadSink lightSource # mine # PthreadsExample
+BINS=spreadSource spreadSink lightSink lightSource # mine # PthreadsExample
 # LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
 LIBS=-lpthread -lspread -ldl /usr/local/lib/libficl.a -lm
 LFLAGS=-Wl,--no-as-needed 
+
+all:	$(BINS)
+lightSink:	lightSink.c
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSink lightSink.c -L/usr/local/lib $(LIBS)
 
 all:	$(BINS)
 lightSource:	lightSource.c
