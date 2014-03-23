@@ -9,6 +9,12 @@ LFLAGS=-Wl,--no-as-needed
 
 all:	$(BINS)
 
+lightSink:	lightSink.c
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSink lightSink.c -L/usr/local/lib $(LIBS)
+
+lightSource:	lightSource.c
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSource lightSource.c -L/usr/local/lib $(LIBS)
+
 spreadSource:	source.o hash.o  connectToSpread.o
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) source.o hash.o connectToSpread.o -o spreadSource -lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
 
