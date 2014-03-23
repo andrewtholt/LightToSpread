@@ -12,7 +12,6 @@ all:	$(BINS)
 lightSink:	lightSink.c
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSink lightSink.c -L/usr/local/lib $(LIBS)
 
-all:	$(BINS)
 lightSource:	lightSource.c
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSource lightSource.c -L/usr/local/lib $(LIBS)
 
