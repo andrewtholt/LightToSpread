@@ -7,7 +7,6 @@
 
 void usage() {
     printf("\n");
-    printf("Usage: sp_send -h|? -u <user> -g <group> -s <server> -m <message>\n");
     printf("Usage: lightSource -h|? -u <user> -g <group> -s <server> -m <message>\n");
     printf("\t-h|?\t\tHelp\n");
     printf("\t-u <user>\tConnect to spread as user.\n");
@@ -15,12 +14,11 @@ void usage() {
     printf("\t-s <server>\tConnect to server, e.g 4803, 4803@host.\n");
     printf("\t-m <message>\tSend the given message.  If not set read stdin.\n");
     printf("\t-l\t\tLeave the group prior to disconnect.\n");
-//    printf("\t-p\t\tPersist.\n");
+
     printf("\n");
 }
 
-int main( int argc, char *argv[] )
-{
+int main( int argc, char *argv[] ) {
     int ch;
     int mflag = 0;
     int ret;
@@ -41,14 +39,12 @@ int main( int argc, char *argv[] )
     strcpy(group,"simple");
     strcpy(server,"4803");
 
-
     if ( argc == 1) {
         usage();
         exit(0);
     }
 
-    while((ch =getopt(argc,argv,"ch?u:g:s:lm:v")) != -1)
-    {
+    while((ch =getopt(argc,argv,"ch?u:g:s:lm:v")) != -1) {
         switch(ch) {
             case 'c':
                 appendCr = 1;

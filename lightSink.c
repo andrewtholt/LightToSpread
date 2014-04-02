@@ -52,8 +52,6 @@ int main(int argc, char *argv[]) {
     char            Private_group[MAX_GROUP_NAME];
     char            target_groups[100][MAX_GROUP_NAME];
 
-    //membership_info memb_info;
-
     mailbox         Mbox;
 
     strcpy(user,"user");

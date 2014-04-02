@@ -3,17 +3,17 @@ CFLAGS=-g -DFICL # -Wall
 # CFLAGS=-g # -Wall
 INC=-I/usr/local/include
 
-BINS=spreadSource spreadSink # mine # PthreadsExample
+BINS=lightSink lightSource spreadSource spreadSink # mine # PthreadsExample
 LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
 LFLAGS=-Wl,--no-as-needed 
 
 all:	$(BINS)
 
 lightSink:	lightSink.c
-	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSink lightSink.c -L/usr/local/lib $(LIBS)
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSink lightSink.c -L/usr/local/lib -lspread -ldl
 
 lightSource:	lightSource.c
-	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSource lightSource.c -L/usr/local/lib $(LIBS)
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSource lightSource.c -L/usr/local/lib -lspread -ldl
 
 spreadSource:	source.o hash.o  connectToSpread.o
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) source.o hash.o connectToSpread.o -o spreadSource -lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
