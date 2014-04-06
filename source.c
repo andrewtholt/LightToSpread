@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
     global.rawClient =1;
 
     global.debug = 0;
-    int scratch=0;
+//     int scratch=0;
 //    int runFlag=1;
 
     char *group=(char *)NULL;
