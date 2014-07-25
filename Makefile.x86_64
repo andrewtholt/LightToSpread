@@ -2,8 +2,12 @@
 CFLAGS=-g -DFICL # -Wall
 # CFLAGS=-g # -Wall
 INC=-I/usr/local/include
-
-BINS=lightSink lightSource spreadSource spreadSink # mine # PthreadsExample
+#
+# 
+# Don't build old utilities.  Retained for future reference.
+#
+# BINS= lightSink lightSource spreadSource spreadSink # mine # PthreadsExample
+BINS= lightSink lightSource # spreadSource spreadSink # mine # PthreadsExample 
 LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
 LFLAGS=-Wl,--no-as-needed 
 
