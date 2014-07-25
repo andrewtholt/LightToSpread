@@ -13,7 +13,7 @@ void usage() {
     printf("Usage: lightSink -h|? -u <user> -g <group> -s <server>\n");
     //    printf("Usage: sp_recv -h|? -u <user> -g <group> -s <server>\n");
     printf("\t-h|?\t\tHelp\n");
-    printf("\t-l\t\tLoop.  Don't exit.\n");
+    printf("\t-x\t\tExit. On reciept of a message exit.\n");
     printf("\t-u <user>\tConnect to spread as user.\n");
     printf("\t-g <group>\tOn connect join group.\n");
     printf("\t-s <server>\tConnect to server, e.g 4803, 4803@host.\n");
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
     int             endian_mismatch;
     int16           mess_type;
     int timeout=0;
-    int loop=0;
+    int loop=1;
 
     int             num_groups;
     char            sender[MAX_GROUP_NAME];
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
     strcpy(server,"4803@localhost");
     group[0] = 0;
 
-    while ((ch = getopt(argc, argv, "lh?u:g:s:t:pv")) != -1) {
+    while ((ch = getopt(argc, argv, "lh?u:g:s:t:pvx")) != -1) {
 
         switch (ch) {
             case 'g':
@@ -69,8 +69,8 @@ int main(int argc, char *argv[]) {
                 usage();
                 exit(0);
                 break;
-            case 'l':
-                loop=1;
+            case 'x':
+                loop=0;
                 break;
             case 'p':
                 polling = 1;
