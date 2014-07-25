@@ -16,6 +16,10 @@ void usage() {
     printf("\t-l\t\tLeave the group prior to disconnect.\n");
 
     printf("\n");
+    printf("The defaults are:\n");
+    printf("\tlightSource -u user -g simple -s 4803\n");
+
+    printf("\n");
 }
 
 int main( int argc, char *argv[] ) {

@@ -19,6 +19,11 @@ void usage() {
     printf("\t-s <server>\tConnect to server, e.g 4803, 4803@host.\n");
     printf("\t-t n\tTime out after n seconds\n");
     printf("\t-p\t\tPoll\n");
+
+    printf("\n");
+    printf("The defaults are:\n");
+    printf("\tlightSink -u user -s 4803@localhost \n");
+
     printf("\n");
 }
 
