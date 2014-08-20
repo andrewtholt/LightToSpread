@@ -1,0 +1,60 @@
+
+CC=arm-none-linux-gnueabi-gcc
+CFLAGS=-g -DFICL # -Wall
+TOOLS=/home/andrewh/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_GNU_Linux/arm-none-linux-gnueabi
+# CFLAGS=-g # -Wall
+INC=-I/usr/local/include -I$(TOOLS)/libc
+
+BINS=spreadSource spreadSink lightSink lightSource # mine # PthreadsExample
+# LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
+LIBS=-lpthread -lspread -ldl /usr/local/lib/libficl.a -lm
+LFLAGS=-Wl,--no-as-needed 
+
+all:	$(BINS)
+lightSink:	lightSink.c
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSink lightSink.c -L/usr/local/lib -ldl -lspread
+
+lightSource:	lightSource.c
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSource lightSource.c -L/usr/local/lib -ldl -lspread
+
+spreadSource:	source.o hash.o  connectToSpread.o
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) source.o hash.o connectToSpread.o -o spreadSource $(LIBS)
+
+source.o:	source.c mine.h hash.h hash.o
+	$(CC) $(INC) -c $(CFLAGS) -Wall source.c -o source.o 
+
+spreadSink:	sink.o hash.o  connectToSpread.o
+#	$(CC) $(INC) $(CFLAGS) sink.o hash.o connectToSpread.o -o spreadSink -lpthread -lspread -ldl -lm  -lficl
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) sink.o hash.o connectToSpread.o -o spreadSink $(LIBS)
+
+sink.o:	sink.c mine.h hash.h hash.o
+	$(CC) $(INC) -c $(CFLAGS) -Wall sink.c -o sink.o 
+
+mine:	mine.o hash.o connectToSpread.o
+	$(CC) $(INC) $(CFLAGS) mine.o hash.o connectToSpread.o -o mine -lpthread -lspread -ldl -lficl -lm
+
+connectToSpread.o:	connectToSpread.c connectToSpread.h
+	$(CC) $(INC) -c $(CFLAGS) connectToSpread.c -o connectToSpread.o
+
+mine.o:	mine.c mine.h
+	$(CC) $(INC) -c $(CFLAGS) mine.c -o mine.o
+
+PthreadsExample:	PthreadsExample.c
+	$(CC) $(CFLAGS) PthreadsExample.c -o PthreadsExample -lpthread -ldl
+
+hash.o:	hash.h hash.c mine.h
+	$(CC) $(CFLAGS) -c hash.c -o hash.o
+clean:
+	rm -f $(BINS) *.o *~ cscope.out
+
+install:	$(BINS)
+	mkdir -p $(DESTDIR)/usr/local/bin
+	cp $(BINS) $(DESTDIR)/usr/local/bin
+	mkdir -p $(DESTDIR)/usr/local/etc/lightToSpread/App
+	cp sink_start.rc source_start.rc $(DESTDIR)/usr/local/etc/lightToSpread
+	cp App/*.fth $(DESTDIR)/usr/local/etc/lightToSpread/App
+
+docs:
+	doxygen
+backup:	clean
+	./backup.sh
