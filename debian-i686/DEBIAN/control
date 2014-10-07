@@ -1,0 +1,8 @@
+Package: lightsink
+Section: misc
+Priority: extra
+Maintainer: Andrew Holt
+Architecture: i386
+Version: 0.0.1
+Description: lightsink
+ lightsink

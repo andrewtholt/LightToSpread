@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# set -x
+
+LEN=`getconf LONG_BIT`
+
+if [ $LEN -ne 64 ]; then
+    echo "Attempting to build on wrong platform."
+    exit 1
+fi
+
+
+echo "Build debian package"
+echo "First make everything."
+
+DESTDIR="./debian-i686"
+export DESTDIR
+
+if [ ! -d ]; then
+    mkdir $DESTDIR
+fi
+
+./build.sh install
+
+HERE=`pwd`
+
+dpkg -b ./debian-i686 .
+
+# cd $ROOT
+# dpkg-scanpackages dists/main/test/binary-arm | gzip -c9 > ${ROOT}/dists/main/test/binary-arm/Packages.gz
+# cd /net/imickey/Volumes/Share/debs
+# dpkg-scanpackages i386 | gzip -c9 > i386/Packages.gz 
+
