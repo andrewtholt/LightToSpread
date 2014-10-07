@@ -55,6 +55,8 @@ install:	$(BINS)
 	cp sink_start.rc source_start.rc $(DESTDIR)/usr/local/etc/lightToSpread
 	cp App/*.fth $(DESTDIR)/usr/local/etc/lightToSpread/App
 
+package:
+	./install-deb-i686
 docs:
 	doxygen
 backup:	clean
