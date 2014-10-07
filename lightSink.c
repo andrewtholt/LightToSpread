@@ -11,13 +11,18 @@
 void usage() {
     printf("\n");
     printf("Usage: lightSink -h|? -u <user> -g <group> -s <server>\n");
-    //    printf("Usage: sp_recv -h|? -u <user> -g <group> -s <server>\n");
+    printf("\nDescription:\n");
+    printf("\tlightSink takes messages from spread and sends them\n");
+    printf("\tto stdout.\n");
+    printf("\n");
+
     printf("\t-h|?\t\tHelp\n");
+    printf("\t-f\t\tFormatted output\n");
     printf("\t-x\t\tExit. On reciept of a message exit.\n");
     printf("\t-u <user>\tConnect to spread as user.\n");
     printf("\t-g <group>\tOn connect join group.\n");
     printf("\t-s <server>\tConnect to server, e.g 4803, 4803@host.\n");
-    printf("\t-t n\tTime out after n seconds\n");
+    printf("\t-t n\t\tTime out after n seconds\n");
     printf("\t-p\t\tPoll\n");
 
     printf("\n");
@@ -41,6 +46,12 @@ int main(int argc, char *argv[]) {
     int             exitFlag = 0;
     int polling = 0;
     int verbose = 0;
+    int formatted = 0;
+    int incSender = 1;
+    int incReciever = 0;
+    int incType = 0;
+    int incMsg = 1;
+
 
     char            user[32];
     char            group[80];
@@ -63,9 +74,31 @@ int main(int argc, char *argv[]) {
     strcpy(server,"4803@localhost");
     group[0] = 0;
 
-    while ((ch = getopt(argc, argv, "lh?u:g:s:t:pvx")) != -1) {
+    while ((ch = getopt(argc, argv, "f:lh?u:g:s:t:pvx")) != -1) {
 
         switch (ch) {
+            case 'f':
+                formatted=1;
+                {
+                    int i;
+                    incSender = 0;
+                    incReciever = 0;
+                    incType = 0;
+                    incMsg = 0;
+
+                    for (i=0;i< strlen(optarg);i++) {
+                        if( optarg[i] == 'S') {
+                            incSender = 1;
+                        } else if (optarg[i] == 'R' ) {
+                            incReciever = 1;
+                        } else if (optarg[i] == 'T' ) {
+                            incType = 1;
+                        } else if (optarg[i] == 'M' ) {
+                            incMsg = 1;
+                        }
+                    }
+                }
+                break;
             case 'g':
                 strcpy(group, optarg);
                 break;
