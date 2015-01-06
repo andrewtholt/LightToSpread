@@ -159,8 +159,11 @@ int main(int argc, char *argv[]) {
     do {
         if(timeout > 0) {
             alarm(timeout);
+            //
+            // TODO Make this s bit smarter.  Only run it once.
+            //
+            signal(SIGALRM, sig_handler);
         }
-        signal(SIGALRM, sig_handler);
 
         ret = SP_receive(Mbox, &service_type, sender, 100, &num_groups, target_groups, &mess_type, &endian_mismatch, sizeof(message), message);
 
