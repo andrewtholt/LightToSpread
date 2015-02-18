@@ -1,0 +1,5 @@
+
+Create a lightClient that does both lightSink and lightSource.  
+i.e Sends stdin to spread, recieves spread messages and sendst to stdout.
+
+
