@@ -20,6 +20,7 @@ spreadSource
 spreadSink
 lightSource
 lightSink
+toSpread
 
 # Packages
 *.deb

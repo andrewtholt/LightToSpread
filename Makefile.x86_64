@@ -7,11 +7,14 @@ INC=-I/usr/local/include
 # Don't build old utilities.  Retained for future reference.
 #
 # BINS= lightSink lightSource spreadSource spreadSink # mine # PthreadsExample
-BINS= lightSink lightSource # spreadSource spreadSink # mine # PthreadsExample 
+BINS= lightSink lightSource toSpread # spreadSource spreadSink # mine # PthreadsExample 
 LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
 LFLAGS=-Wl,--no-as-needed 
 
 all:	$(BINS)
+
+toSpread:
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o toSpread main.c -lspread -L/usr/local/lib -lsqlite3 -lpthread
 
 lightSink:	lightSink.c
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSink lightSink.c -L/usr/local/lib -lspread -ldl
