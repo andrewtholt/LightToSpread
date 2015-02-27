@@ -1728,6 +1728,10 @@ int main(int argc, const char *argv[]) {
         }
     }
     
+    /*
+     * Set defaults.
+     *
+     */
     setSymbol("DEBUG", "false", UNLOCK,GLOBAL);
     setSymbol("SHOW_SENDER", "false", UNLOCK,GLOBAL);     // prefix a message with it's sender
     setSymbol("EXIT_COMMAND", "false", UNLOCK,GLOBAL);  // If true enable ^exit
@@ -1753,6 +1757,7 @@ int main(int argc, const char *argv[]) {
     setSymbol("COMMS_VARS","false",UNLOCK,GLOBAL);    // If true the comms variable namespace is active
     setSymbol("REMOTE_CREATE","false",LOCK,GLOBAL); // If true remote ^set commands will create the variable, if it does not exist.
     setSymbol("ON_CHANGE","",LOCK,GLOBAL);          // If a set command changes a variable run this command.  If null or undefined do nothing.
+    setSymbol("ON_CONNECT","",UNLOCK,GLOBAL);       // Issue this string on a succesfull connect to spread.
     
 //    setSymbol("RUN_SLAVE","false",UNLOCK,GLOBAL);       // if set to true, will run designated slave and attach to stdin & stdout
 //    setSymbol("SLAVE","/usr/bin/false",UNLOCK,GLOBAL);
