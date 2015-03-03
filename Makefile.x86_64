@@ -7,7 +7,7 @@ INC=-I/usr/local/include
 # Don't build old utilities.  Retained for future reference.
 #
 # BINS= lightSink lightSource spreadSource spreadSink # mine # PthreadsExample
-BINS= lightSink lightSource toSpread # spreadSource spreadSink # mine # PthreadsExample 
+BINS= lightSink lightSource toSpread 
 LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
 LFLAGS=-Wl,--no-as-needed 
 
@@ -35,20 +35,15 @@ spreadSink:	sink.o hash.o  connectToSpread.o
 sink.o:	sink.c mine.h hash.h hash.o
 	$(CC) $(INC) -c $(CFLAGS) -Wall sink.c -o sink.o 
 
-mine:	mine.o hash.o connectToSpread.o
-	$(CC) $(INC) $(CFLAGS) mine.o hash.o connectToSpread.o -o mine -lpthread -lspread -ldl -lficl -lm
-
 connectToSpread.o:	connectToSpread.c connectToSpread.h
 	$(CC) $(INC) -c $(CFLAGS) connectToSpread.c -o connectToSpread.o
-
-mine.o:	mine.c mine.h
-	$(CC) $(INC) -c $(CFLAGS) mine.c -o mine.o
 
 PthreadsExample:	PthreadsExample.c
 	$(CC) $(CFLAGS) PthreadsExample.c -o PthreadsExample -lpthread -ldl
 
 hash.o:	hash.h hash.c mine.h
 	$(CC) $(CFLAGS) -c hash.c -o hash.o
+
 clean:
 	rm -f $(BINS) *.o *~ cscope.out
 
