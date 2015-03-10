@@ -13,7 +13,7 @@ LFLAGS=-Wl,--no-as-needed
 
 all:	$(BINS)
 
-toSpread:
+toSpread:	main.c 
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o toSpread main.c -lspread -L/usr/local/lib -lsqlite3 -lpthread
 
 lightSink:	lightSink.c
