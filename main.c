@@ -1350,6 +1350,10 @@ void spreadRX() {
             connected=spreadConnect();
             
             if(connected==0) {
+                if(debugFlag != 0) {
+                    fprintf(stderr,"... waiting ...\n");
+                }
+
                 sleep(5); // try every 5 seconds, until success
             }
         } while (connected==0);
