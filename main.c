@@ -1159,7 +1159,8 @@ mkNodeDeclare(char *ptr, char *buffer)
 
 }
 /*
- * Should this command act on the data defined in the toSpread cache, and notify the client of a change ?
+ * Should this command act on the data defined in the toSpread cache, and notify 
+ * the client of a change ?
  *
  * If so then it would be better to set up a communication variable name space.
  *
@@ -1174,8 +1175,11 @@ mkNodeDeclare(char *ptr, char *buffer)
  * A config parameters would be defined
  * 
  * COMMS_VARS     true|false  If true the comms variable namespace is active
- * REMOTE_CREATE  true|false  If true remote ^set commands will create the variable, if it does not exist.
- * ON_CHANGE      <cmd>       If a set command changes a variable run this command.  If null or undefined do nothing.
+ * REMOTE_CREATE  true|false  If true remote ^set commands will create the variable, 
+ * if it does not exist.
+ *
+ * ON_CHANGE      <cmd>     If a set command changes a variable run this command.  
+ *                          If null or undefined do nothing.
  *
  */
 void rxSet(char *name,char *value) {
@@ -1212,16 +1216,18 @@ void rxSet(char *name,char *value) {
     } else if(!strcmp(client,"python") || !strcmp(client,"ruby")) {
         fprintf(myStdout,"%s=%s\n",name,value);
     } else if(!strcmp(client,"forth")) {
-        fprintf(stderr,"Client %s unknown\n",client);
+        fprintf(stderr,"%s client unknown\n",client);
         //
         //         ficl assumed the use of ficl objects.
         //         
         //         NOTE: This needs some thought.
         //         
-        //         The problem is that forth does not suffer fools.  If you do something stupid, bad things will happen.
+        //         The problem is that forth does not suffer fools.  
+        //         If you do something stupid, bad things will happen.
         //         
         //         The alternatives are:
-        //            Have a more tolerent command processor, which will simply error if it doen't understand.
+        //            Have a more tolerent command processor, which will simply error 
+        //            if it doen't understand.
         //            
         //            Treat the strings recieved as commands for parsing.
 
