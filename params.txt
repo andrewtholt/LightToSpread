@@ -1,56 +1,250 @@
-ADD_CR
-    Append a CR to the end of messages sent to the client.
+Name:	ADD_CR
+Description:
+    Add a carriage return charcter to the recieved data.
+Values:
+    true|false
+Default:
+    false
+Notes:
 
-APP_DIR
-    Location of the config files.
+Name:	AUTOCONNECT
+Description:
+    On starting attempt to connect a spread server defined by SERVER.
+Values:
+    true|false
+Default:
+    false
+Notes:
 
-AUTOCONNECT
-    After config files have been read connect to spread.
+Name:	AUTOPURGE
+Description:
+    If a cache entry has not been connected for the number of seconds held
+    in STALE_AFTER the automatically remove it.
+Values:
+    true|false
+Default:
+    false
+Notes:
 
-BUILD
-    Compile date.
+Name:	BUILD
+Description:
+    Date that this version was compiled.
+Values:
+    e.g. "Apr  4 2015"  
+Notes:
 
-CFG_FILE
+Name:	CLEARDB
+Description:
+    At start remove old database entries.
+Values:
+    true|false
+Default:
+    false
+Notes:
 
-CLASS
-    What type of s/w client, server or both. If a server it does not respond to any queries.
-    If a client then it can makes requests, and both can do both.
+Name:	CLIENT
+Description:
+    The proticol that the client requires.
+Values:
+    nodebrain|forth|raw
+Default:
+    raw
+Notes:
 
-CLIENT
-    Protocol understood, raw is no protocol, redis is redis like.
+Name:	COMMS_VARS
+Description:
+    Enable comms variable namespace/
+Values:
+    true|false
+Default:
+    false
+Notes:
+    Not implimented.
 
-DEBUG
-DEFAULT_GROUP
-GET_FORMAT
-GROUP
-INTERACTIVE
-ME
-MODE
-ON_CONNECT
-SAVE_ALLOWED
-SET_FORMAT
-SPREAD_SERVER
-START_FILE
+Name:	CONFIGURED
+Description:
+    Indicates if the current configuration has been saved.
+Values:
+    true|false
+Default:
+    false
+Notes:
 
-TO_FORTH
-    If true then unrecognized commands (i.e. strings beginning with ^ not implemented internally)
-    Pass them to the ficl interpreter.
-    
-    Called:
-    
-    key len value len 2 
-    or
-    key len 1
-    or
-    0
-    
-    The ficl word must return: 
-    
-    addr len 0          Success
-    or
-            -1          Command failed.
-    
-    
-USER
-    Spread username.
+Name:	CONNECTED
+Description:
+    Indicates if connected to spread.
+Values:
+    true|false
+Default:
+    false
+Notes:
+
+Name:	DATABASE
+Description:
+    Path the the cache database.
+Values:
+    e.g. /var/tmp/andrewh.db 
+Notes:
+    By default the data files are in /var/tmp.
+
+Name:	DEBUG
+Description:
+    Enable debugging messages.
+Values:
+    true|false
+Default:
+    false
+Notes:
+
+Name:	EXIT_COMMAND
+Description:
+    Set to true if the client issuing the ^exit command is valid.
+Values:
+    true|false
+Default:
+    false
+Notes:
+
+Name:	GROUP
+Description:
+    The group to join on connection.
+Values:
+    Any valid string.
+Notes:
+    The default is 'global'. however global is always joined, plus
+    the group named here.
+
+Name:	HOSTNAME
+Description:
+    The system hostname.
+Values:
+Notes:
+
+Name:	IGN_GLOBAL
+Description:
+    Ignore messages delivered to global.
+Values:
+    true|false
+Default:
+    false
+Notes:
+
+Name:	INTERACTIVE
+Description:
+    If true output from commands id made more user friendly, if false 
+    fields are sperated by a ':' character.
+Values:
+    true|false
+Default:
+    false
+Notes:
+
+Name:	ON_CHANGE
+Description:
+    If a variable is changed by a remote command alert the client.
+Values:
+    true|false
+Default:
+    false
+Notes:
+
+Name:	ON_CONNECT
+Description:
+Values:
+    true|false
+Default:
+    false
+Notes:
+    Not implemented.
+
+Name:	OWN_MESSAGES
+Description:
+    If true se my own messages.
+Values:
+    true|false
+Default:
+    false
+Notes:
+
+Name:	PASSTHROUGH
+Description:
+Values:
+Notes:
+
+Name:	REMOTE_CREATE
+Description:
+    Anything not prefixed with a ^ is passed through to the client.
+Values:
+    true|false
+Default:
+    true
+Notes:
+
+Name:	SAVE_ALLOWED
+Description:
+Values:
+Notes:
+
+Name:	SERVER
+Description:
+    Allow change to be written to startup file.
+Values:
+    true|false
+Default:
+    true
+Notes:
+
+Name:	SET_FMT
+Description:
+    Output formatting to apply if client is raw.
+Values:
+    Are C style formatting string.  Default is:
+    %s %s
+Notes:
+
+Name:	SHOW_SENDER
+Description:
+    Send the name of the sender of a message.
+Values:
+    true|false
+Default:
+    false
+Notes:
+
+Name:	STALE_AFTER
+Description:
+    Cache entry expiry time.  Active if AUTOPURGE true.
+Values:
+    Default 600 seconds.
+Notes:
+
+Name:	START_FILE
+Description:
+    Path to the starup file.
+Values:
+    Default is $HOME/.start.rc which must exist (even if empty) at start.
+Notes:
+
+Name:	STDIN
+Description:
+    The path the client writes to that is read as stdin.
+Values:
+    Default is '/dev/tty'
+Notes:
+    This could be set to a named pipe.
+
+Name:	STDOUT
+Description:
+    The path the client reads from that is written as stdout.
+Values:
+    Default is '/dev/tty'
+Notes:
+    This could be set to a named pipe.
+
+Name:	USER
+Description:
+    Spread user name.
+Values:
+    A valid string.  By default the username that you log in as.
+Notes:
 
