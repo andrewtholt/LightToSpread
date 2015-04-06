@@ -1749,6 +1749,7 @@ int main(int argc, const char *argv[]) {
      *
      */
     setSymbol("DEBUG", "false", UNLOCK,GLOBAL);
+    setSymbol("LOG_DEST","", UNLOCK, GLOBAL);             // Either a path to a file, or syslog.
     setSymbol("SHOW_SENDER", "false", UNLOCK,GLOBAL);     // prefix a message with it's sender
     setSymbol("EXIT_COMMAND", "false", UNLOCK,GLOBAL);  // If true enable ^exit
     setSymbol("OWN_MESSAGES", "false", UNLOCK,GLOBAL);  // If true xfer messages from self
