@@ -1216,7 +1216,8 @@ void rxSet(char *name,char *value) {
     } else if(!strcmp(client,"python") || !strcmp(client,"ruby")) {
         fprintf(myStdout,"%s=%s\n",name,value);
     } else if(!strcmp(client,"forth")) {
-        fprintf(stderr,"%s client unknown\n",client);
+//        fprintf(stderr,"%s client unknown\n",client);
+        fprintf(myStdout, "s\" %s\" %s\n", value, name);
         //
         //         ficl assumed the use of ficl objects.
         //         
