@@ -1711,7 +1711,6 @@ int main(int argc, const char *argv[]) {
                 setSymbol("USER", (char *) optarg, LOCK,GLOBAL);
                 break;
             case 'n':
-                //                setSymbol("HOSTNAME", (char *) optarg, LOCK,GLOBAL);
                 setSymbol("HOSTNAME", (char *) optarg, LOCK,LOCAL);
                 break;
             case 'f':
@@ -1740,10 +1739,8 @@ int main(int argc, const char *argv[]) {
                 stdoutFifo=(char *)strsave(optarg);
                 break;
                 break;
-
         }
     }
-
     /*
      * Set defaults.
      *
