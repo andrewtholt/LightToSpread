@@ -1389,13 +1389,13 @@ void spreadRX() {
             debug=getSymbol("DEBUG");
             debugFlag=strcmp(debug,"false");
 
-
             //            fprintf(stderr,"debugflag=%d\n",debugFlag);
 
             flag= (!strcmp(ign,"false")) || ((num_groups == 1) && (!strcmp(ign,"true")) && (!strcmp(target_groups[0],me)));
 
             if(debugFlag != 0) {
                 fprintf(debugOut,"Flag = %d\n",flag);
+                fprintf(debugOut,"R:%s\n",message);
                 fprintf(debugOut,"Message sent to %d recipients\n",num_groups);
 
                 for(i=0;i< num_groups;i++) {
@@ -1683,6 +1683,8 @@ int main(int argc, const char *argv[]) {
     pthread_t       clean;
     char *stdinFifo=(char *)NULL;
     char *stdoutFifo=(char *)NULL;;
+    int dbg;
+    char *debug;
 
     debugOut = stderr;
 
@@ -1808,8 +1810,10 @@ int main(int argc, const char *argv[]) {
         }
     }
 
-    if (! getSymbol("LOG_FILE")) {
-        setSymbol("LOG_FILE", "NULL", LOCK,LOCAL);
+    if ( getSymbol("LOG_FILE")) {
+        myStderr=fopen( getSymbol("LOG_FILE"),"w");
+    } else {
+        myStderr = stderr;
     }
 
     fp = fopen(getSymbol("START_FILE"), "r");
@@ -1862,9 +1866,17 @@ int main(int argc, const char *argv[]) {
        ^connected <name>      return TRUE if name is connected, FALSE otherwise.
        */    
 
+    debug = (char *)getSymbol("DEBUG");
+    dbg = ( !strcmp(debug,"true") );
+
     while (runFlag) {
         while ((status = fgets(buffer, BUFFSIZE, fp)) != 0) {
             strcpy(safeBuffer, buffer);
+
+            if( (0 != dbg ) && (0 == fromFile))  {
+                fprintf( myStderr,"C:stdin:%s\n",safeBuffer);
+                fflush( myStderr );
+            }
 
             tmp = (char *) strtok(buffer, "\n");
 
