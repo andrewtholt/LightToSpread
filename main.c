@@ -965,23 +965,15 @@ spreadDisconnect() {
     sqlite3_close(db);
 }
 
-<<<<<<< HEAD
-    int
-spreadConnect()
-{
-=======
 int spreadConnect() {
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
     int             ret;
     char           *debug;
     char           *server;
     char           *altServer;
     char           *user;
     char           *group;
-<<<<<<< HEAD
-=======
+
     char *tmp;
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
     char *action;
     int dbg=0;
 
@@ -1031,10 +1023,8 @@ int spreadConnect() {
             setSymbol("CONNECTED", "true",UNLOCK,LOCAL);
         }
     } else {
-<<<<<<< HEAD
         setSymbol("CONNECTED", "true",UNLOCK,LOCAL);
-=======
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
+
         if(dbg) {
             fprintf( debugOut, "... done\n");
         }
@@ -1049,25 +1039,17 @@ int spreadConnect() {
         SP_join(Mbox, group);
     }
 
-<<<<<<< HEAD
-=======
-    setSymbol("CONNECTED", "true",UNLOCK,LOCAL);
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
-
     action=getSymbol("ONJOIN");
     if(action) {
         fprintf( myStdout, "%s\n",action);
         fflush(myStdout);
     }
-<<<<<<< HEAD
-=======
     tmp=getSymbol("ON_CONNECT");
     if(tmp) {
         fprintf( myStdout, "%s\n",tmp);
         fflush(myStdout);
     }
 
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
     return (1);
 }
 
@@ -1237,30 +1219,24 @@ void rxSet(char *name,char *value) {
     } else if(!strcmp(client,"python") || !strcmp(client,"ruby")) {
         fprintf(myStdout,"%s=%s\n",name,value);
     } else if(!strcmp(client,"forth")) {
-<<<<<<< HEAD
         fprintf(stderr,"Client %s unknown\n",client);
-=======
-//        fprintf(stderr,"%s client unknown\n",client);
         fprintf(myStdout, "s\" %s\" %s\n", value, name);
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
+
         //
         //         ficl assumed the use of ficl objects.
         //         
         //         NOTE: This needs some thought.
         //         
-<<<<<<< HEAD
         //         The problem is that forth does not suffer fools.  If you do something stupid, bad things will happen.
         //         
         //         The alternatives are:
         //            Have a more tolerent command processor, which will simply error if it doen't understand.
-=======
         //         The problem is that forth does not suffer fools.  
         //         If you do something stupid, bad things will happen.
         //         
         //         The alternatives are:
         //            Have a more tolerent command processor, which will simply error 
         //            if it doen't understand.
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
         //            
         //            Treat the strings recieved as commands for parsing.
 
@@ -1434,11 +1410,6 @@ void spreadRX() {
             debug=getSymbol("DEBUG");
             debugFlag=strcmp(debug,"false");
 
-<<<<<<< HEAD
-
-=======
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
-            //            fprintf(stderr,"debugflag=%d\n",debugFlag);
 
             flag= (!strcmp(ign,"false")) || ((num_groups == 1) && (!strcmp(ign,"true")) && (!strcmp(target_groups[0],me)));
 
@@ -1662,16 +1633,9 @@ void setupDatabase() {
         strcpy(buffer,"update nodes set state='DISCONNECTED';");
         rc = sqlite3_exec(db, buffer, callback, 0, &zErrMsg);
     } else {
-<<<<<<< HEAD
         fprintf(debugOut,"New DB, define tables\n");
         fflush(debugOut);
 
-=======
-        /*
-           fprintf(debugOut,"New DB, define tables\n");
-           fflush(debugOut);
-           */
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
         strcpy(buffer,"create table nodes ( sp_group varchar(32), name varchar(32), state varchar(8) default 'UNKNOWN', touched integer, stale integer, flag integer default 0);");
         rc = sqlite3_exec(db, buffer, callback, 0, &zErrMsg);
         if(rc !=SQLITE_OK)
@@ -1738,11 +1702,9 @@ int main(int argc, const char *argv[]) {
     pthread_t       clean;
     char *stdinFifo=(char *)NULL;
     char *stdoutFifo=(char *)NULL;;
-<<<<<<< HEAD
-=======
+
     int dbg;
     char *debug;
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
 
     debugOut = stderr;
 
@@ -1771,10 +1733,6 @@ int main(int argc, const char *argv[]) {
                 setSymbol("USER", (char *) optarg, LOCK,GLOBAL);
                 break;
             case 'n':
-<<<<<<< HEAD
-                //                setSymbol("HOSTNAME", (char *) optarg, LOCK,GLOBAL);
-=======
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
                 setSymbol("HOSTNAME", (char *) optarg, LOCK,LOCAL);
                 break;
             case 'f':
@@ -1803,15 +1761,8 @@ int main(int argc, const char *argv[]) {
                 stdoutFifo=(char *)strsave(optarg);
                 break;
                 break;
-<<<<<<< HEAD
-
         }
     }
-
-=======
-        }
-    }
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
     /*
      * Set defaults.
      *
@@ -1863,10 +1814,7 @@ int main(int argc, const char *argv[]) {
         setSymbol("DATABASE",buffer,UNLOCK,GLOBAL);
     }
     setSymbol("SERVER","4803",UNLOCK,GLOBAL);
-<<<<<<< HEAD
     setSymbol("ALTSERVER","4803",UNLOCK,GLOBAL);
-=======
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
 
     if(!getSymbol("START_FILE")) {
         tmp=getenv("HOME");
@@ -1883,28 +1831,22 @@ int main(int argc, const char *argv[]) {
         }
     }
 
-<<<<<<< HEAD
-=======
     if ( getSymbol("LOG_FILE")) {
         myStderr=fopen( getSymbol("LOG_FILE"),"w");
     } else {
         myStderr = stderr;
     }
 
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
     fp = fopen(getSymbol("START_FILE"), "r");
 
     if (fp) {
         fromFile = 1;
     } else {
-<<<<<<< HEAD
-=======
         /*
            saveSymbols();
            fp = fopen(getSymbol("START_FILE"), "r");
            fromFile = 1;
            */
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
         fprintf(stderr,"A startup file MUST exist, even if it is empty\n");
         fprintf(stderr,"The default name is $HOME/.start.rc\n");
         fprintf(stderr,"Safe buffer is %s\n", safeBuffer);
@@ -1945,24 +1887,18 @@ int main(int argc, const char *argv[]) {
        ^connected <name>      return TRUE if name is connected, FALSE otherwise.
        */    
 
-<<<<<<< HEAD
-=======
     debug = (char *)getSymbol("DEBUG");
     dbg = ( !strcmp(debug,"true") );
 
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
     while (runFlag) {
         while ((status = fgets(buffer, BUFFSIZE, fp)) != 0) {
             strcpy(safeBuffer, buffer);
 
-<<<<<<< HEAD
-=======
             if( (0 != dbg ) && (0 == fromFile))  {
                 fprintf( myStderr,"C:stdin:%s\n",safeBuffer);
                 fflush( myStderr );
             }
 
->>>>>>> d0e502edca5db67271cb604416008c938f03ae94
             tmp = (char *) strtok(buffer, "\n");
 
             if (tmp) {
