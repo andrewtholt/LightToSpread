@@ -1,5 +1,5 @@
 
-CFLAGS=-g -DFICL # -Wall
+CFLAGS=-g # -DFICL # -Wall
 # CFLAGS=-g # -Wall
 INC=-I/usr/local/include
 # 
