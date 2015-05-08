@@ -1968,22 +1968,21 @@ int main(int argc, const char *argv[]) {
 	      }
 	      
 	    } else if (!strcmp(cmd, "^connected")) {
-	      p1 = (char *) strtok(NULL, " ");
+//	      p1 = (char *) strtok(NULL, " ");
+	      p1 = (char *) getSymbol("CONNECTED");
 	      p3=getSymbol("CLIENT");
 	      
 	      if(!strcmp(p3,"nodebrain")) {
-		if(isConnected( p1 ) > 0) {
-		  printf("alert %s=\"CONNECTED\"\n",p1);
+		if(!strcmp( p1,"true" ) ) {
+		  printf("alert CONNECTED=\"true\"\n");
 		} else {
-		  fprintf(myStdout,"alert %s=\"UNKNOWN\"\n",p1);
+		  fprintf(myStdout,"alert CONNECTED=\"false\"\n");
 		}
 	      } else if (!strcmp(p3,"raw")) {
-		if(isConnected( p1 ) > 0) {
+		if(!strcmp( p1,"true" ) ) {
 		  fprintf(myStdout,"TRUE\n");
-		  //                                    fprintf(myStdout,"TRUE\n",p1);
 		} else {
 		  fprintf(myStdout,"FALSE\n");
-		  //                                    fprintf(myStdout,"FALSE\n",p1);
 		}
 		
 	      }
