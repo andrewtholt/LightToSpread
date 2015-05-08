@@ -32,9 +32,10 @@ html/*
 latex/*
 # Misc
 .connectToSpread.c.swp
+*-swp
 spreadSink
 spreadSource
 *~
 .kdev4
 LightToSpread.kdev4
-
+.gdb_history
