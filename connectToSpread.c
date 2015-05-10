@@ -864,6 +864,7 @@ void toSpread(char *recipient, char *buffer) {
  * @param[in] file Filename.
  * @details Reads APPLIB from the environment and, if set, uses this as a prefix to the name of the parameter.  If this is not set or empty it is set to the default  /usr/local/etc/lightToSpread/App.
  */
+/*
 int loadFile(char *file) {
     char *env;
     char buffer[BUFFSIZE];
@@ -871,9 +872,9 @@ int loadFile(char *file) {
     int status=0;
     int returnValue=0;
     char *dir;
-    struct cString *tmp;
 
 #ifdef FICL
+    struct cString *tmp;
     dir=getenv("APPLIB");
 
     if(!dir) {
@@ -911,6 +912,7 @@ int loadFile(char *file) {
 #endif
     return(returnValue);
 }
+*/
 
 /*! \brief Convert a string indicate true/false.
  * @param [in] name Pointer to a string.

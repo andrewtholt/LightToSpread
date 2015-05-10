@@ -1,0 +1,48 @@
+NAME
+
+  loadFile - load config file
+
+SYNOPSIS
+  int loadFile(char *filename);
+
+DESCRIPTION
+  The loadFile function, opens and reads a configuration file.
+  
+  The argument filename points to a string holding the name of the file to load.
+  
+RETURN VALUE
+
+ERRORS
+
+NOTES
+  Currently unimplemented - see loadSymbols in hash.c
+
+void dumpSymbols(void);
+void saveSymbols(void);
+
+int cmdInterp(int, char *) ;
+char *strsave (char *);
+void getGroup(char *);
+void fromIn(FILE *, char *);
+
+int fromSpread(char *, char *);
+void toSpread(char *, char *);
+  
+void setBoolean(char *, int);
+
+void toOut(char *);
+void toError(char *);
+void dumpGlobals();
+void printDebug(char *);
+
+void connectToSpread(void);
+void spreadJoin(char *);
+void spreadLeave(char *);
+void spreadDisconnect(void);
+
+NAME
+
+SYNOPSIS
+
+DESCRIPTION
+
