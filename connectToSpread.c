@@ -44,7 +44,7 @@ sem_t connected;
 
 /*! \brief Pass in a pointer to a string, allocate sufficient space to hold it and copy.
 */
-/*
+
 char *strsave (char *s) { 
     char *p;
 
@@ -54,7 +54,6 @@ char *strsave (char *s) {
 
     return (p);
 }
-*/
 
 //! \brief Send a message to stderr.
 
@@ -94,6 +93,12 @@ void dumpGlobals() {
 
     booleanToString(global.cmdClient,buffer);
     printf("       cmdClient   = %s\n",buffer);
+
+    booleanToString(global.debug,buffer);
+    printf("       Debug       = %s\n",buffer);
+
+    booleanToString(global.connected,buffer);
+    printf("       Connected   = %s\n",buffer);
 }
 
 //! Pass a string to ficl for execution.
@@ -782,11 +787,26 @@ void *count(void *arg) {
  * @param [in] direction Is the calling program a sink (consumes data from spread) or a source (send data to spread)
  * 
  */
-void fromSpread(char *sender, char *message,int direction) {
+// void fromSpread(char *sender, char *message,int direction) {
+void fromSpread(char *sender, char *message ) {
     char *client;
     char buffer[BUFFSIZE];
 
+    int service_type=0;
+    int num_groups;
+    char target_groups[100][MAX_GROUP_NAME];
+    int16 mess_type;
+    int ret;
+    int endian_mismatch;
+    
     bzero(buffer,BUFFSIZE);
+    
+    ret = SP_receive (global.Mbox, &service_type, sender, 100,
+            &num_groups, target_groups,
+            &mess_type, &endian_mismatch, sizeof (message),
+            message);
+
+/*
     if(global.rawClient != 0) {
         if(getFiclBoolean("ADD_CR")) { 
             strcat(buffer,"\n");
@@ -818,6 +838,7 @@ void fromSpread(char *sender, char *message,int direction) {
         remoteCmdInterp(sender,message,buffer);
 
     }
+    */
 }
 /*! \brief toSpread 
  * @param [in] recipient Pointer to the name of the user or group the message is for.

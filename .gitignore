@@ -21,6 +21,7 @@ spreadSink
 lightSource
 lightSink
 toSpread
+tstLib
 
 # Packages
 *.deb

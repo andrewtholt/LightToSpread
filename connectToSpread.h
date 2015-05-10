@@ -18,7 +18,8 @@ int loadFile(char *);
 void connectToSpread(void);
 void getGroup(char *);
 void fromIn(FILE *, char *);
-void fromSpread(char *, char *, int);
+// void fromSpread(char *, char *, int);
+void fromSpread(char *, char *);
 
 void toOut(char *);
 void toError(char *);
