@@ -107,6 +107,7 @@ void dumpGlobals() {
   \param result Pointer to a memory region to hold the result.
   */
 
+/*
 int cmdToForth(char *cmd, char *result) {
     int rc=0;
     int len;
@@ -135,6 +136,7 @@ int cmdToForth(char *cmd, char *result) {
 #endif
     return(rc);
 }
+*/
 
 void connectToSpread() {
     int rc=0;
@@ -473,11 +475,6 @@ void remoteCmdInterp(char *sender,char *data,char *buffer) {
         cmd=strtok(data," ");  // split the command line held in data.
         key=strtok(NULL," \n");
         remoteSet(sender,key,value,buffer);
-    } else {
-        if( getBoolean("TO_FORTH")) {
-            printDebug("\tremoteCmdInterp: Ficl\n");
-            cmdToForth(data,buffer);
-        }
     }
 
 }
