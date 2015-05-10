@@ -37,52 +37,51 @@ int exists(char *key) {
   }
 }
 
-struct nlist *install (char *name, void *def, int ro, int local) {
-  struct nlist *np;
-  int hashval;
-  int len;
+struct nlist   *install(char *name, void *def, int ro,int local) {
+  struct nlist   *np;
+  int             hashval;
   
-  if ((np = lookup (name)) == NULL) {
-    symbolCount++;
-    np = (struct nlist *) malloc (sizeof (*np));
-    if (np == NULL) {
+  if ((np = lookup(name)) == NULL) {
+    np = (struct nlist *) malloc(sizeof(*np));
+    if (np == NULL)
       return (NULL);
-    }
     
-    if ((np->name = (char *)strsave (name)) == NULL) {
+    if ((np->name = (char *)strsave(name)) == NULL)
       return (NULL);
-    }
     
-    hashval = hash (np->name);
+    hashval = hash(np->name);
     np->next = hashtab[hashval];
     hashtab[hashval] = np;
     np->ro = ro;
-    np->local = local;
-    //        np->def = (char *) strsave (def);
-    np->value = (struct cString *)malloc(sizeof(struct cString));
-    bzero(np->value->text,BUFFSIZE);
-    
-    len=strlen(def);
-    np->value->length=len;
-    
-    if(len > 0) {
-      strncpy(np->value->text,def,len);
-    }
-  }
-  else {
+    np->local=local;
+    np->def = (char *) strsave(def);
+  } else {
     if (np->ro == UNLOCK) {
-      free (np->value);
-      np->value = (struct cString *)malloc(sizeof(struct cString));
-      len=strlen(def);
-      np->value->length=len;
-      bzero(np->value->text,BUFFSIZE);
-      strncpy(np->value->text,def,len);
+      free(np->def);
+      np->def = strsave(def);
     }
   }
   return (np);
 }
 
 
+char *getSymbol(char *name) {
+  char           *p;
+  struct nlist   *r;
+  pthread_mutex_lock(&hashLock);
+  r = lookup(name);
+  
+  if (r) {
+    p = r->def;
+  } else {
+    p = (char *) NULL;
+  }
+  
+  pthread_mutex_unlock(&hashLock);
+  return (p);
+}
+
+/*
 struct cString *getSymbol(char *name) {
   struct cString *p;
   struct nlist   *r;
@@ -98,6 +97,7 @@ struct cString *getSymbol(char *name) {
   pthread_mutex_unlock(&hashLock);
   return (p);
 }
+*/
 
 void lockSymbol(char *name) {
   struct nlist   *np;
@@ -126,11 +126,54 @@ void mkGlobal(char *name) {
 }
 
 
+/*! \brief Decleare a symbol.
+ * @param[in] name Pointer to the symbols name.
+ * @param[in] value Pointer the symbols value.
+ * @param[in] ro None zero if the variable is read only
+ * @param[in] local None zero if this is a local variable.
+ */
 void setSymbol(char *name, void *value, int ro,int local) {
   pthread_mutex_lock(&hashLock);
   (void) install(name, value, ro, local);
   pthread_mutex_unlock(&hashLock);
   
+}
+
+/*! \brief Decleare a symbol.
+ * @param[in] name Pointer to the symbols name.
+ * @param[in] value Pointer the symbols value.
+ */
+void setSymbolValue(char *name, void *value) {
+  struct nlist *np;
+  
+  pthread_mutex_lock(&hashLock);
+  np=lookup(name);
+  if(!np) { // Does not exists
+    (void) install(name, value, UNLOCK, LOCAL);
+  } else { // Exists
+    if( (char *)NULL == np->def ) {
+      np->def=strsave(value);
+    } else {
+      free(np->def);
+      np->def=strsave(value);
+    }
+  }
+  
+  pthread_mutex_unlock(&hashLock);
+  
+}
+
+/*! \brief Convert an integer flag to a string.
+ * @param[in] flag Integer where 0 indicates false, non-zero indicates true.
+ * @param[in] name Pointer to the ficl parameters name.
+ */
+void setBoolean(char *name,int flag) {
+    if( flag == 0) {
+        setSymbol(name,"false",0,0);
+    } else {
+        setSymbol(name,"true",0,0);
+    }
+
 }
 
 void dumpInteractive () {
@@ -140,7 +183,7 @@ void dumpInteractive () {
   
   fprintf (stdout,
 	   "==============================================================|\n");
-  fprintf (stdout, "|\tBuild Date:%s\n", getFiclParam ("BUILD"));
+  fprintf (stdout, "|\tBuild Date:%s\n", getSymbol ("BUILD"));
   fprintf (stdout,
 	   "==============================================================|\n");
   
@@ -153,7 +196,7 @@ void dumpInteractive () {
     if (hashtab[i] != 0) {
       for (np = hashtab[i]; np != NULL; np = np->next) {
 	fprintf (stdout, "|%-20s", np->name);
-	fprintf (stdout, "|%-25s", (char *) np->value->text);
+	fprintf (stdout, "|%-25s", (char *) np->def);
 	
 	if (np->ro == LOCK)
 	  fprintf (stdout, "|%-6s|", "Yes");
@@ -210,7 +253,7 @@ if (!strcmp (format, "redis")) {
 
 void saveParam(FILE *fp,struct nlist *np) {
   fprintf (fp, "^set %s ", np->name);
-  fprintf (fp, "%s", (char *) np->value->text);
+  fprintf (fp, "%s", (char *) np->def);
   
   fprintf (fp, "\n");
   
@@ -227,20 +270,20 @@ void saveSymbols () {
   FILE *fp;
   time_t now;
   
-  save = getFiclParam ("SAVE_ALLOWED");
+  save = getSymbol ("SAVE_ALLOWED");
   
   if (!save) {
-    setFiclParam("SAVE_ALLOWED","true");
+    setSymbolValue("SAVE_ALLOWED","true");
   } else {
     if (!strcmp (save, "false")) {
       return;
     }
   }
   
-  fileName = getFiclParam ("START_FILE");
+  fileName = getSymbol ("START_FILE");
   if (!fileName) {
     setSymbol ("START_FILE", "./start.rc", UNLOCK, LOCAL);
-    fileName = getFiclParam ("START_FILE");
+    fileName = getSymbol ("START_FILE");
   }
   
   fp = fopen (fileName, "w");
@@ -287,13 +330,13 @@ void loadSymbols() {
   char buffer[BUFFSIZE];
   int i=0;
   
-  fileName = getFiclParam ("START_FILE");
+  fileName = getSymbol ("START_FILE");
   
   if( (char *)NULL == fileName) {
     return;
   }
   
-  ptr=getFiclParam("DEBUG");
+  ptr=getSymbol("DEBUG");
   
   if( (char *)NULL != ptr) {
     if(!strcmp(ptr,"true")) {

@@ -11,7 +11,7 @@ void toSpread(char *, char *);
 void setFiclParam(char *,char *); 
 void dumpSymbols(void);
 void saveSymbols(void);
-void setFiclParam(char *,char *);
+// void setFiclParam(char *,char *);
 int cmdInterp(int, char *) ;
 char *strsave (char *);
 int loadFile(char *);
@@ -19,7 +19,8 @@ void connectToSpread(void);
 void getGroup(char *);
 void fromIn(FILE *, char *);
 // void fromSpread(char *, char *, int);
-void fromSpread(char *, char *);
+int fromSpread(char *, char *);
+void setBoolean(char *, int);
 
 void toOut(char *);
 void toError(char *);

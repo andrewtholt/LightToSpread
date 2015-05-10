@@ -9,7 +9,7 @@ INC=-I/usr/local/include
 # BINS=spreadSource spreadSink lightSink lightSource # mine # PthreadsExample 
 BINS= tstLib toSpread lightSink lightSource # mine # PthreadsExample spreadSource spreadSink 
 # LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
-LIBS=-lpthread -lspread -ldl /usr/local/lib/libficl.a -lm
+LIBS=-lpthread -lspread -ldl -lm
 LFLAGS=-Wl,--no-as-needed 
 
 all:	$(BINS)

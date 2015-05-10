@@ -164,8 +164,8 @@ void connectToSpread() {
     strcpy(servers[0].server,"4803@localhost");
     i=1;
 
-    spreadServer=getFiclParam("SPREAD_SERVER");
-    user=getFiclParam("USER");
+    spreadServer=getSymbol("SPREAD_SERVER");
+    user=getSymbol("USER");
 
     ptr=strtok(spreadServer,": \n");
 
@@ -199,11 +199,11 @@ void connectToSpread() {
         idx = idx%4;
     }
 
-    setFiclParam("ME",Private_group);
+    setSymbolValue("ME",Private_group);
     lockSymbol("ME");
     mkLocal("ME");
 
-    c=getFiclParam("ON_CONNECT");
+    c=getSymbol("ON_CONNECT");
     if((char *)NULL != c) {
         if( strlen(c) > 0) {
             strcpy(buffer,c);
@@ -213,14 +213,14 @@ void connectToSpread() {
         }
     }
 
-    group=getFiclParam("GROUP");
+    group=getSymbol("GROUP");
     if( group != (char *)NULL) {
         if(strlen(group) > 0) {
             rc = SP_join(global.Mbox,group);
         }
     }
 
-    defaultGroup=getFiclParam("DEFAULT_GROUP");
+    defaultGroup=getSymbol("DEFAULT_GROUP");
     if( defaultGroup != (char *)NULL) {
         if(strlen(defaultGroup) > 0) {
             rc = SP_join(global.Mbox,defaultGroup);
@@ -262,7 +262,7 @@ void getMode(char *resBuffer) {
     char *ptr;
     int resLen;
 
-    ptr= getFiclParam("MODE");
+    ptr= getSymbol("MODE");
     resLen=strlen(ptr);
 
     strncpy(resBuffer,ptr,resLen);
@@ -271,7 +271,7 @@ void getMode(char *resBuffer) {
 
 void setMode(char *ptr) {
 
-    setFiclParam("MODE",ptr);
+    setSymbolValue("MODE",ptr);
 }
 
 void getGroup(char *resBuffer) {
@@ -279,10 +279,10 @@ void getGroup(char *resBuffer) {
     char *ptr;
 
     bzero(resBuffer,BUFFSIZE);
-    ptr= getFiclParam("GROUP");
+    ptr= getSymbol("GROUP");
 
     if(strlen(ptr) == 0) {
-        ptr= getFiclParam("DEFAULT_GROUP");
+        ptr= getSymbol("DEFAULT_GROUP");
     }
     resLen=strlen(ptr);
     strncpy(resBuffer,ptr,resLen);
@@ -312,7 +312,7 @@ void processFormat(char *resBuffer, char *key, char *value, char *fmt) {
             }
         }
     }
-    if(getFiclBoolean("ADD_CR")) {
+    if(getBoolean("ADD_CR")) {
         strcat(resBuffer,"\n");
     }
 
@@ -337,7 +337,7 @@ void remoteSet(char *sender,char *key,char *value,char *resBuffer) {
     }
 
     if(global.formatClient != 0 ) {
-        fmt=getFiclParam("SET_FORMAT");
+        fmt=getSymbol("SET_FORMAT");
         processFormat(resBuffer,key,value,fmt);
     } else if(global.redisClient != 0) {
         char scratchBuffer[BUFFSIZE];
@@ -353,7 +353,7 @@ void remoteSet(char *sender,char *key,char *value,char *resBuffer) {
 
         bzero(pipeBuffer,BUFFSIZE);
 
-        fmt=getFiclParam("CMD_FORMAT");
+        fmt=getSymbol("CMD_FORMAT");
 
         processFormat(resBuffer,key,value,fmt);
 
@@ -388,7 +388,7 @@ void remoteGet(char *sender,char *key,char *resBuffer) {
     if(global.formatClient != 0) {
         bzero(resBuffer,BUFFSIZE);
 
-        fmt=getFiclParam("GET_FORMAT");
+        fmt=getSymbol("GET_FORMAT");
 
         len=strlen(fmt);
         for(i=0;i<len;i++) {
@@ -474,31 +474,12 @@ void remoteCmdInterp(char *sender,char *data,char *buffer) {
         key=strtok(NULL," \n");
         remoteSet(sender,key,value,buffer);
     } else {
-        if( getFiclBoolean("TO_FORTH")) {
+        if( getBoolean("TO_FORTH")) {
             printDebug("\tremoteCmdInterp: Ficl\n");
             cmdToForth(data,buffer);
         }
     }
 
-    /*
-       cmd=strtok(data," ");  // split the command line held in data.
-
-       if(cmd != (char *)NULL) {
-       if(!strcasecmp(cmd,"^set")) {
-       key=strtok(NULL," \n");
-       value=strtok(NULL,"\n");
-       remoteSet(sender,key,value,buffer);
-       } else if(!strcasecmp(cmd,"^get")) {
-       key=strtok(NULL," \n");
-       remoteGet(sender,key,buffer);
-       } else {
-       if(getFiclBoolean("TO_FORTH")) {
-// CHANGE
-cmdToForth(cmd,(char *)NULL,(char *)NULL,buffer);
-}
-}
-}
-*/
 }
 
 /*! \brief Interpret a redis command packet.
@@ -577,7 +558,7 @@ int cmdInterp(int src, char *cmd) {
             bzero(pipeBuffer,BUFFSIZE);
             bzero(resBuffer,BUFFSIZE);
 
-            ptr = getFiclParam("CMD_FORMAT");
+            ptr = getSymbol("CMD_FORMAT");
 
             x=strtok(ptr," \n");
             strtok(cmd,"\n");
@@ -655,18 +636,18 @@ int cmdInterp(int src, char *cmd) {
                 }
                 rc=1;
             } else if(!strcasecmp(cmd,"^set-debug")) {
-                setFiclParam("DEBUG","true");
+                setSymbolValue("DEBUG","true");
                 global.debug=1;
                 rc=1;
             } else if(!strcasecmp(cmd,"^clr-debug")) {
-                setFiclParam("DEBUG","false");
+                setSymbolValue("DEBUG","false");
                 global.debug = 0;
                 rc=1;
             } else if(!strcasecmp(cmd,"^connect")) {
                 connectToSpread();
                 rc=1;
             } else if(!strcasecmp(cmd,"^save")) {
-                rc=getFiclBoolean("SAVE_ALLOWED");
+                rc=getBoolean("SAVE_ALLOWED");
 
                 if(rc != 0) {
                     saveSymbols();
@@ -675,7 +656,7 @@ int cmdInterp(int src, char *cmd) {
             } else if(!strcasecmp(cmd,"^set")) {
                 key=strtok(NULL," ");
                 value=strtok(NULL,"\n");
-                setFiclParam(key,value);
+                setSymbolValue(key,value);
 
                 if(!strcmp(key,"CLIENT")) {
                     global.rawClient=0;
@@ -703,7 +684,7 @@ int cmdInterp(int src, char *cmd) {
                             (global.formatClient == 0) && 
                             global.cmdClient == 0) {
                         global.rawClient = 1;
-                        setFiclParam("CLIENT","raw");
+                        setSymbolValue("CLIENT","raw");
                     }
                 }
                 rc=1;
@@ -723,7 +704,7 @@ int cmdInterp(int src, char *cmd) {
                 mkGlobal( key );
                 rc=1;
             } else if(!strcasecmp(cmd,"^exit")) {
-                rc=getFiclBoolean("EXIT_ALLOWED");
+                rc=getBoolean("EXIT_ALLOWED");
                 if(rc !=0 ) {
                     exit(0);
                 }
@@ -731,7 +712,7 @@ int cmdInterp(int src, char *cmd) {
             } else if(!strcasecmp(cmd,"^disconnect")) {
                 toError("Not Implemented.\n");
             } else {
-                rc=getFiclBoolean("TO_FORTH");
+                rc=getBoolean("TO_FORTH");
                 if(rc) {
                     key=strtok(NULL," ");
                     value=strtok(NULL,"\n");
@@ -785,10 +766,11 @@ void *count(void *arg) {
  * @param [in] sender the spread user that the message originated with.
  * @param [out] message the message.
  * @param [in] direction Is the calling program a sink (consumes data from spread) or a source (send data to spread)
+ * @param [out] Status.  If < 0 then an error occurred.  If > 0 the message type.
  * 
  */
 // void fromSpread(char *sender, char *message,int direction) {
-void fromSpread(char *sender, char *message ) {
+int fromSpread(char *s, char *m ) {
     char *client;
     char buffer[BUFFSIZE];
 
@@ -797,15 +779,35 @@ void fromSpread(char *sender, char *message ) {
     char target_groups[100][MAX_GROUP_NAME];
     int16 mess_type;
     int ret;
+    int rc=0;
     int endian_mismatch;
     
+    char sender[BUFFSIZE];
+    static char message[MAX_MESSLEN];
+    
     bzero(buffer,BUFFSIZE);
+    bzero(message,MAX_MESSLEN);
+    /*
+    s=(char *)NULL;
+    m=(char *)NULL;
+    */
     
     ret = SP_receive (global.Mbox, &service_type, sender, 100,
             &num_groups, target_groups,
             &mess_type, &endian_mismatch, sizeof (message),
             message);
 
+    if( ret < 0) {
+      rc = ret;
+    } else {
+      if (Is_regular_mess (service_type)) {
+	strcpy(s, sender);
+	strncpy(m,message,strlen(message));
+	
+      }
+      rc =  service_type;
+    }
+    return(rc);
 /*
     if(global.rawClient != 0) {
         if(getFiclBoolean("ADD_CR")) { 
@@ -912,31 +914,14 @@ int loadFile(char *file) {
 #endif
     return(returnValue);
 }
-/*! \brief Read the value of a ficl paramater.
- * @param [in] name  The name of the paramter.
- * @return A pointer to the value.
- */
-char *getFiclParam(char *name) {
-    struct cString *tmp;
-    char *res;
-
-    tmp=getSymbol(name);
-
-    if(!tmp) {
-        res=(char *)NULL;
-    } else {
-        res=tmp->text;
-    }
-    return(res);
-}
 
 /*! \brief Convert a string indicate true/false.
  * @param [in] name Pointer to a string.
  * @return integer value of 0 indicating "false" or 1 indicating "true".
  */
 
-int getFiclBoolean(char *name) {
-    char *ptr = getFiclParam(name);
+int getBoolean(char *name) {
+    char *ptr = getSymbol(name);
 
     if( ptr) {
         if(!strcmp(ptr,"true")) {
@@ -946,48 +931,8 @@ int getFiclBoolean(char *name) {
         }
     }
 }
-/*! \brief Convert an integer flag to a string.
- * @param[in] flag Integer where 0 indicates false, non-zero indicates true.
- * @param[in] name Pointer to the ficl parameters name.
- */
-void setFiclBoolean(char *name,int flag) {
-    if( flag == 0) {
-        setFiclParam(name,"false");
-    } else {
-        setFiclParam(name,"true");
-    }
 
-}
 
-/*! \brief Set a ficl parameter.
- * @param[in] value
- * @param[in] name
- */
-void setFiclParam(char *name,char *value) {
-    char cmdBuffer[BUFFSIZE];
-    int rc;
-    int len;
-    char *data;
-
-    struct cString *tmp;
-
-    tmp=getSymbol(name);
-
-    if(!value) {
-        setSymbol(name,"",UNLOCK,GLOBAL);
-    } else {
-        setSymbol(name,value,UNLOCK,GLOBAL);
-    }
-
-#ifdef FICL
-    if(!tmp) {  // First time, so doesn't exist
-        ficlStackPushPointer(global.vm->dataStack,lookup(name));
-
-        sprintf(cmdBuffer,"c-param --> new %s\n", name);
-        rc = ficlVmEvaluate(global.vm, cmdBuffer);
-    }
-#endif
-}
 /*! \brief Test a spread message and return non-zero if I sent it.
  * @param[in] sender Pointer to the senders name.
  * @return -1 if from me, 0 otherwise.
@@ -995,12 +940,53 @@ void setFiclParam(char *name,char *value) {
 int fromMe(char *sender) {
     char *resPtr;
 
-    resPtr=getFiclParam("ME");
+    resPtr=getSymbol("ME");
 
     if(!strcmp(sender,resPtr)) {
         return(-1);
     } else {
         return(0);
     }
+}
+
+/*! \brief Check if a message is waiting.
+ * @param[in] mailbox Mailbox.
+ * @return 0 No message waiting.
+ * @return <0 Error.
+ * @return >0 Number of bytes in message.
+ */ 
+int spreadPoll() {
+  int ret;
+  
+  ret = SP_poll( global.Mbox);
+  
+  return(ret);
+}
+
+/*! \brief Join a group.
+ * @param[in] name Pointer to group name.
+ */
+void spreadJoin(char *group) {
+  
+  if(strcmp(group,"global")) {  // Already a memeber og global.
+    SP_join(global.Mbox,group);
+  }
+}
+
+
+/*! \brief Leave a group.
+ * @param[in] name Pointer to group name.
+ */
+void spreadLeave(char *group) {
+  
+  if(strcmp(group,"global")) {  // Can't leave global.
+    SP_join(global.Mbox,group);
+  }
+}
+
+/*! \brief Disconnect from Spread.
+ */
+void spreadDisconnect() {
+  SP_disconnect(global.Mbox);
 }
 

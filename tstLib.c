@@ -20,32 +20,77 @@
 struct globalDefinitions global;
 
 int main(void) {
-    global.connected=0;
-    global.Group=(char *)NULL;
-    global.configFileName=(char *)NULL;
-    global.appDir=(char *)NULL;
-    global.locked = 0;
-    global.rawClient =1;
-    global.debug = 1;
-
-    char *group=(char *)NULL;
+  char from[MAX_GROUP_NAME];
+  char message[MAX_MESSLEN];
+  
+  int service_type;
+  int loop = 1;
+  int rc;
+  
+  global.connected=0;
+  global.Group=(char *)NULL;
+  global.configFileName=(char *)NULL;
+  global.appDir=(char *)NULL;
+  global.locked = 0;
+  global.rawClient =1;
+  global.debug = 1;
+  
+  char *group=(char *)NULL;
+  
+  printf("Buff size = %d\n", MAX_MESSLEN);
+  setSymbol("BUILD",__DATE__);
+  setSymbol("CLIENT","raw");
+  setSymbol("SPREAD_SERVER","4803");
+  setSymbol("GROUP","global");
+  setSymbol("USER","tstLib");
+  setSymbol("DEBUG","true");
+  
+  dumpGlobals();
+  
+  loadSymbols();
+  dumpSymbols();
+  
+  connectToSpread();
+  
+  rc = spreadPoll();
+  
+  while(loop) {
+    service_type = fromSpread(from,message);
     
-    setSymbol("BUILD",__DATE__);
-    setSymbol("CLIENT","raw");
-    setSymbol("SPREAD_SERVER","4803");
-    setSymbol("GROUP","global");
-    setSymbol("USER","tstLib");
-    setSymbol("DEBUG","true");
-    
-    dumpGlobals();
-    
-    loadSymbols();
-    dumpSymbols();
-    
-    connectToSpread();
-    
-    printf("============ After\n");
-    dumpGlobals();
-    
-    sleep(10);
+    if (Is_regular_mess (service_type)) {
+      printf("Message\n");
+      loop=0;
+    } else if (Is_membership_mess (service_type)) {
+      printf("Membership\n");
+    } else if (Is_reg_memb_mess (service_type)) {
+      printf("Regular memebership\n");
+    } else if (Is_caused_join_mess (service_type)) {
+      printf("Join\n");
+    } else if (Is_caused_leave_mess (service_type)) {
+      printf("Leave\n");
+    } else if (Is_caused_disconnect_mess (service_type)) {
+      printf("Disconnect\n");
+    } else if (Is_caused_network_mess (service_type)) {
+      printf("Network\n");
+    }
+  }
+  
+  
+  printf("============ After\n");
+  dumpGlobals();
+  
+  printf("Sender %s\n",from);
+  printf("Message >%s<\n",message);
+  
+  toSpread(from,"Message recieved\n");
+  
+  spreadJoin("TEST");
+  
+  sleep(2);
+  
+  spreadLeave("TEST");
+  
+  sleep(2);
+  
+  spreadDisconnect();
 }
