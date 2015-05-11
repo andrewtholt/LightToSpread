@@ -7,7 +7,7 @@ INC=-I/usr/local/include
 #
 # BINS=spreadSource spreadSink  lightSink lightSource # mine # PthreadsExample
 BINS= tstLib lightSink lightSource toSpread # mine # PthreadsExample spreadSource spreadSink  
-LIBS=-lpthread -lspread -lficl -lm -ldl
+LIBS=-lpthread -lspread -lm -ldl
 LFLAGS=-Wl,--no-as-needed 
 
 all:	$(BINS)
