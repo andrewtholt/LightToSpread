@@ -1,0 +1,31 @@
+#
+# Save Date:Tue May 12 13:01:09 2015
+#
+# Startup file.
+# Comments MUST be at the start of a line.
+# Any comments added will be lost.
+#
+^set SET_FMT %s %s
+^set STALE_AFTER 600
+^set IGN_GLOBAL false
+^set DATABASE /var/tmp/andrewh.db
+^set OWN_MESSAGES false
+^set USER andrewh
+^lock USER
+^set ADD_CR false
+^set CLIENT raw
+^set ALTSERVER 4803@proliant
+^set AUTOPURGE false
+^set DEBUG false
+^set PASSTHROUGH true
+^set COMMS_VARS false
+^set SAVE_ALLOWED true
+^set EXIT_COMMAND true
+^set SPREAD_SERVER 4803
+^set INTERACTIVE true
+^set GROUP global
+^set SHOW_SENDER false
+^set CLEARDB true
+^set AUTOCONNECT false
+^set REMOTE_CREATE false
+^lock REMOTE_CREATE

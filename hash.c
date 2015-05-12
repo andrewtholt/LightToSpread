@@ -263,6 +263,7 @@ void saveParam(FILE *fp,struct nlist *np) {
 }
 
 void defaultSymbols() {
+  setSymbol("BUILD",__DATE__,LOCK,LOCAL);
   setSymbol("CLIENT","raw",UNLOCK,GLOBAL);
   setSymbol("SPREAD_SERVER","4803",UNLOCK,GLOBAL);
   setSymbol("GROUP","global",UNLOCK,GLOBAL);

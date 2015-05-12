@@ -709,7 +709,11 @@ int fromSpread(char *s, char *m ) {
   int16 mess_type;
   int ret;
   int rc=0;
+  int rc1=0;
+  
   int endian_mismatch;
+  membership_info memb_info;
+
   
   char sender[BUFFSIZE];
   static char message[MAX_MESSLEN];
@@ -725,11 +729,15 @@ int fromSpread(char *s, char *m ) {
   if( ret < 0) {
     rc = ret;
   } else {
+    rc =  service_type;
     if (Is_regular_mess (service_type)) {
       strcpy(s, sender);
       memcpy((void *)m,  message, ret);
+    } else if (Is_membership_mess(service_type)) {
+      strcpy(s, sender);
+      rc1 = SP_get_memb_info(message, service_type, &memb_info);
+      strcpy(m,memb_info.changed_member);
     }
-    rc =  service_type;
   }
   return(rc);
 }
