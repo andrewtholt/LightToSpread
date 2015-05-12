@@ -1,4 +1,6 @@
-
+#
+# Cross compile for Beagle
+# 
 CC=arm-none-linux-gnueabi-gcc
 CFLAGS=-g -DFICL # -Wall
 TOOLS=/home/andrewh/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_GNU_Linux/arm-none-linux-gnueabi

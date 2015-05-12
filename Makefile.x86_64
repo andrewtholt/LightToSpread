@@ -1,14 +1,15 @@
 
-CFLAGS=-g -DFICL # -Wall
-# CFLAGS=-g # -Wall
+# CFLAGS=-g -DFICL # -Wall
+CFLAGS=-g # -Wall
 INC=-I/usr/local/include
 #
 # 
 # Don't build old utilities.  Retained for future reference.
 #
 # BINS= lightSink lightSource spreadSource spreadSink # mine # PthreadsExample
-BINS= lightSink lightSource toSpread 
-LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
+BINS= tstLib lightSink lightSource toSpread 
+# LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
+LIBS=-lpthread -lspread -ldl -lm
 LFLAGS=-Wl,--no-as-needed 
 
 all:	$(BINS)
@@ -28,6 +29,9 @@ spreadSource:	source.o hash.o  connectToSpread.o
 source.o:	source.c mine.h hash.h hash.o
 	$(CC) $(INC) -c $(CFLAGS) -Wall source.c -o source.o 
 
+tstLib: tstLib.c libConnectToSpread.so
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) tstLib.c -o tstLib $(LIBS) -L . -lConnectToSpread
+
 spreadSink:	sink.o hash.o  connectToSpread.o
 #	$(CC) $(INC) $(CFLAGS) sink.o hash.o connectToSpread.o -o spreadSink -lpthread -lspread -ldl -lm  -lficl
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) sink.o hash.o connectToSpread.o -o spreadSink $(LIBS)
@@ -36,13 +40,16 @@ sink.o:	sink.c mine.h hash.h hash.o
 	$(CC) $(INC) -c $(CFLAGS) -Wall sink.c -o sink.o 
 
 connectToSpread.o:	connectToSpread.c connectToSpread.h
-	$(CC) $(INC) -c $(CFLAGS) connectToSpread.c -o connectToSpread.o
+	$(CC) $(INC) -fPIC -c $(CFLAGS) connectToSpread.c -o connectToSpread.o
+
+libConnectToSpread.so:  connectToSpread.o hash.o
+	gcc -shared -Wl,-soname,libConnectToSpread.so -o libConnectToSpread.so connectToSpread.o hash.o
 
 PthreadsExample:	PthreadsExample.c
 	$(CC) $(CFLAGS) PthreadsExample.c -o PthreadsExample -lpthread -ldl
 
 hash.o:	hash.h hash.c mine.h
-	$(CC) $(CFLAGS) -c hash.c -o hash.o
+	$(CC) -fPIC $(CFLAGS) -c hash.c -o hash.o
 
 clean:
 	rm -f $(BINS) *.o *~ cscope.out
