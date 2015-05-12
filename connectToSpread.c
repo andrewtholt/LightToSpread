@@ -43,16 +43,16 @@ sem_t connected;
 #include "mine.h"
 
 /*! \brief Pass in a pointer to a string, allocate sufficient space to hold it and copy.
-*/
+ */
 
 char *strsave (char *s) { 
-    char *p;
-
-    if ((p = (char *) malloc (strlen (s) + 1)) != NULL) {
-        strcpy (p, s);
-    }
-
-    return (p);
+  char *p;
+  
+  if ((p = (char *) malloc (strlen (s) + 1)) != NULL) {
+    strcpy (p, s);
+  }
+  
+  return (p);
 }
 
 //! \brief Send a message to stderr.
@@ -61,367 +61,334 @@ char *strsave (char *s) {
  * @param msg Pointer to a character string.
  */
 void printDebug(char *msg) {
-    if(global.debug != 0) {
-        fprintf(stderr,"%s\n",msg);
-    }
+  if(global.debug != 0) {
+    fprintf(stderr,"%s\n",msg);
+  }
 }
 /*! \brief Convert an integer value to a string presentation.
  * @param v Flag, 0=false, non zero is true.
  * @param res Pointer to a memory block of, at least 6 bytes.
  */
 void booleanToString(int v,char *res) {
-    if( 0 == v) {
-        strcpy(res,"false");
-    } else {
-        strcpy(res,"true");
-    }
-
+  if( 0 == v) {
+    strcpy(res,"false");
+  } else {
+    strcpy(res,"true");
+  }
+  
 }
 /*! \brief Display the values held in the globals structure.
-*/
+ */
 void dumpGlobals() {
-    char buffer[32];
-
-    booleanToString(global.redisClient,buffer);
-    printf("global.redisClient = %s\n",buffer);
-
-    booleanToString(global.rawClient,buffer);
-    printf("       rawClient   = %s\n",buffer);
-
-    booleanToString(global.formatClient,buffer);
-    printf("       formatClient= %s\n",buffer);
-
-    booleanToString(global.cmdClient,buffer);
-    printf("       cmdClient   = %s\n",buffer);
-
-    booleanToString(global.debug,buffer);
-    printf("       Debug       = %s\n",buffer);
-
-    booleanToString(global.connected,buffer);
-    printf("       Connected   = %s\n",buffer);
+  char buffer[32];
+  
+  booleanToString(global.redisClient,buffer);
+  printf("global.redisClient = %s\n",buffer);
+  
+  booleanToString(global.rawClient,buffer);
+  printf("       rawClient   = %s\n",buffer);
+  
+  booleanToString(global.formatClient,buffer);
+  printf("       formatClient= %s\n",buffer);
+  
+  booleanToString(global.cmdClient,buffer);
+  printf("       cmdClient   = %s\n",buffer);
+  
+  booleanToString(global.debug,buffer);
+  printf("       Debug       = %s\n",buffer);
+  
+  booleanToString(global.connected,buffer);
+  printf("       Connected   = %s\n",buffer);
 }
-
-//! Pass a string to ficl for execution.
-/*!
-  \param cmd Pointer to a string with the command.
-  \param result Pointer to a memory region to hold the result.
-  */
-
-/*
-int cmdToForth(char *cmd, char *result) {
-    int rc=0;
-    int len;
-    char *ptr;
-    int flag=0;
-    int cnt=0;
-
-    if( global.debug !=0) {
-        fprintf(stderr,"cmdToForth\n");
-    }
-#ifdef FICL
-    bzero(result,BUFFSIZE);
-
-    rc = ficlVmEvaluate(global.vm, cmd);
-    switch( rc ) {
-        case FICL_VM_STATUS_OUT_OF_TEXT: // Normal, nothing else to do.
-            break;
-        case FICL_VM_STATUS_ERROR_EXIT: // Something went wrong
-            break;
-        case FICL_VM_STATUS_ABORT:
-        case FICL_VM_STATUS_ABORTQ:
-            break;
-    }
-
-    ficlVmEvaluate(global.vm, "clr-stack");
-#endif
-    return(rc);
-}
-*/
 
 void connectToSpread() {
-    int rc=0;
-    int i=0;
-    int idx=0;
-
-    char    Private_group[MAX_GROUP_NAME];
-
-    char *spreadServer;
-    char *user;
-    char *group;
-    char *defaultGroup;
-    char *c;
-    char buffer[BUFFSIZE];
-    char *ptr=(char *)NULL;
-
-    if(global.connected) {
-        return;
+  int rc=0;
+  int i=0;
+  int idx=0;
+  
+  char    Private_group[MAX_GROUP_NAME];
+  
+  char *spreadServer;
+  char *user;
+  char *group;
+  char *defaultGroup;
+  char *c;
+  char buffer[BUFFSIZE];
+  char *ptr=(char *)NULL;
+  
+  if(global.connected) {
+    return;
+  }
+  //    global.connected=0;
+  
+  for(i=0;i<5;i++) {
+    bzero(servers[i].server,64);
+    servers[i].status=-1;
+  }
+  
+  strcpy(servers[0].server,"4803@localhost");
+  i=1;
+  
+  spreadServer=getSymbol("SPREAD_SERVER");
+  user=getSymbol("USER");
+  
+  ptr=strtok(spreadServer,": \n");
+  
+  if( !strcmp(ptr,"4803") || !strcmp(ptr,"4803@localhost")) {
+    ptr=(char *)NULL;
+  } 
+  
+  for(i=1;(i<5 && ptr != (char *)NULL);i++) {
+    ptr=strtok(NULL,": \n");
+    
+    if(ptr) {
+      strcpy(servers[i].server,ptr);
     }
-    //    global.connected=0;
-
-    for(i=0;i<5;i++) {
-        bzero(servers[i].server,64);
-        servers[i].status=-1;
+  }
+  
+  idx = 0;
+  while( global.connected == 0) {
+    //        rc = SP_connect( spreadServer, user, 0, 1, &global.Mbox, Private_group ) ;
+    if (strlen(servers[idx].server) > 0) {
+      rc = SP_connect( servers[idx].server, user, 0, 1, &global.Mbox, Private_group ) ;
+      
+      if(rc < 0) {
+	SP_error(rc);
+	global.connected=0;
+	sleep(1);
+      } else {
+	global.connected=1;
+      }
     }
-
-    strcpy(servers[0].server,"4803@localhost");
-    i=1;
-
-    spreadServer=getSymbol("SPREAD_SERVER");
-    user=getSymbol("USER");
-
-    ptr=strtok(spreadServer,": \n");
-
-    if( !strcmp(ptr,"4803") || !strcmp(ptr,"4803@localhost")) {
-        ptr=(char *)NULL;
-    } 
-
-    for(i=1;(i<5 && ptr != (char *)NULL);i++) {
-        ptr=strtok(NULL,": \n");
-
-        if(ptr) {
-            strcpy(servers[i].server,ptr);
-        }
+    idx++;
+    idx = idx%4;
+  }
+  
+  setSymbolValue("ME",Private_group);
+  lockSymbol("ME");
+  mkLocal("ME");
+  
+  c=getSymbol("ON_CONNECT");
+  if((char *)NULL != c) {
+    if( strlen(c) > 0) {
+      strcpy(buffer,c);
+      strcat(buffer,"\n");
+      
+      toOut(buffer);
     }
-
-    idx = 0;
-    while( global.connected == 0) {
-        //        rc = SP_connect( spreadServer, user, 0, 1, &global.Mbox, Private_group ) ;
-        if (strlen(servers[idx].server) > 0) {
-            rc = SP_connect( servers[idx].server, user, 0, 1, &global.Mbox, Private_group ) ;
-
-            if(rc < 0) {
-                SP_error(rc);
-                global.connected=0;
-                sleep(1);
-            } else {
-                global.connected=1;
-            }
-        }
-        idx++;
-        idx = idx%4;
+  }
+  
+  group=getSymbol("GROUP");
+  if( group != (char *)NULL) {
+    if(strlen(group) > 0) {
+      rc = SP_join(global.Mbox,group);
     }
-
-    setSymbolValue("ME",Private_group);
-    lockSymbol("ME");
-    mkLocal("ME");
-
-    c=getSymbol("ON_CONNECT");
-    if((char *)NULL != c) {
-        if( strlen(c) > 0) {
-            strcpy(buffer,c);
-            strcat(buffer,"\n");
-
-            toOut(buffer);
-        }
+  }
+  
+  defaultGroup=getSymbol("DEFAULT_GROUP");
+  if( defaultGroup != (char *)NULL) {
+    if(strlen(defaultGroup) > 0) {
+      rc = SP_join(global.Mbox,defaultGroup);
     }
-
-    group=getSymbol("GROUP");
-    if( group != (char *)NULL) {
-        if(strlen(group) > 0) {
-            rc = SP_join(global.Mbox,group);
-        }
-    }
-
-    defaultGroup=getSymbol("DEFAULT_GROUP");
-    if( defaultGroup != (char *)NULL) {
-        if(strlen(defaultGroup) > 0) {
-            rc = SP_join(global.Mbox,defaultGroup);
-        }
-    }
-
+  }
+  
 }
 
 void toOut(char *msg ) {
-    int rc;
-
-    rc = pthread_mutex_lock(&stdoutMutex);
-    fprintf(global.out,"%s",msg);
-    fflush(global.out);
-    rc = pthread_mutex_unlock(&stdoutMutex);
+  int rc;
+  
+  rc = pthread_mutex_lock(&stdoutMutex);
+  fprintf(global.out,"%s",msg);
+  fflush(global.out);
+  rc = pthread_mutex_unlock(&stdoutMutex);
 }
 
 void toError(char *msg ) {
-    int rc;
-
-    //    rc = pthread_mutex_lock(&stdoutMutex);
-    fprintf(global.out,"%s",msg);
-    fflush(global.err);
-    //    rc = pthread_mutex_unlock(&stdoutMutex);
+  int rc;
+  
+  //    rc = pthread_mutex_lock(&stdoutMutex);
+  fprintf(global.out,"%s",msg);
+  fflush(global.err);
+  //    rc = pthread_mutex_unlock(&stdoutMutex);
 }
 
 void fromIn(FILE *fp, char *buffer) {
-    int rc=0;
-    char *status;
-
-    rc = pthread_mutex_lock(&stdinMutex);
-
-    status = fgets (buffer, BUFFSIZE, global.in);
-
-    rc = pthread_mutex_unlock(&stdinMutex);
+  int rc=0;
+  char *status;
+  
+  rc = pthread_mutex_lock(&stdinMutex);
+  
+  status = fgets (buffer, BUFFSIZE, global.in);
+  
+  rc = pthread_mutex_unlock(&stdinMutex);
 }
 
 void getMode(char *resBuffer) {
-    char *ptr;
-    int resLen;
-
-    ptr= getSymbol("MODE");
+  char *ptr;
+  int resLen;
+  
+  ptr= getSymbol("MODE");
+  if(!ptr) {
+    strcpy(resBuffer,"local");
+  } else {
     resLen=strlen(ptr);
-
+    
     strncpy(resBuffer,ptr,resLen);
     resBuffer[resLen]=0x00;
+  }
 }
 
 void setMode(char *ptr) {
-
-    setSymbolValue("MODE",ptr);
+  
+  setSymbolValue("MODE",ptr);
 }
 
 void getGroup(char *resBuffer) {
-    int resLen=0;
-    char *ptr;
-
-    bzero(resBuffer,BUFFSIZE);
-    ptr= getSymbol("GROUP");
-
-    if(strlen(ptr) == 0) {
-        ptr= getSymbol("DEFAULT_GROUP");
-    }
-    resLen=strlen(ptr);
-    strncpy(resBuffer,ptr,resLen);
+  int resLen=0;
+  char *ptr;
+  
+  bzero(resBuffer,BUFFSIZE);
+  ptr= getSymbol("GROUP");
+  
+  if(strlen(ptr) == 0) {
+    ptr= getSymbol("DEFAULT_GROUP");
+  }
+  resLen=strlen(ptr);
+  strncpy(resBuffer,ptr,resLen);
 }
 
 void processFormat(char *resBuffer, char *key, char *value, char *fmt) {
-    int i=0;
-    int j=0;
-    int len=0;
-
-    bzero(resBuffer,BUFFSIZE);
-
-    len=strlen(fmt);
-
-    for(i=0;i<len;i++) {
-        if( fmt[i] != '$') {
-            resBuffer[j++]=fmt[i];
-        } else {
-            if( fmt[i+1] == 'K') {
-                sprintf(&resBuffer[j],"%s",key);
-                j += strlen(key);
-                i++;
-            } else if( fmt[i+1] == 'V') {
-                sprintf(&resBuffer[j],"%s",value);
-                j += strlen(value);
-                i++;
-            }
-        }
+  int i=0;
+  int j=0;
+  int len=0;
+  
+  bzero(resBuffer,BUFFSIZE);
+  
+  len=strlen(fmt);
+  
+  for(i=0;i<len;i++) {
+    if( fmt[i] != '$') {
+      resBuffer[j++]=fmt[i];
+    } else {
+      if( fmt[i+1] == 'K') {
+	sprintf(&resBuffer[j],"%s",key);
+	j += strlen(key);
+	i++;
+      } else if( fmt[i+1] == 'V') {
+	sprintf(&resBuffer[j],"%s",value);
+	j += strlen(value);
+	i++;
+      }
     }
-    if(getBoolean("ADD_CR")) {
-        strcat(resBuffer,"\n");
-    }
-
+  }
+  if(getBoolean("ADD_CR")) {
+    strcat(resBuffer,"\n");
+  }
+  
 }
 void remoteSet(char *sender,char *key,char *value,char *resBuffer) {
-    char *fmt;
-    char *client;
-
-    int len=0;
-    int i=0;
-    int j=0;
-    int flag=0;
-    struct nlist *np;
-
-    np=lookup("LAST_MSG_FROM");
-    if(!np) {
-        install("LAST_MSG_FROM", sender, LOCK, LOCAL);
-    } else {
-        np->ro = UNLOCK;
-        install("LAST_MSG_FROM", sender, LOCK, LOCAL);
-        np->ro = LOCK;
+  char *fmt;
+  char *client;
+  
+  int len=0;
+  int i=0;
+  int j=0;
+  int flag=0;
+  struct nlist *np;
+  
+  np=lookup("LAST_MSG_FROM");
+  if(!np) {
+    install("LAST_MSG_FROM", sender, LOCK, LOCAL);
+  } else {
+    np->ro = UNLOCK;
+    install("LAST_MSG_FROM", sender, LOCK, LOCAL);
+    np->ro = LOCK;
+  }
+  
+  if(global.formatClient != 0 ) {
+    fmt=getSymbol("SET_FORMAT");
+    processFormat(resBuffer,key,value,fmt);
+  } else if(global.redisClient != 0) {
+    char scratchBuffer[BUFFSIZE];
+    bzero(scratchBuffer,BUFFSIZE);
+    
+    redisSender(sender,resBuffer);
+    redisSet(key,value,scratchBuffer);
+    strcat(resBuffer,scratchBuffer);
+  } else if(global.cmdClient !=0) {
+    int rc=0;
+    char pipeBuffer[BUFFSIZE];
+    FILE *pd;
+    
+    bzero(pipeBuffer,BUFFSIZE);
+    
+    fmt=getSymbol("CMD_FORMAT");
+    
+    processFormat(resBuffer,key,value,fmt);
+    
+    pd=popen(resBuffer,"r");
+    
+    if( pd != (FILE *)NULL) {
+      rc=fread(pipeBuffer,1,BUFFSIZE,pd);
+      
+      if(strlen(pipeBuffer) > 0) {
+	strcpy(resBuffer,pipeBuffer);
+      } else {
+	bzero(resBuffer,BUFFSIZE);
+      }
     }
-
-    if(global.formatClient != 0 ) {
-        fmt=getSymbol("SET_FORMAT");
-        processFormat(resBuffer,key,value,fmt);
-    } else if(global.redisClient != 0) {
-        char scratchBuffer[BUFFSIZE];
-        bzero(scratchBuffer,BUFFSIZE);
-
-        redisSender(sender,resBuffer);
-        redisSet(key,value,scratchBuffer);
-        strcat(resBuffer,scratchBuffer);
-    } else if(global.cmdClient !=0) {
-        int rc=0;
-        char pipeBuffer[BUFFSIZE];
-        FILE *pd;
-
-        bzero(pipeBuffer,BUFFSIZE);
-
-        fmt=getSymbol("CMD_FORMAT");
-
-        processFormat(resBuffer,key,value,fmt);
-
-        pd=popen(resBuffer,"r");
-
-        if( pd != (FILE *)NULL) {
-            rc=fread(pipeBuffer,1,BUFFSIZE,pd);
-
-            if(strlen(pipeBuffer) > 0) {
-                strcpy(resBuffer,pipeBuffer);
-            } else {
-                bzero(resBuffer,BUFFSIZE);
-            }
-        }
-    }
+  }
 }
 /*
  * No longer called by anything.  Remove ?
  */
 /*
-void remoteGet(char *sender,char *key,char *resBuffer) {
-    char *client;
-    char *fmt;
-
-    char scratchBuffer[BUFFSIZE];
-    int i=0;
-    int j=0;
-    int len;
-
-    bzero(scratchBuffer,BUFFSIZE);
-
-    if(global.formatClient != 0) {
-        bzero(resBuffer,BUFFSIZE);
-
-        fmt=getSymbol("GET_FORMAT");
-
-        len=strlen(fmt);
-        for(i=0;i<len;i++) {
-            if( fmt[i] != '$') {
-                resBuffer[j++]=fmt[i];
-            } else {
-                if( fmt[i+1] == 'K') {
-                    sprintf(&resBuffer[j],"%s",key);
-                    j += strlen(key);
-                    i++;
-
-                }
-            }
-        }
-        if(getFiclBoolean("ADD_CR")) {
-            strcat(resBuffer,"\n");
-        }
-
-    } else if(global.redisClient != 0) {
-        redisSender(sender,resBuffer);
-        redisGet(key,scratchBuffer);
-        strcat(resBuffer, scratchBuffer);
-    }
-}
-*/
+ * void remoteGet(char *sender,char *key,char *resBuffer) {
+ *    char *client;
+ *    char *fmt;
+ * 
+ *    char scratchBuffer[BUFFSIZE];
+ *    int i=0;
+ *    int j=0;
+ *    int len;
+ * 
+ *    bzero(scratchBuffer,BUFFSIZE);
+ * 
+ *    if(global.formatClient != 0) {
+ *        bzero(resBuffer,BUFFSIZE);
+ * 
+ *        fmt=getSymbol("GET_FORMAT");
+ * 
+ *        len=strlen(fmt);
+ *        for(i=0;i<len;i++) {
+ *            if( fmt[i] != '$') {
+ *                resBuffer[j++]=fmt[i];
+ *            } else {
+ *                if( fmt[i+1] == 'K') {
+ *                    sprintf(&resBuffer[j],"%s",key);
+ *                    j += strlen(key);
+ *                    i++;
+ * 
+ *                }
+ *            }
+ *        }
+ *        if(getFiclBoolean("ADD_CR")) {
+ *            strcat(resBuffer,"\n");
+ *        }
+ * 
+ *    } else if(global.redisClient != 0) {
+ *        redisSender(sender,resBuffer);
+ *        redisGet(key,scratchBuffer);
+ *        strcat(resBuffer, scratchBuffer);
+ *    }
+ * }
+ */
 /*! \brief Generate a redis format 'set' command to set the value of the 'SENDER'.
  * @param [in] sender Sender of spread message.
  * @param [out] res Pointer to buffer holding result.
  */
 void redisSender(char *sender, char *res) {
-    sprintf(res,"*3\n$3\nSET\n$6\nSENDER\n$%d\n%s\n",strlen(sender),sender);
+  sprintf(res,"*3\n$3\nSET\n$6\nSENDER\n$%d\n%s\n",strlen(sender),sender);
 }
 
 /*! \brief Generate a redis format 'set' command.
@@ -430,14 +397,14 @@ void redisSender(char *sender, char *res) {
  * @param [out] buffer Pointer to buffer holding result.
  */
 void redisSet(char *k,char *v,char *buffer) {
-    sprintf(buffer,"*3\n$3\nSET\n$%d\n%s\n$%d\n%s\n",strlen(k),k,strlen(v),v);
+  sprintf(buffer,"*3\n$3\nSET\n$%d\n%s\n$%d\n%s\n",strlen(k),k,strlen(v),v);
 }
 /*! \brief Generate a redis format 'get' command.
  * @param [in] k key
  * @param [out] buffer Pointer to buffer holding result.
  */
 void redisGet(char *k,char *buffer) {
-    sprintf(buffer,"*2\n$3\nGET\n$%d\n%s\n",strlen(k),k);
+  sprintf(buffer,"*2\n$3\nGET\n$%d\n%s\n",strlen(k),k);
 }
 
 /*! \brief Interpret a command recieved from Spread.
@@ -446,37 +413,37 @@ void redisGet(char *k,char *buffer) {
  * @param [in] buffer memory to hold the resulting command string.
  */
 void remoteCmdInterp(char *sender,char *data,char *buffer) {
-    char *cmd;
-    char *key;
-    char *value;
-    char safe[255];
-
-    printDebug("remoteCmdInterp\n");
-
-    if(global.rawClient != 0) {
-        return;
-    }
-
-    if( data[0] != '^' ) {
-        return;
-    }
-
-    strcpy(safe,data);
-
-    if(!strncmp(data,"^set ", 5)) {
-        printDebug("\tremoteCmdInterp: ^set\n");
-
-        cmd=strtok(data," ");  // split the command line held in data.
-        key=strtok(NULL," \n");
-        value=strtok(NULL,"\n");
-        remoteSet(sender,key,value,buffer);
-    } else if(!strncmp(data,"^get ", 5)) {
-        printDebug("\tremoteCmdInterp: ^get\n");
-        cmd=strtok(data," ");  // split the command line held in data.
-        key=strtok(NULL," \n");
-        remoteSet(sender,key,value,buffer);
-    }
-
+  char *cmd;
+  char *key;
+  char *value;
+  char safe[255];
+  
+  printDebug("remoteCmdInterp\n");
+  
+  if(global.rawClient != 0) {
+    return;
+  }
+  
+  if( data[0] != '^' ) {
+    return;
+  }
+  
+  strcpy(safe,data);
+  
+  if(!strncmp(data,"^set ", 5)) {
+    printDebug("\tremoteCmdInterp: ^set\n");
+    
+    cmd=strtok(data," ");  // split the command line held in data.
+    key=strtok(NULL," \n");
+    value=strtok(NULL,"\n");
+    remoteSet(sender,key,value,buffer);
+  } else if(!strncmp(data,"^get ", 5)) {
+    printDebug("\tremoteCmdInterp: ^get\n");
+    cmd=strtok(data," ");  // split the command line held in data.
+    key=strtok(NULL," \n");
+    remoteSet(sender,key,value,buffer);
+  }
+  
 }
 
 /*! \brief Interpret a redis command packet.
@@ -484,47 +451,47 @@ void remoteCmdInterp(char *sender,char *data,char *buffer) {
  * @return 0 if the string was a command, non-zero if it was.
  */
 void redisCmdInterp(char *buffer) {
-    int tokens=0;
-    int len=0;
-
-    int i=0;
-    char *tok;
-    char buff[BUFFSIZE];
-
-    char ptr[4][32];
-
-    if (tokens == 0) {
-        tokens=atoi(&buffer[1]);
+  int tokens=0;
+  int len=0;
+  
+  int i=0;
+  char *tok;
+  char buff[BUFFSIZE];
+  
+  char ptr[4][32];
+  
+  if (tokens == 0) {
+    tokens=atoi(&buffer[1]);
+  }
+  //
+  // I am a source.  All I can do is set things.
+  //
+  // So I need three tokens.  A cmd 'SET' and a key, and a value.
+  //
+  if( tokens != 3) {
+    return;
+  }
+  
+  bzero(buffer,BUFFSIZE);
+  for(i=0;i<tokens;i++) {
+    fromIn(global.in,buff);
+    if( buff[0] == '$') {
+      len=atoi(&buff[1]);
+    } else {
+      return;
     }
-    //
-    // I am a source.  All I can do is set things.
-    //
-    // So I need three tokens.  A cmd 'SET' and a key, and a value.
-    //
-    if( tokens != 3) {
-        return;
+    fromIn(global.in,buff);
+    tok=strtok(buff," \r\n");
+    
+    if( strlen(tok) != len) {
+      return;
+    } else {
+      strcpy(&ptr[i][0],tok);
     }
-
-    bzero(buffer,BUFFSIZE);
-    for(i=0;i<tokens;i++) {
-        fromIn(global.in,buff);
-        if( buff[0] == '$') {
-            len=atoi(&buff[1]);
-        } else {
-            return;
-        }
-        fromIn(global.in,buff);
-        tok=strtok(buff," \r\n");
-
-        if( strlen(tok) != len) {
-            return;
-        } else {
-            strcpy(&ptr[i][0],tok);
-        }
-    }
-
-    sprintf(buffer,"^%s %s %s\n", &ptr[0][0],&ptr[1][0],&ptr[2][0] );
-    toOut("+OK\n");
+  }
+  
+  sprintf(buffer,"^%s %s %s\n", &ptr[0][0],&ptr[1][0],&ptr[2][0] );
+  toOut("+OK\n");
 }
 /*! \brief If a string from global.in is a commmand (i.e prefixed by a ^)
  * @param [in] src 
@@ -532,232 +499,197 @@ void redisCmdInterp(char *buffer) {
  * @return 0 if the string was a command, non-zero if it was.
  */
 int cmdInterp(int src, char *cmd) {
-    char resBuffer[BUFFSIZE];
-    char scratch[BUFFSIZE];
-    char pipeBuffer[BUFFSIZE];
-    FILE *pd;
-    int rc=0;
-
-    char *key;
-    char *value;
-    char *client;
-    char *group;
-
-    char *tok;
-    char *ptr;
-    char *x;
-
-    printDebug("cmdInterp\n");
-    if( src == 0) {
-        if(global.cmdClient != 0) {
-
-            bzero(scratch,BUFFSIZE);
-            bzero(pipeBuffer,BUFFSIZE);
-            bzero(resBuffer,BUFFSIZE);
-
-            ptr = getSymbol("CMD_FORMAT");
-
-            x=strtok(ptr," \n");
-            strtok(cmd,"\n");
-
-            sprintf(scratch,"%s \"%s\"", x, cmd);
-            pd=popen(scratch,"r");
-            if( pd != (FILE *)NULL) {
-                rc=fread(pipeBuffer,1,BUFFSIZE,pd);
-
-                if(strlen(pipeBuffer) > 0) {
-                    strcpy(cmd,pipeBuffer);
-                } else {
-                    bzero(cmd,BUFFSIZE);
-                }   
-            }  
-            return(0);
-        }
+  char resBuffer[BUFFSIZE];
+  char scratch[BUFFSIZE];
+  char pipeBuffer[BUFFSIZE];
+  FILE *pd;
+  int rc=0;
+  
+  char *key;
+  char *value;
+  char *client;
+  char *group;
+  
+  char *tok;
+  char *ptr;
+  char *x;
+  
+  printDebug("cmdInterp\n");
+  //
+  // Comments are prefixed with a #
+  //
+  if (cmd[0] == '#') {
+    return(1);
+  }
+  //
+  // The redis command state machine is kicked off by
+  // a line that begins with a '*'
+  //
+  if(cmd[0] == '*') {
+    if(global.redisClient != 0) {
+      redisCmdInterp(cmd);
+      return(0);
     }
-    //
-    // Comments are prefixed with a #
-    //
-    if (cmd[0] == '#') {
-        return(1);
+  }
+  
+  //
+  // Local commands are prefixed with a ^
+  //
+  if(cmd[0] != '^') {
+    return(0);
+  }
+  
+  strcpy(resBuffer,cmd);
+  
+  tok=strtok(cmd," \n");
+  
+  if( tok !=(char *)NULL) {
+    if( !strcmp(cmd,"^mode")) {
+      getMode(resBuffer);
+      strcat(resBuffer,"\n");
+      toOut(resBuffer);
+      return(1);
+    } else if(!strcmp(cmd,"^status")) {
+      if(global.connected !=0) {
+	strcpy(resBuffer,"connected\n");
+      } else {
+	strcpy(resBuffer,"disconnected\n");
+      }
+      toOut(resBuffer);
+      return(1);
     }
-    //
-    // The redis command state machine is kicked off by
-    // a line that begins with a '*'
-    //
-    if(cmd[0] == '*') {
-        if(global.redisClient != 0) {
-            redisCmdInterp(cmd);
-            return(0);
-        }
+    getMode(scratch);
+    rc=0;
+    
+    if(!strcasecmp(scratch,"local")) {
+      if(!strcasecmp(cmd,"^dump")) {
+	dumpSymbols();
+	dumpGlobals();
+	rc=1;
+      } else if(!strcasecmp(cmd,"^remote")) {
+	if(global.connected == 1) {
+	  setMode("remote");
+	} else {
+	  printf("NOT CONNECTED\n");
+	}
+	rc=1;
+      } else if(!strcasecmp(cmd,"^set-debug")) {
+	setSymbolValue("DEBUG","true");
+	global.debug=1;
+	rc=1;
+      } else if(!strcasecmp(cmd,"^clr-debug")) {
+	setSymbolValue("DEBUG","false");
+	global.debug = 0;
+	rc=1;
+      } else if(!strcasecmp(cmd,"^connect")) {
+	connectToSpread();
+	rc=1;
+      } else if(!strcasecmp(cmd,"^save")) {
+	rc=getBoolean("SAVE_ALLOWED");
+	
+	if(rc != 0) {
+	  saveSymbols();
+	}
+	rc=1;
+      } else if(!strcasecmp(cmd,"^set")) {
+	key=strtok(NULL," ");
+	value=strtok(NULL,"\n");
+	setSymbol(key,value,UNLOCK,GLOBAL);
+	
+	if(!strcmp(key,"CLIENT")) {
+	  global.rawClient=0;
+	  global.redisClient=0;
+	  global.formatClient=0;
+	  
+	  if(!strcmp(value,"raw")) {
+	    global.rawClient=1;
+	  }
+	  
+	  if(!strcmp(value,"redis")) {
+	    global.redisClient=1;
+	  }
+	  
+	  if(!strcmp(value,"format")) {
+	    global.formatClient=1;
+	  }
+	  
+	  if(!strcmp(value,"cmd")) {
+	    global.cmdClient=1;
+	  }
+	  
+	  if( (global.rawClient == 0) && 
+	    (global.redisClient == 0) && 
+	    (global.formatClient == 0) && 
+	    global.cmdClient == 0) {
+	    global.rawClient = 1;
+	  setSymbolValue("CLIENT","raw");
+	    }
+	}
+	rc=1;
+      } else if(!strcasecmp(cmd,"^load")) {
+	loadSymbols();
+	rc=1;
+      } else if(!strcasecmp(cmd,"^lock")) {
+	key=strtok(NULL,"\n");
+	lockSymbol( key );
+	rc=1;
+      } else if(!strcasecmp(cmd,"^local")) {
+	key=strtok(NULL,"\n");
+	mkLocal( key );
+	rc=1;
+      } else if(!strcasecmp(cmd,"^global")) {
+	key=strtok(NULL,"\n");
+	mkGlobal( key );
+	rc=1;
+      } else if(!strcasecmp(cmd,"^exit")) {
+	rc=getBoolean("EXIT_ALLOWED");
+	if(rc !=0 ) {
+	  exit(0);
+	}
+	rc=1;
+      } else if(!strcasecmp(cmd,"^disconnect")) {
+	toError("Not Implemented.\n");
+      } 
+      rc=1;
     }
+  } else {
+    // Mode is set to remote.
+    getGroup(scratch);
+    toSpread(scratch,resBuffer);
+    rc=1;
+  }
 
-    //
-    // Local commands are prefixed with a ^
-    //
-    if(cmd[0] != '^') {
-        return(0);
-    }
-
-    strcpy(resBuffer,cmd);
-
-    tok=strtok(cmd," \n");
-
-    if( tok !=(char *)NULL) {
-        if( !strcmp(cmd,"^mode")) {
-            getMode(resBuffer);
-            strcat(resBuffer,"\n");
-            toOut(resBuffer);
-            return(1);
-        } else if(!strcmp(cmd,"^status")) {
-            if(global.connected !=0) {
-                strcpy(resBuffer,"connected\n");
-            } else {
-                strcpy(resBuffer,"disconnected\n");
-            }
-            toOut(resBuffer);
-            return(1);
-        }
-        getMode(scratch);
-        rc=0;
-
-        if(!strcasecmp(scratch,"local")) {
-            if(!strcasecmp(cmd,"^dump")) {
-                dumpSymbols();
-                dumpGlobals();
-                rc=1;
-            } else if(!strcasecmp(cmd,"^remote")) {
-                if(global.connected == 1) {
-                    setMode("remote");
-                } else {
-                    printf("NOT CONNECTED\n");
-                }
-                rc=1;
-            } else if(!strcasecmp(cmd,"^set-debug")) {
-                setSymbolValue("DEBUG","true");
-                global.debug=1;
-                rc=1;
-            } else if(!strcasecmp(cmd,"^clr-debug")) {
-                setSymbolValue("DEBUG","false");
-                global.debug = 0;
-                rc=1;
-            } else if(!strcasecmp(cmd,"^connect")) {
-                connectToSpread();
-                rc=1;
-            } else if(!strcasecmp(cmd,"^save")) {
-                rc=getBoolean("SAVE_ALLOWED");
-
-                if(rc != 0) {
-                    saveSymbols();
-                }
-                rc=1;
-            } else if(!strcasecmp(cmd,"^set")) {
-                key=strtok(NULL," ");
-                value=strtok(NULL,"\n");
-                setSymbolValue(key,value);
-
-                if(!strcmp(key,"CLIENT")) {
-                    global.rawClient=0;
-                    global.redisClient=0;
-                    global.formatClient=0;
-
-                    if(!strcmp(value,"raw")) {
-                        global.rawClient=1;
-                    }
-
-                    if(!strcmp(value,"redis")) {
-                        global.redisClient=1;
-                    }
-
-                    if(!strcmp(value,"format")) {
-                        global.formatClient=1;
-                    }
-
-                    if(!strcmp(value,"cmd")) {
-                        global.cmdClient=1;
-                    }
-
-                    if( (global.rawClient == 0) && 
-                            (global.redisClient == 0) && 
-                            (global.formatClient == 0) && 
-                            global.cmdClient == 0) {
-                        global.rawClient = 1;
-                        setSymbolValue("CLIENT","raw");
-                    }
-                }
-                rc=1;
-            } else if(!strcasecmp(cmd,"^load")) {
-                loadSymbols();
-                rc=1;
-            } else if(!strcasecmp(cmd,"^lock")) {
-                key=strtok(NULL,"\n");
-                lockSymbol( key );
-                rc=1;
-            } else if(!strcasecmp(cmd,"^local")) {
-                key=strtok(NULL,"\n");
-                mkLocal( key );
-                rc=1;
-            } else if(!strcasecmp(cmd,"^global")) {
-                key=strtok(NULL,"\n");
-                mkGlobal( key );
-                rc=1;
-            } else if(!strcasecmp(cmd,"^exit")) {
-                rc=getBoolean("EXIT_ALLOWED");
-                if(rc !=0 ) {
-                    exit(0);
-                }
-                rc=1;
-            } else if(!strcasecmp(cmd,"^disconnect")) {
-                toError("Not Implemented.\n");
-            } else {
-                rc=getBoolean("TO_FORTH");
-                if(rc) {
-                    key=strtok(NULL," ");
-                    value=strtok(NULL,"\n");
-                    // CHANGE
-                    //                        if(!cmdToForth(cmd,key,value, resBuffer)) {
-                    //                            toOut(resBuffer);
-                    //                        }
-                }
-                rc=1;
-            }
-        } else {
-            // Mode is set to remote.
-            getGroup(scratch);
-            toSpread(scratch,resBuffer);
-            rc=1;
-        }
-    }
-
-    //    rc = pthread_mutex_unlock(&cmdInterpMutex);
-    return(rc);
+//    rc = pthread_mutex_unlock(&cmdInterpMutex);
+  return(rc);
 }
+
 /*! \brief If a string from global.in is a commmand (i.e prefixed by a ^)
  * @param [in] arg String from input.
  */
 void *count(void *arg) {
-    int delay=0;
-    int rc;
-    char buff[BUFFSIZE];
-
-    while(1) {
-        bzero(buff,BUFFSIZE);
-
-        fromIn(global.in,buff);
-        // 
-        // Check if in remote mode here.
-        // 
-        if( '^' == buff[0]) {
-            rc = pthread_mutex_lock(&cmdInterpMutex);
-            cmdInterp(0,buff);
-            rc = pthread_mutex_unlock(&cmdInterpMutex);
-        } else if( '#' == buff[0]) {
-            // Comment so ignore it.
-        } else {
-            toSpread((char *)"global",(char *)buff);
-        }
+  int delay=0;
+  int rc;
+  char buff[BUFFSIZE];
+  
+  while(1) {
+    bzero(buff,BUFFSIZE);
+    
+    fromIn(global.in,buff);
+    // 
+    // Check if in remote mode here.
+    // 
+    if( '^' == buff[0]) {
+      rc = pthread_mutex_lock(&cmdInterpMutex);
+      cmdInterp(0,buff);
+      rc = pthread_mutex_unlock(&cmdInterpMutex);
+    } else if( '#' == buff[0]) {
+      // Comment so ignore it.
+    } else {
+      toSpread((char *)"global",(char *)buff);
     }
-
-    return (void*)(1);
+  }
+  
+  return (void*)(1);
 }
 /*! \brief fromSpread Recieve a message from spread.
  * @param [in] sender the spread user that the message originated with.
@@ -768,151 +700,113 @@ void *count(void *arg) {
  */
 // void fromSpread(char *sender, char *message,int direction) {
 int fromSpread(char *s, char *m ) {
-    char *client;
-    char buffer[BUFFSIZE];
-
-    int service_type=0;
-    int num_groups;
-    char target_groups[100][MAX_GROUP_NAME];
-    int16 mess_type;
-    int ret;
-    int rc=0;
-    int endian_mismatch;
-    
-    char sender[BUFFSIZE];
-    static char message[MAX_MESSLEN];
-    
-    bzero(buffer,BUFFSIZE);
-    bzero(message,MAX_MESSLEN);
-    /*
-    s=(char *)NULL;
-    m=(char *)NULL;
-    */
-    
-    ret = SP_receive (global.Mbox, &service_type, sender, 100,
-            &num_groups, target_groups,
-            &mess_type, &endian_mismatch, sizeof (message),
-            message);
-
-    if( ret < 0) {
-      rc = ret;
-    } else {
-      if (Is_regular_mess (service_type)) {
-	strcpy(s, sender);
-	strncpy(m,message,strlen(message));
-	
-      }
-      rc =  service_type;
+  char *client;
+  char buffer[BUFFSIZE];
+  
+  int service_type=0;
+  int num_groups;
+  char target_groups[100][MAX_GROUP_NAME];
+  int16 mess_type;
+  int ret;
+  int rc=0;
+  int endian_mismatch;
+  
+  char sender[BUFFSIZE];
+  static char message[MAX_MESSLEN];
+  
+  bzero(buffer,BUFFSIZE);
+  bzero(message,MAX_MESSLEN);
+  
+  ret = SP_receive (global.Mbox, &service_type, sender, 100,
+		    &num_groups, target_groups,
+		    &mess_type, &endian_mismatch, sizeof (message),
+		    message);
+  
+  if( ret < 0) {
+    rc = ret;
+  } else {
+    if (Is_regular_mess (service_type)) {
+      strcpy(s, sender);
+      memcpy((void *)m,  message, ret);
     }
-    return(rc);
-/*
-    if(global.rawClient != 0) {
-        if(getFiclBoolean("ADD_CR")) { 
-            strcat(buffer,"\n");
-        }
-
-        if(getFiclBoolean("ADD_SENDER")) {
-            sprintf(buffer,"%s:%s",sender,message);
-            toOut( buffer );
-        } else {
-            toOut( message );
-        }
-    } else if(global.formatClient !=0 ) {
-        remoteCmdInterp(sender,message,buffer);
-        toOut(buffer);
-    } else if(global.redisClient != 0) {
-        remoteCmdInterp(sender,message,buffer);
-        toOut(buffer);
-    } else if(global.cmdClient != 0) {
-        remoteCmdInterp(sender,message,buffer);
-        switch(direction) {
-            case SINK:
-                toOut(buffer);
-                break;
-            case SOURCE:
-                toSpread(sender,buffer);
-                break;
-        }
-    } else {
-        remoteCmdInterp(sender,message,buffer);
-
-    }
-    */
+    rc =  service_type;
+  }
+  return(rc);
 }
 /*! \brief toSpread 
  * @param [in] recipient Pointer to the name of the user or group the message is for.
  * @param [in] buffer The message.
  */
 void toSpread(char *recipient, char *buffer) {
-    int rc=-1;
-    int ret;
-    char *ptr=(char *)NULL;
-
-    rc = pthread_mutex_lock(&spreadMutex);
-
-    if (strlen(buffer) > 0) {
-        ret = SP_multicast (global.Mbox, AGREED_MESS, recipient, 1, strlen (buffer), buffer);
-
-        if( ret < 0) {
-            SP_error(ret);
-            global.connected=0;
-        }
+  int rc=-1;
+  int ret;
+  char *ptr=(char *)NULL;
+  
+  rc = pthread_mutex_lock(&spreadMutex);
+  
+  if (strlen(buffer) > 0) {
+    ret = SP_multicast (global.Mbox, AGREED_MESS, recipient, 1, strlen (buffer), buffer);
+    
+    if( ret < 0) {
+      SP_error(ret);
+      global.connected=0;
     }
-    rc = pthread_mutex_unlock(&spreadMutex);
+  }
+  rc = pthread_mutex_unlock(&spreadMutex);
 }
 /*! \brief loadFile Loads a ficl source file.
  * @param[in] file Filename.
  * @details Reads APPLIB from the environment and, if set, uses this as a prefix to the name of the parameter.  If this is not set or empty it is set to the default  /usr/local/etc/lightToSpread/App.
  */
 /*
-int loadFile(char *file) {
-    char *env;
-    char buffer[BUFFSIZE];
-    char cmd[BUFFSIZE];
-    int status=0;
-    int returnValue=0;
-    char *dir;
-
-#ifdef FICL
-    struct cString *tmp;
-    dir=getenv("APPLIB");
-
-    if(!dir) {
-        tmp=getSymbol("APP_DIR");
-
-        if(!tmp) {
-            setSymbol("APP_DIR", "/usr/local/etc/lightToSpread/App",UNLOCK,GLOBAL);
-            dir=strsave("/usr/local/etc/lightToSpread/App");
-        
-            fprintf(stderr,"Config variable APPLIB Not set.\n");
-            fprintf(stderr,"APPLIB set to default: %s\n",dir);
-        } else {
-            dir=tmp->text;
-        }
-    }
-    bzero(buffer,BUFFSIZE);
-    bzero(cmd,BUFFSIZE);
-//
-// Check here if file starts with a /
-// If so do not prepend APPLIB.
-//
-    if(file[0] == '/') {
-        strcpy(buffer,file);
-    } else {
-        sprintf(buffer,"%s/%s",dir,file);
-    }
-
-    if( (access(buffer,R_OK)) != 0 ) {
-        returnValue=1;
-    } else {
-        sprintf(cmd,"load %s\n",buffer);
-        returnValue = ficlVmEvaluate(global.vm, cmd);
-        returnValue = 0;
-    }
-#endif
-    return(returnValue);
-}
-*/
+ * int loadFile(char *file) {
+ *    char *env;
+ *    char buffer[BUFFSIZE];
+ *    char cmd[BUFFSIZE];
+ *    int status=0;
+ *    int returnValue=0;
+ *    char *dir;
+ * 
+ * #ifdef FICL
+ *    struct cString *tmp;
+ *    dir=getenv("APPLIB");
+ * 
+ *    if(!dir) {
+ *        tmp=getSymbol("APP_DIR");
+ * 
+ *        if(!tmp) {
+ *            setSymbol("APP_DIR", "/usr/local/etc/lightToSpread/App",UNLOCK,GLOBAL);
+ *            dir=strsave("/usr/local/etc/lightToSpread/App");
+ *        
+ *            fprintf(stderr,"Config variable APPLIB Not set.\n");
+ *            fprintf(stderr,"APPLIB set to default: %s\n",dir);
+ *        } else {
+ *            dir=tmp->text;
+ *        }
+ *    }
+ *    bzero(buffer,BUFFSIZE);
+ *    bzero(cmd,BUFFSIZE);
+ * //
+ * // Check here if file starts with a /
+ * // If so do not prepend APPLIB.
+ * //
+ *    if(file[0] == '/') {
+ *        strcpy(buffer,file);
+ *    } else {
+ *        sprintf(buffer,"%s/%s",dir,file);
+ *    }
+ * 
+ *    if( (access(buffer,R_OK)) != 0 ) {
+ *        returnValue=1;
+ *    } else {
+ *        sprintf(cmd,"load %s\n",buffer);
+ *        returnValue = ficlVmEvaluate(global.vm, cmd);
+ *        returnValue = 0;
+ *    }
+ * #endif
+ *    return(returnValue);
+ * }
+ */
 
 /*! \brief Convert a string indicate true/false.
  * @param [in] name Pointer to a string.
@@ -920,15 +814,15 @@ int loadFile(char *file) {
  */
 
 int getBoolean(char *name) {
-    char *ptr = getSymbol(name);
-
-    if( ptr) {
-        if(!strcmp(ptr,"true")) {
-            return(1);
-        } else {
-            return(0);
-        }
+  char *ptr = getSymbol(name);
+  
+  if( ptr) {
+    if(!strcmp(ptr,"true")) {
+      return(1);
+    } else {
+      return(0);
     }
+  }
 }
 
 
@@ -937,15 +831,15 @@ int getBoolean(char *name) {
  * @return -1 if from me, 0 otherwise.
  */
 int fromMe(char *sender) {
-    char *resPtr;
-
-    resPtr=getSymbol("ME");
-
-    if(!strcmp(sender,resPtr)) {
-        return(-1);
-    } else {
-        return(0);
-    }
+  char *resPtr;
+  
+  resPtr=getSymbol("ME");
+  
+  if(!strcmp(sender,resPtr)) {
+    return(-1);
+  } else {
+    return(0);
+  }
 }
 
 /*! \brief Check if a message is waiting.

@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 
 #include "connectToSpread.h"
+#include "hash.h"
 #include "sp.h"
 #include "mine.h"
 
@@ -38,16 +39,18 @@ int main(void) {
   char *group=(char *)NULL;
   
   printf("Buff size = %d\n", MAX_MESSLEN);
-  setSymbol("BUILD",__DATE__);
-  setSymbol("CLIENT","raw");
-  setSymbol("SPREAD_SERVER","4803");
-  setSymbol("GROUP","global");
-  setSymbol("USER","tstLib");
-  setSymbol("DEBUG","true");
+  setSymbol("BUILD",__DATE__,LOCK,LOCAL);
+  setSymbol("CLIENT","raw",UNLOCK,GLOBAL);
+  setSymbol("SPREAD_SERVER","4803",UNLOCK,GLOBAL);
+  setSymbol("GROUP","global",UNLOCK,GLOBAL);
+  setSymbol("USER","tstLib",UNLOCK,GLOBAL);
+  setSymbol("DEBUG","true",UNLOCK,GLOBAL);
+  setSymbol("MODE","local",UNLOCK,GLOBAL);
   
   dumpGlobals();
   
   loadSymbols();
+  loadFile("tst.rc");
   dumpSymbols();
   
   connectToSpread();

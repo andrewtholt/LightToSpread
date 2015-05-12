@@ -262,6 +262,15 @@ void saveParam(FILE *fp,struct nlist *np) {
   }
 }
 
+void defaultSymbols() {
+  setSymbol("CLIENT","raw",UNLOCK,GLOBAL);
+  setSymbol("SPREAD_SERVER","4803",UNLOCK,GLOBAL);
+  setSymbol("GROUP","global",UNLOCK,GLOBAL);
+  setSymbol("DEBUG","true",UNLOCK,GLOBAL);
+  setSymbol("SAVE_ALLOWED","true",UNLOCK,GLOBAL);
+
+}
+
 void saveSymbols () {
   struct nlist *np;
   int i;
@@ -317,12 +326,42 @@ void saveSymbols () {
       }
     }
   }
+  /*
   np=lookup("MODE");
   saveParam(fp,np);
+  */
   fclose (fp);
 }
 
+void loadFile(char *fileName) {
+  FILE *fp;
+  char *ptr;
+  int debug=0;
+  char buffer[BUFFSIZE];
+  int i=0;
+  
+  debug=getBoolean("DEBUG");
+  
+  if(debug) {
+      printf("Load file %s\n",fileName);
+  }
+  
+  fp = fopen (fileName, "r");
+  
+  if(fp != (FILE *)NULL ) {
+    while( fgets(buffer,BUFFSIZE,fp)) {
+      if(debug) {
+	printf("%3d:%s",i,buffer);
+      }
+      cmdInterp(1,buffer);
+      i++;
+    }
+    fclose(fp);
+  }
+}
+
 void loadSymbols() {
+/*
   FILE *fp;
   char *fileName;
   char *ptr;
@@ -359,4 +398,5 @@ void loadSymbols() {
     }
     fclose(fp);
   }
+*/
 }
