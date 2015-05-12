@@ -105,6 +105,9 @@ void connectToSpread() {
   int rc=0;
   int i=0;
   int idx=0;
+  int v=0;
+  
+  char *tmp;
   
   char    Private_group[MAX_GROUP_NAME];
   
@@ -148,7 +151,6 @@ void connectToSpread() {
   
   idx = 0;
   while( global.connected == 0) {
-    //        rc = SP_connect( spreadServer, user, 0, 1, &global.Mbox, Private_group ) ;
     if (strlen(servers[idx].server) > 0) {
       rc = SP_connect( servers[idx].server, user, 0, 1, &global.Mbox, Private_group ) ;
       
@@ -167,6 +169,14 @@ void connectToSpread() {
   setSymbolValue("ME",Private_group);
   lockSymbol("ME");
   mkLocal("ME");
+  
+  v = gethostname(buffer, BUFFSIZE);
+  tmp = (char *) strtok(buffer, ".");
+
+  if (tmp) {
+    setSymbol("HOSTNAME", tmp, LOCK,LOCAL);
+  }
+
   
   c=getSymbol("ON_CONNECT");
   if((char *)NULL != c) {

@@ -34,6 +34,7 @@ latex/*
 # Misc
 .connectToSpread.c.swp
 *-swp
+*.swp
 spreadSink
 spreadSource
 *~
