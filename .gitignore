@@ -22,6 +22,7 @@ lightSource
 lightSink
 toSpread
 tstLib
+dbCache
 
 # Packages
 *.deb
@@ -32,6 +33,7 @@ debian-i386/*
 html/*
 latex/*
 # Misc
+*.db
 .connectToSpread.c.swp
 *-swp
 *.swp

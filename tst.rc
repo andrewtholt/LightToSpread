@@ -11,3 +11,5 @@
 ^set SAVE_ALLOWED true
 ^set INTERACTIVE true
 ^set SHOW_SENDER false
+^set DATABASE dbCache.db
+^lock DATABASE

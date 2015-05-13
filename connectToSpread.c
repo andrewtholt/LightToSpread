@@ -8,10 +8,6 @@
 #include <unistd.h>
 #include <semaphore.h>
 
-#ifdef FICL
-#include <ficl.h>
-#endif 
-
 #include <termios.h>
 struct termios orig_termios; 
 char prompt[32];
@@ -84,7 +80,7 @@ void dumpGlobals() {
   
   booleanToString(global.redisClient,buffer);
   printf("global.redisClient = %s\n",buffer);
-  
+ 
   booleanToString(global.rawClient,buffer);
   printf("       rawClient   = %s\n",buffer);
   
