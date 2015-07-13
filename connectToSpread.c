@@ -43,16 +43,16 @@ sem_t connected;
 #include "mine.h"
 
 /*! \brief Pass in a pointer to a string, allocate sufficient space to hold it and copy.
- */
+*/
 
 char *strsave (char *s) { 
-  char *p;
-  
-  if ((p = (char *) malloc (strlen (s) + 1)) != NULL) {
-    strcpy (p, s);
-  }
-  
-  return (p);
+    char *p;
+
+    if ((p = (char *) malloc (strlen (s) + 1)) != NULL) {
+        strcpy (p, s);
+    }
+
+    return (p);
 }
 
 //! \brief Send a message to stderr.
@@ -61,285 +61,285 @@ char *strsave (char *s) {
  * @param msg Pointer to a character string.
  */
 void printDebug(char *msg) {
-  if(global.debug != 0) {
-    fprintf(stderr,"%s\n",msg);
-  }
+    if(global.debug != 0) {
+        fprintf(stderr,"%s\n",msg);
+    }
 }
 /*! \brief Convert an integer value to a string presentation.
  * @param v Flag, 0=false, non zero is true.
  * @param res Pointer to a memory block of, at least 6 bytes.
  */
 void booleanToString(int v,char *res) {
-  if( 0 == v) {
-    strcpy(res,"false");
-  } else {
-    strcpy(res,"true");
-  }
-  
+    if( 0 == v) {
+        strcpy(res,"false");
+    } else {
+        strcpy(res,"true");
+    }
+
 }
 /*! \brief Display the values held in the globals structure.
- */
+*/
 void dumpGlobals() {
-  char buffer[32];
-  
-  booleanToString(global.redisClient,buffer);
-  printf("global.redisClient = %s\n",buffer);
-  
-  booleanToString(global.rawClient,buffer);
-  printf("       rawClient   = %s\n",buffer);
-  
-  booleanToString(global.formatClient,buffer);
-  printf("       formatClient= %s\n",buffer);
-  
-  booleanToString(global.cmdClient,buffer);
-  printf("       cmdClient   = %s\n",buffer);
-  
-  booleanToString(global.debug,buffer);
-  printf("       Debug       = %s\n",buffer);
-  
-  booleanToString(global.connected,buffer);
-  printf("       Connected   = %s\n",buffer);
+    char buffer[32];
+
+    booleanToString(global.redisClient,buffer);
+    printf("global.redisClient = %s\n",buffer);
+
+    booleanToString(global.rawClient,buffer);
+    printf("       rawClient   = %s\n",buffer);
+
+    booleanToString(global.formatClient,buffer);
+    printf("       formatClient= %s\n",buffer);
+
+    booleanToString(global.cmdClient,buffer);
+    printf("       cmdClient   = %s\n",buffer);
+
+    booleanToString(global.debug,buffer);
+    printf("       Debug       = %s\n",buffer);
+
+    booleanToString(global.connected,buffer);
+    printf("       Connected   = %s\n",buffer);
 }
 
 void connectToSpread() {
-  int rc=0;
-  int i=0;
-  int idx=0;
-  int v=0;
-  
-  char *tmp;
-  
-  char    Private_group[MAX_GROUP_NAME];
-  
-  char *spreadServer;
-  char *user;
-  char *group;
-  char *defaultGroup;
-  char *c;
-  char buffer[BUFFSIZE];
-  char *ptr=(char *)NULL;
-  
-  if(global.connected) {
-    return;
-  }
-  //    global.connected=0;
-  
-  for(i=0;i<5;i++) {
-    bzero(servers[i].server,64);
-    servers[i].status=-1;
-  }
-  
-  strcpy(servers[0].server,"4803@localhost");
-  i=1;
-  
-  spreadServer=getSymbol("SPREAD_SERVER");
-  user=getSymbol("USER");
-  
-  ptr=strtok(spreadServer,": \n");
-  
-  if( !strcmp(ptr,"4803") || !strcmp(ptr,"4803@localhost")) {
-    ptr=(char *)NULL;
-  } 
-  
-  for(i=1;(i<5 && ptr != (char *)NULL);i++) {
-    ptr=strtok(NULL,": \n");
-    
-    if(ptr) {
-      strcpy(servers[i].server,ptr);
-    }
-  }
-  
-  idx = 0;
-  while( global.connected == 0) {
-    if (strlen(servers[idx].server) > 0) {
-      rc = SP_connect( servers[idx].server, user, 0, 1, &global.Mbox, Private_group ) ;
-      
-      if(rc < 0) {
-	SP_error(rc);
-	global.connected=0;
-	sleep(1);
-      } else {
-	global.connected=1;
-      }
-    }
-    idx++;
-    idx = idx%4;
-  }
-  
-  setSymbolValue("ME",Private_group);
-  lockSymbol("ME");
-  mkLocal("ME");
-  
-  v = gethostname(buffer, BUFFSIZE);
-  tmp = (char *) strtok(buffer, ".");
+    int rc=0;
+    int i=0;
+    int idx=0;
+    int v=0;
 
-  if (tmp) {
-    setSymbol("HOSTNAME", tmp, LOCK,LOCAL);
-  }
+    char *tmp;
 
-  
-  c=getSymbol("ON_CONNECT");
-  if((char *)NULL != c) {
-    if( strlen(c) > 0) {
-      strcpy(buffer,c);
-      strcat(buffer,"\n");
-      
-      toOut(buffer);
+    char    Private_group[MAX_GROUP_NAME];
+
+    char *spreadServer;
+    char *user;
+    char *group;
+    char *defaultGroup;
+    char *c;
+    char buffer[BUFFSIZE];
+    char *ptr=(char *)NULL;
+
+    if(global.connected) {
+        return;
     }
-  }
-  
-  group=getSymbol("GROUP");
-  if( group != (char *)NULL) {
-    if(strlen(group) > 0) {
-      rc = SP_join(global.Mbox,group);
+    //    global.connected=0;
+
+    for(i=0;i<5;i++) {
+        bzero(servers[i].server,64);
+        servers[i].status=-1;
     }
-  }
-  
-  defaultGroup=getSymbol("DEFAULT_GROUP");
-  if( defaultGroup != (char *)NULL) {
-    if(strlen(defaultGroup) > 0) {
-      rc = SP_join(global.Mbox,defaultGroup);
+
+    strcpy(servers[0].server,"4803@localhost");
+    i=1;
+
+    spreadServer=getSymbol("SPREAD_SERVER");
+    user=getSymbol("USER");
+
+    ptr=strtok(spreadServer,": \n");
+
+    if( !strcmp(ptr,"4803") || !strcmp(ptr,"4803@localhost")) {
+        ptr=(char *)NULL;
+    } 
+
+    for(i=1;(i<5 && ptr != (char *)NULL);i++) {
+        ptr=strtok(NULL,": \n");
+
+        if(ptr) {
+            strcpy(servers[i].server,ptr);
+        }
     }
-  }
-  
+
+    idx = 0;
+    while( global.connected == 0) {
+        if (strlen(servers[idx].server) > 0) {
+            rc = SP_connect( servers[idx].server, user, 0, 1, &global.Mbox, Private_group ) ;
+
+            if(rc < 0) {
+                SP_error(rc);
+                global.connected=0;
+                sleep(1);
+            } else {
+                global.connected=1;
+            }
+        }
+        idx++;
+        idx = idx%4;
+    }
+
+    setSymbolValue("ME",Private_group);
+    lockSymbol("ME");
+    mkLocal("ME");
+
+    v = gethostname(buffer, BUFFSIZE);
+    tmp = (char *) strtok(buffer, ".");
+
+    if (tmp) {
+        setSymbol("HOSTNAME", tmp, LOCK,LOCAL);
+    }
+
+
+    c=getSymbol("ON_CONNECT");
+    if((char *)NULL != c) {
+        if( strlen(c) > 0) {
+            strcpy(buffer,c);
+            strcat(buffer,"\n");
+
+            toOut(buffer);
+        }
+    }
+
+    group=getSymbol("GROUP");
+    if( group != (char *)NULL) {
+        if(strlen(group) > 0) {
+            rc = SP_join(global.Mbox,group);
+        }
+    }
+
+    defaultGroup=getSymbol("DEFAULT_GROUP");
+    if( defaultGroup != (char *)NULL) {
+        if(strlen(defaultGroup) > 0) {
+            rc = SP_join(global.Mbox,defaultGroup);
+        }
+    }
+
 }
 
 void toOut(char *msg ) {
-  int rc;
-  
-  rc = pthread_mutex_lock(&stdoutMutex);
-  fprintf(global.out,"%s",msg);
-  fflush(global.out);
-  rc = pthread_mutex_unlock(&stdoutMutex);
+    int rc;
+
+    rc = pthread_mutex_lock(&stdoutMutex);
+    fprintf(global.out,"%s",msg);
+    fflush(global.out);
+    rc = pthread_mutex_unlock(&stdoutMutex);
 }
 
 void toError(char *msg ) {
-  int rc;
-  
-  //    rc = pthread_mutex_lock(&stdoutMutex);
-  fprintf(global.out,"%s",msg);
-  fflush(global.err);
-  //    rc = pthread_mutex_unlock(&stdoutMutex);
+    int rc;
+
+    //    rc = pthread_mutex_lock(&stdoutMutex);
+    fprintf(global.out,"%s",msg);
+    fflush(global.err);
+    //    rc = pthread_mutex_unlock(&stdoutMutex);
 }
 
 void fromIn(FILE *fp, char *buffer) {
-  int rc=0;
-  char *status;
-  
-  rc = pthread_mutex_lock(&stdinMutex);
-  
-  status = fgets (buffer, BUFFSIZE, global.in);
-  
-  rc = pthread_mutex_unlock(&stdinMutex);
+    int rc=0;
+    char *status;
+
+    rc = pthread_mutex_lock(&stdinMutex);
+
+    status = fgets (buffer, BUFFSIZE, global.in);
+
+    rc = pthread_mutex_unlock(&stdinMutex);
 }
 
 void getMode(char *resBuffer) {
-  char *ptr;
-  int resLen;
-  
-  ptr= getSymbol("MODE");
-  if(!ptr) {
-    strcpy(resBuffer,"local");
-  } else {
-    resLen=strlen(ptr);
-    
-    strncpy(resBuffer,ptr,resLen);
-    resBuffer[resLen]=0x00;
-  }
+    char *ptr;
+    int resLen;
+
+    ptr= getSymbol("MODE");
+    if(!ptr) {
+        strcpy(resBuffer,"local");
+    } else {
+        resLen=strlen(ptr);
+
+        strncpy(resBuffer,ptr,resLen);
+        resBuffer[resLen]=0x00;
+    }
 }
 
 void setMode(char *ptr) {
-  
-  setSymbolValue("MODE",ptr);
+
+    setSymbolValue("MODE",ptr);
 }
 
 void getGroup(char *resBuffer) {
-  int resLen=0;
-  char *ptr;
-  
-  bzero(resBuffer,BUFFSIZE);
-  ptr= getSymbol("GROUP");
-  
-  if(strlen(ptr) == 0) {
-    ptr= getSymbol("DEFAULT_GROUP");
-  }
-  resLen=strlen(ptr);
-  strncpy(resBuffer,ptr,resLen);
+    int resLen=0;
+    char *ptr;
+
+    bzero(resBuffer,BUFFSIZE);
+    ptr= getSymbol("GROUP");
+
+    if(strlen(ptr) == 0) {
+        ptr= getSymbol("DEFAULT_GROUP");
+    }
+    resLen=strlen(ptr);
+    strncpy(resBuffer,ptr,resLen);
 }
 
 void processFormat(char *resBuffer, char *key, char *value, char *fmt) {
-  int i=0;
-  int j=0;
-  int len=0;
-  
-  bzero(resBuffer,BUFFSIZE);
-  
-  len=strlen(fmt);
-  
-  for(i=0;i<len;i++) {
-    if( fmt[i] != '$') {
-      resBuffer[j++]=fmt[i];
-    } else {
-      if( fmt[i+1] == 'K') {
-	sprintf(&resBuffer[j],"%s",key);
-	j += strlen(key);
-	i++;
-      } else if( fmt[i+1] == 'V') {
-	sprintf(&resBuffer[j],"%s",value);
-	j += strlen(value);
-	i++;
-      }
+    int i=0;
+    int j=0;
+    int len=0;
+
+    bzero(resBuffer,BUFFSIZE);
+
+    len=strlen(fmt);
+
+    for(i=0;i<len;i++) {
+        if( fmt[i] != '$') {
+            resBuffer[j++]=fmt[i];
+        } else {
+            if( fmt[i+1] == 'K') {
+                sprintf(&resBuffer[j],"%s",key);
+                j += strlen(key);
+                i++;
+            } else if( fmt[i+1] == 'V') {
+                sprintf(&resBuffer[j],"%s",value);
+                j += strlen(value);
+                i++;
+            }
+        }
     }
-  }
-  if(getBoolean("ADD_CR")) {
-    strcat(resBuffer,"\n");
-  }
-  
+    if(getBoolean("ADD_CR")) {
+        strcat(resBuffer,"\n");
+    }
+
 }
 void remoteSet(char *sender,char *key,char *value,char *resBuffer) {
-  char *fmt;
-  char *client;
-  
-  int len=0;
-  int i=0;
-  int j=0;
-  int flag=0;
-  struct nlist *np;
-  
-  np=lookup("LAST_MSG_FROM");
-  if(!np) {
-    install("LAST_MSG_FROM", sender, LOCK, LOCAL);
-  } else {
-    np->ro = UNLOCK;
-    install("LAST_MSG_FROM", sender, LOCK, LOCAL);
-    np->ro = LOCK;
-  }
-  
-  if(global.formatClient != 0 ) {
-    fmt=getSymbol("SET_FORMAT");
-    processFormat(resBuffer,key,value,fmt);
-  } else if(global.redisClient != 0) {
-    char scratchBuffer[BUFFSIZE];
-    bzero(scratchBuffer,BUFFSIZE);
-    
-    redisSender(sender,resBuffer);
-    redisSet(key,value,scratchBuffer);
-    strcat(resBuffer,scratchBuffer);
-  } else if(global.cmdClient !=0) {
-    int rc=0;
-    char pipeBuffer[BUFFSIZE];
-    FILE *pd;
-    
-    bzero(pipeBuffer,BUFFSIZE);
-    
-    fmt=getSymbol("CMD_FORMAT");
-    
-    processFormat(resBuffer,key,value,fmt);
-    
-    pd=popen(resBuffer,"r");
-    
-    if( pd != (FILE *)NULL) {
-      rc=fread(pipeBuffer,1,BUFFSIZE,pd);
+    char *fmt;
+    char *client;
+
+    int len=0;
+    int i=0;
+    int j=0;
+    int flag=0;
+    struct nlist *np;
+
+    np=lookup("LAST_MSG_FROM");
+    if(!np) {
+        install("LAST_MSG_FROM", sender, LOCK, LOCAL);
+    } else {
+        np->ro = UNLOCK;
+        install("LAST_MSG_FROM", sender, LOCK, LOCAL);
+        np->ro = LOCK;
+    }
+
+    if(global.formatClient != 0 ) {
+        fmt=getSymbol("SET_FORMAT");
+        processFormat(resBuffer,key,value,fmt);
+    } else if(global.redisClient != 0) {
+        char scratchBuffer[BUFFSIZE];
+        bzero(scratchBuffer,BUFFSIZE);
+
+        redisSender(sender,resBuffer);
+        redisSet(key,value,scratchBuffer);
+        strcat(resBuffer,scratchBuffer);
+    } else if(global.cmdClient !=0) {
+        int rc=0;
+        char pipeBuffer[BUFFSIZE];
+        FILE *pd;
+
+        bzero(pipeBuffer,BUFFSIZE);
+
+        fmt=getSymbol("CMD_FORMAT");
+
+        processFormat(resBuffer,key,value,fmt);
+
+        pd=popen(resBuffer,"r");
+
+        if( pd != (FILE *)NULL) {
+            rc=fread(pipeBuffer,1,BUFFSIZE,pd);
       
       if(strlen(pipeBuffer) > 0) {
 	strcpy(resBuffer,pipeBuffer);

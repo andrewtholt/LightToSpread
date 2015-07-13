@@ -18,7 +18,6 @@ struct globalDefinitions {
     int rawClient;
     int redisClient;
     int formatClient;
-//    int ficlClient;
     int cmdClient;
     
     char *defaultGroup;
@@ -31,12 +30,12 @@ struct globalDefinitions {
 
     char *configFileName;
 
-    char *appDir;      // place to look for ficl files.
     int locked;        // If true in remote mode.
     //
     // Ficl stuff.
     //
 #ifdef FICL
+    char *appDir;      // place to look for ficl files.
     ficlVm *vm;
     ficlSystem *system;
 #endif

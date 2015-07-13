@@ -31,7 +31,12 @@ int main(void) {
   global.connected=0;
   global.Group=(char *)NULL;
   global.configFileName=(char *)NULL;
+  // 
+  // Ficl
+  //
+#ifdef FICL
   global.appDir=(char *)NULL;
+#endif
   global.locked = 0;
   global.rawClient =1;
   global.debug = 1;
