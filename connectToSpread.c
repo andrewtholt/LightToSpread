@@ -8,10 +8,6 @@
 #include <unistd.h>
 #include <semaphore.h>
 
-#ifdef FICL
-#include <ficl.h>
-#endif 
-
 #include <termios.h>
 struct termios orig_termios; 
 char prompt[32];
@@ -80,25 +76,25 @@ void booleanToString(int v,char *res) {
 /*! \brief Display the values held in the globals structure.
 */
 void dumpGlobals() {
-    char buffer[32];
-
-    booleanToString(global.redisClient,buffer);
-    printf("global.redisClient = %s\n",buffer);
-
-    booleanToString(global.rawClient,buffer);
-    printf("       rawClient   = %s\n",buffer);
-
-    booleanToString(global.formatClient,buffer);
-    printf("       formatClient= %s\n",buffer);
-
-    booleanToString(global.cmdClient,buffer);
-    printf("       cmdClient   = %s\n",buffer);
-
-    booleanToString(global.debug,buffer);
-    printf("       Debug       = %s\n",buffer);
-
-    booleanToString(global.connected,buffer);
-    printf("       Connected   = %s\n",buffer);
+  char buffer[32];
+  
+  booleanToString(global.redisClient,buffer);
+  printf("global.redisClient = %s\n",buffer);
+ 
+  booleanToString(global.rawClient,buffer);
+  printf("       rawClient   = %s\n",buffer);
+  
+  booleanToString(global.formatClient,buffer);
+  printf("       formatClient= %s\n",buffer);
+  
+  booleanToString(global.cmdClient,buffer);
+  printf("       cmdClient   = %s\n",buffer);
+  
+  booleanToString(global.debug,buffer);
+  printf("       Debug       = %s\n",buffer);
+  
+  booleanToString(global.connected,buffer);
+  printf("       Connected   = %s\n",buffer);
 }
 
 void connectToSpread() {

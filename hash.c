@@ -169,9 +169,9 @@ void setSymbolValue(char *name, void *value) {
  */
 void setBoolean(char *name,int flag) {
     if( flag == 0) {
-        setSymbol(name,"false",0,0);
+        setSymbolValue(name,"false");
     } else {
-        setSymbol(name,"true",0,0);
+        setSymbolValue(name,"true");
     }
 
 }

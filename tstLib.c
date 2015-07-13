@@ -23,10 +23,13 @@ struct globalDefinitions global;
 int main(void) {
   char from[MAX_GROUP_NAME];
   char message[MAX_MESSLEN];
+  membership_info memb_info;
+
   
   int service_type;
   int loop = 1;
   int rc;
+  int ret;
   
   global.connected=0;
   global.Group=(char *)NULL;
@@ -70,6 +73,8 @@ int main(void) {
       loop=0;
     } else if (Is_membership_mess (service_type)) {
       printf("Membership\n");
+      ret = SP_get_memb_info(message, service_type, &memb_info);
+
     } else if (Is_reg_memb_mess (service_type)) {
       printf("Regular memebership\n");
     } else if (Is_caused_join_mess (service_type)) {
