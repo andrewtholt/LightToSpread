@@ -10,6 +10,12 @@
 #include <unistd.h>
 #include <semaphore.h>
 
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <netinet/in.h>
+#include <netdb.h>
+
 #include <termios.h>
 struct termios orig_termios; 
 char prompt[32];
@@ -39,14 +45,57 @@ void usage(void) {
     printf("\t-d\t\tEnable debugging messages.\n");
     printf("\t-h\t\tHelp\n");
     printf("\t-g <name>\tSpread Group.\n");
-    printf("\t-r <server>\tRedis server, format <name:socket>.\n");
+    printf("\t-r <server>\tRedis server, format <name:service>.\n");
     printf("\t-s <server>\tSpread server, format <socket@hostname>.\n");
     printf("\t-u <user>\tUser name.\n");
     printf("\t-v\t\tVerbose.\n");
 
     printf("\n\nDefault usage is equivalent to:\n");
-    printf("\tredisListener -u redis -s 4803@localhost -r localhost:6379\n\n");
+    printf("\tredisListener -u redis -s 4803@localhost -r localhost:redis\n\n");
+    printf("NOTE:\n");
+    printf("\tThe -s switch expects symbolic names, e.g. proliant:redis\n");
 
+}
+
+int connectToSocket(char *host, char *port) {
+    int sock;
+    int tmp;
+    int rc;
+
+    struct sockaddr_in server;
+    struct addrinfo hint;
+    struct addrinfo *result = NULL;
+
+    memset(&hint, 0 , sizeof(hint));
+    /*
+       server.sin_addr.s_addr = inet_addr(host);
+       server.sin_family = AF_INET;
+       server.sin_port = htons( port );
+       */
+
+    hint.ai_family = AF_INET;
+    hint.ai_socktype = SOCK_STREAM;
+
+    rc = getaddrinfo(host, port, &hint, &result);
+
+    if( 0 == rc ) {
+        sock = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+        if(sock < 0) { 
+            perror("connectToSocket");
+            return(-1);
+        } else {
+            tmp = connect(sock, result->ai_addr, result->ai_addrlen );
+            if (tmp < 0) 
+                return(-1);
+        }    
+    }  
+    //Connect to remote server
+    /*
+       if (connect(sock , (struct sockaddr *)&server , sizeof(server)) < 0) {
+       perror("connect failed. Error");
+       return( -2);
+       }   */
+    return(sock);
 }
 
 int main(int argc, char* argv[]) {
@@ -75,7 +124,10 @@ int main(int argc, char* argv[]) {
     static char message[MAX_MESSLEN];
     int endian_mismatch;
     int ret;
+    int sock;
+    int idx=0;
     char *tok;
+    char server_reply[32];
 
     global.verbose=0;
     global.debug=0;
@@ -85,7 +137,7 @@ int main(int argc, char* argv[]) {
     setSymbolValue("DEFAULT_GROUP", "global");
     setSymbolValue("USER", "redis");
     setSymbolValue("REDIS_HOSTNAME","localhost");
-    setSymbolValue("REDIS_SOCKET","6379");
+    setSymbolValue("REDIS_SOCKET","redis");
 
     while ((ch = getopt (argc, (char **) argv, "dg:hu:r:s:vV")) != -1) {
         switch(ch) {
@@ -108,7 +160,7 @@ int main(int argc, char* argv[]) {
                 }
                 tok = strtok(NULL," \n:" );
                 if(!tok) {
-                    setSymbolValue("REDIS_SOCKET","6379");
+                    setSymbolValue("REDIS_SOCKET","redis");
                 } else {
                     setSymbolValue("REDIS_SOCKET",tok);
                 }
@@ -133,6 +185,7 @@ int main(int argc, char* argv[]) {
     }
 
 
+    sock=connectToSocket( getSymbol("REDIS_HOSTNAME"),getSymbol("REDIS_SOCKET"));
     connectToSpread();
     while(1) {
         runFlag=1;
@@ -141,18 +194,39 @@ int main(int argc, char* argv[]) {
             bzero(message,sizeof(message));
             bzero(buff,BUFFSIZE);
             /*
-            ret = SP_receive (global.Mbox, &service_type, sender, 100,
-                    &num_groups, target_groups,
-                    &mess_type, &endian_mismatch, sizeof (message),
-                    message);
-                    */
+               ret = SP_receive (global.Mbox, &service_type, sender, 100,
+               &num_groups, target_groups,
+               &mess_type, &endian_mismatch, sizeof (message),
+               message);
+               */
 
             service_type=fromSpread(sender,message);
 
             if (ret >= 0) {
                 if (Is_regular_mess (service_type)) {
-//                    fromSpread(sender,message);
-                    printf("Sender:%s\tMessage:%s\n",sender,message);
+
+                    if(global.debug) {
+                        printf("Sender:%s\tMessage:\n%s\n",sender,message);
+                    }   
+
+                    if( send(sock , message , strlen(message) , 0) < 0) {
+                        fprintf(stderr,"Send failed\n");
+                    }
+
+                    idx = 0;
+
+                    do {
+                        if( recv(sock , &server_reply[idx] , 1 , 0) < 0) {
+                            puts("recv failed");
+                            break;
+                        } 
+                    } while( server_reply[idx++] != '\n') ;
+
+                    if( global.debug) {
+                        server_reply[idx] = '\0';
+                        printf(">%s<\n",server_reply);
+                    }
+
                 } else if (Is_membership_mess (service_type)) {
                 } else if (Is_reg_memb_mess (service_type)) {
                 } else if (Is_caused_join_mess (service_type)) {
@@ -163,10 +237,10 @@ int main(int argc, char* argv[]) {
 
 
                 /*
-                if(strlen(buff) > 0) {
-                    toOut(buff);
-                }
-                */
+                   if(strlen(buff) > 0) {
+                   toOut(buff);
+                   }
+                   */
             } else {
                 SP_error(ret);
                 runFlag=0;

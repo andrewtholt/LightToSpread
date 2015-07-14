@@ -47,6 +47,8 @@ void usage(void) {
     printf("\t-v\t\tVerbose.\n\n");
     printf("\t-K <key>\tRedis Key\n");
     printf("\t-V <value>\tRedis Value\n");
+    printf("\t-H\t\tUse the redis HSET command, not SET.  Like sending\n");
+    printf("\t\t\tHSET <key> VALUE <value>\n\n");
 
     printf("\nDefault usage is equivalent to:\n");
     printf("\tsource -u source -s 4803 -c /dev/null\n\n");

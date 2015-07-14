@@ -443,7 +443,7 @@ void redisSet(char *k,char *v,char *buffer) {
  * @param [out] buffer Pointer to buffer holding result.
  */
 void redisHset(char *k,char *v,char *buffer) {
-    sprintf(buffer,"*4\n$4\nHSET\n$%d\n%s\n$5\nVALUE\n$%d\n%s\n",strlen(k),k,strlen(v),v);
+    sprintf(buffer,"*4\r\n$4\r\nHSET\r\n$%d\r\n%s\r\n$5\r\nVALUE\r\n$%d\r\n%s\r\n",strlen(k),k,strlen(v),v);
 }
 
 /*! \brief Generate a redis format 'get' command.
