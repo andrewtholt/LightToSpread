@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
     global.connected=0;
     global.Group=(char *)NULL;
     global.configFileName=(char *)NULL;
-    global.appDir=(char *)NULL;
+//    global.appDir=(char *)NULL;
     global.locked = 0;
 
     global.debug = 0;

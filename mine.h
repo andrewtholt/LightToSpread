@@ -15,6 +15,8 @@ struct globalDefinitions {
     FILE *err;
 
     int debug;
+    int verbose;
+
     int rawClient;
     int redisClient;
     int formatClient;

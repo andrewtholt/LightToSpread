@@ -23,6 +23,8 @@ lightSink
 toSpread
 tstLib
 dbCache
+redisListener
+redisSender
 
 # Packages
 *.deb

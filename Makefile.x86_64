@@ -7,12 +7,18 @@ INC=-I/usr/local/include
 # Don't build old utilities.  Retained for future reference.
 #
 # BINS= lightSink lightSource spreadSource spreadSink # mine # PthreadsExample
-BINS= tstLib lightSink lightSource toSpread 
+BINS= tstLib lightSink lightSource toSpread redisListener redisSender
 # LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
 LIBS=-lpthread -lspread -ldl -lm
 LFLAGS=-Wl,--no-as-needed 
 
 all:	$(BINS)
+
+redisSender:	redisSender.c hash.o connectToSpread.o
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o redisSender redisSender.c connectToSpread.o hash.o -L/usr/local/lib -lspread -ldl
+
+redisListener:	redisListener.c hash.o connectToSpread.o
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o redisListener redisListener.c connectToSpread.o hash.o -L/usr/local/lib -lspread -ldl
 
 toSpread:	main.c 
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o toSpread main.c -lspread -L/usr/local/lib -lsqlite3 -lpthread
