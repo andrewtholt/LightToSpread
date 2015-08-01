@@ -20,9 +20,12 @@ int hash(char *s) {
 struct nlist   *lookup(char *s) {
     struct nlist   *np;
 
-    for (np = hashtab[hash(s)]; np != NULL; np = np->next)
-        if (!strcmp(s, np->name))
+
+    for (np = hashtab[hash(s)]; np != NULL; np = np->next) {
+        if (!strcmp(s, np->name)) {
             return (np);
+        }
+    }
     return ((struct nlist *) NULL);
 }
 
@@ -157,6 +160,23 @@ void setBoolean(char *name,int flag) {
     }
 
 }
+/*! \brief Convert a string indicate true/false.
+ *  * @param [in] name Pointer to a string.
+ *   * @return integer value of 0 indicating "false" or 1 indicating "true".
+ *    */
+
+int getBoolean(char *name) {
+    char *ptr = getSymbol(name);
+
+    if( ptr) {
+        if(!strcmp(ptr,"true")) {
+            return(1);
+        } else {
+            return(0);
+        }
+    }   
+}
+
 
 void dumpInteractive () {
     char fmt[BUFFSIZE];
