@@ -867,6 +867,7 @@ void toSpread(char *recipient, char *buffer) {
  * @return integer value of 0 indicating "false" or 1 indicating "true".
  */
 
+/*
 int getBoolean(char *name) {
     char *ptr = getSymbol(name);
 
@@ -878,6 +879,7 @@ int getBoolean(char *name) {
         }
     }
 }
+*/
 
 
 /*! \brief Test a spread message and return non-zero if I sent it.
