@@ -89,11 +89,14 @@ int main(int argc, const char *argv[]) {
   global.connected=0;
   global.Group=(char *)NULL;
   global.configFileName=(char *)NULL;
-  global.appDir=(char *)NULL;
   global.locked = 0;
   global.rawClient =1;
   global.debug = 0;
   
+#ifdef FICL
+  global.appDir=(char *)NULL;
+#endif
+
   char *group=(char *)NULL;
   
   setSymbol("BUILD",__DATE__,LOCK,LOCAL);
