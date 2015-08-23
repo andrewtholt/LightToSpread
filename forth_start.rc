@@ -7,7 +7,6 @@
 #
 ^set GET_FORMAT $K
 ^set ADD_SENDER false
-^set START_FILE ./forth_start.rc
 ^lock START_FILE
 ^set USER sink
 ^set ADD_CR true

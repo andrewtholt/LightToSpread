@@ -6,9 +6,7 @@
 # Any comments added will be lost.
 #
 ^set GET_FORMAT $K
-^set START_FILE /tmp/start_2.rc
 ^lock START_FILE
-^set USER sink
 ^set ADD_CR true
 ^set SET_FORMAT $K $V
 ^set CLIENT cmd

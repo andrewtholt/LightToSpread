@@ -6,7 +6,6 @@
 # Any comments added will be lost.
 #
 ^set GET_FORMAT $K
-^set START_FILE ./source_cmd_test.rc
 ^set USER source
 ^set ADD_CR true
 ^set SET_FORMAT $K $V

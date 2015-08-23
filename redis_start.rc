@@ -6,7 +6,6 @@
 # Any comments added will be lost.
 #
 ^set GET_FORMAT $K
-^set START_FILE ./redis_start.rc
 ^lock START_FILE
 ^set USER sink
 ^set ADD_CR true

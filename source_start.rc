@@ -7,7 +7,6 @@
 #
 ^set GET_FORMAT $K
 ^set ADD_SENDER false
-^set START_FILE ./source_start.rc
 ^set USER source
 ^set ADD_CR true
 ^set SET_FORMAT $K $V
