@@ -994,7 +994,10 @@ spreadDisconnect() {
 int spreadConnect() {
     int             ret;
     char           *debug;
-    char           *server;
+    char scratch[255];
+
+    char *server=(char *)NULL;
+    char           *mainServer;
     char           *altServer;
     char           *user;
     char           *group;
@@ -1014,21 +1017,21 @@ int spreadConnect() {
 
     dbg = ( !strcmp(debug,"true") );
 
-    server = (char *) getSymbol("SERVER");
+    mainServer = (char *) getSymbol("SERVER");
     altServer = (char *) getSymbol("ALTSERVER");
 
     if(altServer == (char *)NULL) {
-        altServer = server;
+        altServer = mainServer;
     }
 
     user = (char *) getSymbol("USER");
     group = (char *) getSymbol("GROUP");
 
     if(dbg) {
-        fprintf( debugOut, "Connecting to %s ... \n", server);
+        fprintf( debugOut, "Connecting to %s ... \n", mainServer);
     }
 
-    ret = SP_connect((char *) server,
+    ret = SP_connect((char *) mainServer,
             user,
             0, 1, &Mbox,
             Private_group);
@@ -1050,13 +1053,23 @@ int spreadConnect() {
             disconnectCache();
         } else {
             setSymbol("CONNECTED", "true",UNLOCK,LOCAL);
+            server = altServer;
         }
     } else {
         setSymbol("CONNECTED", "true",UNLOCK,LOCAL);
+        server = mainServer;
 
         if(dbg) {
             fprintf( debugOut, "... done\n");
         }
+    }
+
+    if(server != (char *)NULL) {
+        tmp=strtok(server,"@");
+        tmp=strtok(NULL," ");
+        setSymbol("CONNECTED_TO",tmp,UNLOCK,LOCAL);
+        sprintf(scratch,"#%s#%s", user,tmp);
+        setSymbol("ME",scratch,LOCK,LOCAL);
     }
 
     if(ret < 0) {
@@ -1414,26 +1427,28 @@ void spreadRX() {
         runFlag=1;
 
         while (runFlag) {
-            ret = SP_receive(Mbox, &service_type, sender, 100,
-                    &num_groups, target_groups,
-                    &mess_type, &endian_mismatch, sizeof(message), message);
+            do {
+                ret = SP_receive(Mbox, &service_type, sender, 100,
+                        &num_groups, target_groups,
+                        &mess_type, &endian_mismatch, sizeof(message), message);
 
-            if( ret < 0) {
+                if( ret < 0) {
 
-                switch(ret) {
-                    case NET_ERROR_ON_SESSION:
-                        runFlag =0 ;
-                        break;
-                    case CONNECTION_CLOSED:
-                        fprintf(stderr,"connection closed\n");
-                        break;
-                    default:
-                        SP_error(ret);
+                    switch(ret) {
+                        case NET_ERROR_ON_SESSION:
+                            runFlag =0 ;
+                            break;
+                        case CONNECTION_CLOSED:
+                            fprintf(stderr,"connection closed\n");
+                            break;
+                        default:
+                            SP_error(ret);
+                    }
                 }
-            }
 
-            debug=getSymbol("DEBUG");
-            debugFlag=strcmp(debug,"false");
+                debug=getSymbol("DEBUG");
+                debugFlag=strcmp(debug,"false");
+            } while((!strcmp(sender,me)) && (!strcmp(getSymbol("OWN_MESSAGES"), "false"))) ;
 
 
             flag= (!strcmp(ign,"false")) || ((num_groups == 1) && (!strcmp(ign,"true")) && (!strcmp(target_groups[0],me)));
@@ -1455,12 +1470,14 @@ void spreadRX() {
                 message[ret] = 0;
 
                 // TODO add sender to cache, if not known.
-                if (!strcmp(sender, me)) {
+            /*    if (!strcmp(sender, me)) {
                     if (!strcmp(getSymbol("OWN_MESSAGES"), "true")) {
                         fprintf(myStdout,"%s", message);
                     }
                     // } else  if (flag != 0) {
             } 
+            */
+
             if (flag != 0) {
                 if(!strcmp( getSymbol("SHOW_SENDER"),"true")) {
                     fprintf(myStdout,"%s ", sender);
@@ -1688,9 +1705,9 @@ void startSpreadRX() {
     pthread_t       spread;
 
     lockSymbol("USER");
-    sprintf(safeBuffer, "#%s#%s", getSymbol("USER"), getSymbol("HOSTNAME"));
-    setSymbol("ME", safeBuffer,UNLOCK,LOCAL);
-    lockSymbol("ME");
+    //    sprintf(safeBuffer, "#%s#%s", getSymbol("USER"), getSymbol("HOSTNAME"));
+    //    setSymbol("ME", safeBuffer,UNLOCK,LOCAL);
+    //    lockSymbol("ME");
 
     //    spreadConnect();
 
@@ -1755,7 +1772,7 @@ int main(int argc, const char *argv[]) {
                 setSymbol("DATABASE",(char *)optarg,LOCK,GLOBAL);
                 break;
             case 'u':
-                setSymbol("USER", (char *) optarg, LOCK,GLOBAL);
+                setSymbol("USER", (char *) optarg, LOCK,LOCAL);
                 break;
             case 'n':
                 setSymbol("HOSTNAME", (char *) optarg, LOCK,LOCAL);
@@ -1826,7 +1843,7 @@ int main(int argc, const char *argv[]) {
     if(!getSymbol("USER")) {
         uid = getuid();
         userRecord = getpwuid(uid);
-        setSymbol("USER",userRecord->pw_name,UNLOCK,GLOBAL);
+        setSymbol("USER",userRecord->pw_name,UNLOCK,LOCAL);
     }
 
     if(!getSymbol("GROUP")) {
