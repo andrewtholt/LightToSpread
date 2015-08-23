@@ -10,6 +10,7 @@ void usage() {
     printf("Usage: lightSource -h|? -u <user> -g <group> -s <server> -m <message>\n");
     printf("\t-h|?\t\tHelp\n");
     printf("\t-u <user>\tConnect to spread as user.\n");
+    printf("\t-f <fifo>\tTake input from here, instead of stdin.\n");
     printf("\t-g <group>\tOn connect join group.\n");
     printf("\t-s <server>\tConnect to server, e.g 4803, 4803@host.\n");
     printf("\t-m <message>\tSend the given message.  If not set read stdin.\n");
@@ -25,19 +26,25 @@ void usage() {
 int main( int argc, char *argv[] ) {
     int ch;
     int mflag = 0;
+    int fflag = 0;
+
     int ret;
     char *tmp;
     int verbose = 0;
     int appendCr =0;
     int leave = 0;
 
+    FILE *input;
+
     char user[32];
     char group[80];
     char server[255];
     char message[255];
+    char fifo[255];
     char    Private_group[MAX_GROUP_NAME];
 
     mailbox Mbox;
+    input=stdin;
 
     strcpy(user,"user");
     strcpy(group,"simple");
@@ -48,10 +55,20 @@ int main( int argc, char *argv[] ) {
         exit(0);
     }
 
-    while((ch =getopt(argc,argv,"ch?u:g:s:lm:v")) != -1) {
+    while((ch =getopt(argc,argv,"ch?u:f:g:s:lm:v")) != -1) {
         switch(ch) {
             case 'c':
                 appendCr = 1;
+                break;
+            case 'f':
+                strcpy(fifo,optarg);
+                fflag=-1;
+
+                input=fopen(fifo,"r");
+                if((FILE *)NULL == input ) {
+                    perror("input");
+                    exit(1);
+                }
                 break;
             case 'h':
             case '?':
@@ -88,6 +105,10 @@ int main( int argc, char *argv[] ) {
         printf("User  :%s\n",user);
         printf("Group :%s\n",group);
         printf("Server:%s\n",server);
+
+        if(fflag) {
+            printf("Fifo  :%s\n",fifo);
+        }
     }
 
     ret = SP_connect( server, user,0,1, &Mbox, Private_group );
@@ -101,7 +122,7 @@ int main( int argc, char *argv[] ) {
 
     while( mflag ==0) {
         if (!mflag) {
-            tmp=fgets(message,255,stdin);
+            tmp=fgets(message,255,input);
             if(tmp == (char *)NULL) {
                 break;
             } else {
