@@ -1853,7 +1853,7 @@ int main(int argc, const char *argv[]) {
     if(!getSymbol("DATABASE")) {
         user = getSymbol("USER");
         sprintf(buffer,"/var/tmp/%s.db",user);
-        setSymbol("DATABASE",buffer,UNLOCK,GLOBAL);
+        setSymbol("DATABASE",buffer,LOCK,LOCAL);
     }
     setSymbol("SERVER","4803",UNLOCK,GLOBAL);
     setSymbol("ALTSERVER","4803",UNLOCK,GLOBAL);
