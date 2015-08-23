@@ -203,7 +203,6 @@ void connectToSpread() {
     }
 
 
-    /*
     c=getSymbol("ON_CONNECT");
     if((char *)NULL != c) {
         if( strlen(c) > 0) {
@@ -213,7 +212,6 @@ void connectToSpread() {
             toOut(buffer);
         }
     }
-    */
 
     group=getSymbol("GROUP");
     if( group != (char *)NULL) {
