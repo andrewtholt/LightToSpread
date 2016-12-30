@@ -172,6 +172,7 @@ void connectToSpread() {
             if(rc < 0) {
                 if( global.debug) {
                     SP_error(rc);
+                    fprintf(stderr,"Failed to contact %s\n", servers[idx].server);
                 }
 
                 if ( global.verbose ) {

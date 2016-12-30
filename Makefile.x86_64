@@ -66,6 +66,10 @@ install:	$(BINS)
 	mkdir -p $(DESTDIR)/usr/local/etc/lightToSpread/App
 	cp sink_start.rc source_start.rc $(DESTDIR)/usr/local/etc/lightToSpread
 	cp App/*.fth $(DESTDIR)/usr/local/etc/lightToSpread/App
+	cp libConnectToSpread.so $(DESTDIR)/usr/local/lib
+	cp connectToSpread.h /usr/local/include
+	cp hash.h /usr/local/include
+	cp mine.h /usr/local/include
 
 docs:
 	doxygen
