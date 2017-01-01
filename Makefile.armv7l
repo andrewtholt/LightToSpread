@@ -1,6 +1,6 @@
 
 # CFLAGS=-g -DFICL # -Wall
-CFLAGS=-g # -Wall
+CFLAGS=-g -fPIC # -Wall
 INC=-I/usr/local/include
 # 
 # Don't build old utilities.  Retained for future reference.
