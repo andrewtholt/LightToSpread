@@ -172,6 +172,7 @@ void connectToSpread() {
             if(rc < 0) {
                 if( global.debug) {
                     SP_error(rc);
+                    fprintf(stderr,"Failed to contact %s\n", servers[idx].server);
                 }
 
                 if ( global.verbose ) {
@@ -742,7 +743,8 @@ void *count(void *arg) {
  * @param [out] Status.  If < 0 then an error occurred.  If > 0 the message type.
  * 
  */
-// void fromSpread(char *sender, char *message,int direction) {
+// TODO make char *m a void *.
+//
 int fromSpread(char *s, char *m ) {
     char *client;
     char buffer[BUFFSIZE];
@@ -789,6 +791,8 @@ int fromSpread(char *s, char *m ) {
  * @param [in] recipient Pointer to the name of the user or group the message is for.
  * @param [in] buffer The message.
  */
+// TODO make buffer a void *
+//
 void toSpread(char *recipient, char *buffer) {
     int rc=-1;
     int ret;
