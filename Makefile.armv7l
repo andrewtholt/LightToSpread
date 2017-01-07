@@ -44,9 +44,6 @@ mine:	mine.o hash.o connectToSpread.o
 connectToSpread.o:	connectToSpread.c connectToSpread.h
 	$(CC) $(INC) -c $(CFLAGS) connectToSpread.c -o connectToSpread.o
 
-connectToSpread.o:  connectToSpread.c connectToSpread.h
-	$(CC) $(INC) -c $(CFLAGS) connectToSpread.c -o connectToSpread.o
-
 libConnectToSpread.so:  connectToSpread.o hash.o
 	gcc -shared -Wl,-soname,libConnectToSpread.so -o libConnectToSpread.so connectToSpread.o hash.o
 
@@ -63,6 +60,12 @@ clean:
 
 install:	$(BINS)
 	mkdir -p $(DESTDIR)/usr/local/bin
+	mkdir -p $(DESTDIR)/usr/local/lib
+	mkdir -p $(DESTDIR)/usr/local/include
+	cp connectToSpread.h $(DESTDIR)/usr/local/include
+	cp hash.h $(DESTDIR)/usr/local/include
+	cp mine.h $(DESTDIR)/usr/local/include
+#
 	cp $(BINS) $(DESTDIR)/usr/local/bin
 	mkdir -p $(DESTDIR)/usr/local/etc/lightToSpread/App
 	cp sink_start.rc source_start.rc $(DESTDIR)/usr/local/etc/lightToSpread
