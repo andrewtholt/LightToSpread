@@ -64,6 +64,8 @@ clean:
 	rm -f $(BINS) *.o *~ cscope.out libConnectToSpread.so
 
 install:	$(BINS)
+	mkdir -p $(DESTDIR)/usr/local/lib
+	cp libConnectToSpread.so $(DESTDIR)/usr/local/lib
 	mkdir -p $(DESTDIR)/usr/local/bin
 	cp $(BINS) $(DESTDIR)/usr/local/bin
 	mkdir -p $(DESTDIR)/usr/local/etc/lightToSpread/App
