@@ -118,7 +118,10 @@ int main( int argc, char *argv[] ) {
     }
     SP_join(Mbox, "global");
 
-    SP_join(Mbox, group);
+    // Join global anyway, so if it's specified ignore it.
+    if( strcmp(group,"global")) {
+        SP_join(Mbox, group);
+    }
 
     while( mflag ==0) {
         if (!mflag) {
@@ -130,6 +133,7 @@ int main( int argc, char *argv[] ) {
             }
         }
     }
+
     if(mflag) {
         if(appendCr != 0) {
             strcat(message,"\n");
