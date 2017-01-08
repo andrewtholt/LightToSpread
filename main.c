@@ -1305,6 +1305,8 @@ void rxSet(char *name,char *value) {
         //        setSymbol("CONNECTED","false",UNLOCK,LOCAL);
         //        printf("%s\n",buffer);
 
+    } else if(!strcmp(client,"msg")) {
+        fprintf(stderr,"Portable message client not yet implemented\n");
     } else {
         fprintf(stderr,"Client %s unknown\n",client);
     }
