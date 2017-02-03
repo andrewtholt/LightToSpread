@@ -3,6 +3,7 @@
 ^set IGN_GLOBAL false
 ^set USER andrewh
 ^lock USER
+^set SPREAD_SERVER 4803@picobob
 ^set OWN_MESSAGES false
 ^set ADD_CR false
 ^set CLIENT raw

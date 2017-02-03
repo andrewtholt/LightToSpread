@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <semaphore.h>
 #include <sys/stat.h>
+#include <stdbool.h>
 
 #include "connectToSpread.h"
 #include "hash.h"
@@ -27,9 +28,10 @@ int main(void) {
 
   
   int service_type;
-  int loop = 1;
   int rc;
   int ret;
+
+  bool loop=true;
   
   global.connected=0;
   global.Group=(char *)NULL;
@@ -70,7 +72,7 @@ int main(void) {
     
     if (Is_regular_mess (service_type)) {
       printf("Message\n");
-      loop=0;
+      loop=false;
     } else if (Is_membership_mess (service_type)) {
       printf("Membership\n");
       ret = SP_get_memb_info(message, service_type, &memb_info);

@@ -142,7 +142,6 @@ void connectToSpread() {
     if( (char *)NULL != spreadServer ) {
 
         ptr=strtok(spreadServer,": \n");
-
         // 
         // Only one server in the list
         //
@@ -193,8 +192,8 @@ void connectToSpread() {
     }
 
     setSymbolValue("ME",Private_group);
-    lockSymbol("ME");
     mkLocal("ME");
+    lockSymbol("ME");
 
     v = gethostname(buffer, BUFFSIZE);
     tmp = (char *) strtok(buffer, ".");
@@ -202,7 +201,6 @@ void connectToSpread() {
     if (tmp) {
         setSymbol("HOSTNAME", tmp, LOCK,LOCAL);
     }
-
 
     c=getSymbol("ON_CONNECT");
     if((char *)NULL != c) {
