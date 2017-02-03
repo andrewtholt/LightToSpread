@@ -1,6 +1,6 @@
 Name:	ADD_CR
 Description:
-    Add a carriage return charcter to the recieved data.
+    Add a carriage return character to the recieved data.
 Values:
     true|false
 Default:
@@ -9,7 +9,7 @@ Notes:
 
 Name:	AUTOCONNECT
 Description:
-    On starting attempt to connect a spread server defined by SERVER.
+    On starting attempt to connect to the spread server defined by SERVER or ALTSERVER.
 Values:
     true|false
 Default:
@@ -44,7 +44,7 @@ Notes:
 
 Name:	CLIENT
 Description:
-    The proticol that the client requires.
+    The protocol that the client requires.
 Values:
     nodebrain|forth|raw
 Default:
@@ -53,7 +53,7 @@ Notes:
 
 Name:	COMMS_VARS
 Description:
-    Enable comms variable namespace/
+    Enable comms variable namespace.
 Values:
     true|false
 Default:
@@ -131,7 +131,7 @@ Notes:
 
 Name:	INTERACTIVE
 Description:
-    If true output from commands id made more user friendly, if false 
+    If true output from commands is made more user friendly, if false 
     fields are sperated by a ':' character.
 Values:
     true|false
@@ -159,7 +159,7 @@ Notes:
 
 Name:	OWN_MESSAGES
 Description:
-    If true se my own messages.
+    If true see my own messages.
 Values:
     true|false
 Default:
@@ -168,11 +168,6 @@ Notes:
 
 Name:	PASSTHROUGH
 Description:
-Values:
-Notes:
-
-Name:	REMOTE_CREATE
-Description:
     Anything not prefixed with a ^ is passed through to the client.
 Values:
     true|false
@@ -180,12 +175,13 @@ Default:
     true
 Notes:
 
-Name:	SAVE_ALLOWED
+Name:	REMOTE_CREATE
 Description:
 Values:
+Default:
 Notes:
 
-Name:	SERVER
+Name:	SAVE_ALLOWED
 Description:
     Allow change to be written to startup file.
 Values:
@@ -194,11 +190,16 @@ Default:
     true
 Notes:
 
+Name:	SERVER
+Description:
+Values:
+Notes:
+
 Name:	SET_FMT
 Description:
     Output formatting to apply if client is raw.
 Values:
-    Are C style formatting string.  Default is:
+    A C style formatting string.  Default is:
     %s %s
 Notes:
 
@@ -220,7 +221,7 @@ Notes:
 
 Name:	START_FILE
 Description:
-    Path to the starup file.
+    Path to the startup file.
 Values:
     Default is $HOME/.start.rc which must exist (even if empty) at start.
 Notes:
