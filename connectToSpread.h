@@ -14,7 +14,6 @@ void saveSymbols(void);
 int cmdInterp(int, char *) ;
 char *strsave (char *);
 void getGroup(char *);
-void fromIn(FILE *, char *);
 
 int fromSpread(char *, char *);
 void toSpread(char *, char *);
@@ -23,6 +22,8 @@ void setBoolean(char *, int);
 
 void toOut(char *);
 void toError(char *);
+void fromIn(char *);
+
 void dumpGlobals();
 void printDebug(char *);
 

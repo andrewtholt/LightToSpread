@@ -285,14 +285,14 @@ int main(int argc, char* argv[]) {
         connectToSpread();
     } else {
         while(global.connected == 0) {
-            fromIn(global.in,buff);
+            fromIn(buff);
             cmdInterp(0, buff);
         }
 
     }
 
     while(global.connected == 0) {
-        fromIn(global.in,buff);
+        fromIn(buff);
         cmdInterp(0, buff);
     }
 

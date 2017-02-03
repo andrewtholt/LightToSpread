@@ -248,7 +248,7 @@ void toError(char *msg ) {
     //    rc = pthread_mutex_unlock(&stdoutMutex);
 }
 
-void fromIn(FILE *fp, char *buffer) {
+void fromIn(char *buffer) {
     int rc=0;
     char *status;
 
@@ -424,7 +424,7 @@ void remoteSet(char *sender,char *key,char *value,char *resBuffer) {
  * @param [out] res Pointer to buffer holding result.
  */
 void redisSender(char *sender, char *res) {
-    sprintf(res,"*3\n$3\nSET\n$6\nSENDER\n$%d\n%s\n",strlen(sender),sender);
+    sprintf(res,"*3\n$3\nSET\n$6\nSENDER\n$%d\n%s\n",(int)strlen(sender),sender);
 }
 
 /*! \brief Generate a redis format 'set' command.
@@ -433,7 +433,7 @@ void redisSender(char *sender, char *res) {
  * @param [out] buffer Pointer to buffer holding result.
  */
 void redisSet(char *k,char *v,char *buffer) {
-    sprintf(buffer,"*3\n$3\nSET\n$%d\n%s\n$%d\n%s\n",strlen(k),k,strlen(v),v);
+    sprintf(buffer,"*3\n$3\nSET\n$%d\n%s\n$%d\n%s\n", (int)strlen(k), k,(int)strlen(v),v);
 }
 
 /*! \brief Generate a redis format 'hset' command.
@@ -442,7 +442,7 @@ void redisSet(char *k,char *v,char *buffer) {
  * @param [out] buffer Pointer to buffer holding result.
  */
 void redisHset(char *k,char *v,char *buffer) {
-    sprintf(buffer,"*4\r\n$4\r\nHSET\r\n$%d\r\n%s\r\n$5\r\nVALUE\r\n$%d\r\n%s\r\n",strlen(k),k,strlen(v),v);
+    sprintf(buffer,"*4\r\n$4\r\nHSET\r\n$%d\r\n%s\r\n$5\r\nVALUE\r\n$%d\r\n%s\r\n",(int)strlen(k),k,(int)strlen(v),v);
 }
 
 /*! \brief Generate a redis format 'get' command.
@@ -450,7 +450,7 @@ void redisHset(char *k,char *v,char *buffer) {
  * @param [out] buffer Pointer to buffer holding result.
  */
 void redisGet(char *k,char *buffer) {
-    sprintf(buffer,"*2\n$3\nGET\n$%d\n%s\n",strlen(k),k);
+    sprintf(buffer,"*2\n$3\nGET\n$%d\n%s\n",(int)strlen(k),k);
 }
 
 /*! \brief Interpret a command recieved from Spread.
@@ -520,13 +520,13 @@ void redisCmdInterp(char *buffer) {
 
     bzero(buffer,BUFFSIZE);
     for(i=0;i<tokens;i++) {
-        fromIn(global.in,buff);
+        fromIn(buff);
         if( buff[0] == '$') {
             len=atoi(&buff[1]);
         } else {
             return;
         }
-        fromIn(global.in,buff);
+        fromIn(buff);
         tok=strtok(buff," \r\n");
 
         if( strlen(tok) != len) {
@@ -720,7 +720,7 @@ void *count(void *arg) {
     while(1) {
         bzero(buff,BUFFSIZE);
 
-        fromIn(global.in,buff);
+        fromIn(buff);
         // 
         // Check if in remote mode here.
         // 
