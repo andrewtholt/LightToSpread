@@ -32,7 +32,7 @@ void spreadJoin(char *);
 void spreadLeave(char *);
 void spreadDisconnect(void);
 
-struct globalDefinitions global;
+extern struct globalDefinitions global;
 
 struct spreadServerStatus {
     char server[64];

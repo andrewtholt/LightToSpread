@@ -1,4 +1,7 @@
 
+#ifndef __MINE_H
+#define __MINE_H
+#include <stdio.h>
 #include "sp.h"
 #define TRUE 1
 #define FALSE 0
@@ -42,3 +45,5 @@ struct globalDefinitions {
     ficlSystem *system;
 #endif
 } ;
+
+#endif

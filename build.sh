@@ -109,17 +109,17 @@ fi
 
 MAKEFILE=Makefile.${ARCH}${OPT}
 
-if [ $PROFILE_CHANGED = "YES" ]; then
+# if [ $PROFILE_CHANGED = "YES" ]; then
 # 
 # If Makefile exists and is a symbolic link, remove
 # and remake link.
 #
-    if [ -L Makefile ]; then
-        rm Makefile
-    fi
-    ln -s $MAKEFILE Makefile
-    make $MAKE_FLAGS $MAKEFILE clean
-fi
+#    if [ -L Makefile ]; then
+#        rm Makefile
+#    fi
+#    ln -s $MAKEFILE Makefile
+#    make $MAKE_FLAGS $MAKEFILE clean
+# fi
 
 if [ -f $MAKEFILE ]; then
     echo "Building with $MAKEFILE"
@@ -129,5 +129,10 @@ if [ -f $MAKEFILE ]; then
     sleep 1
     make -j 4 $MAKE_FLAGS $MAKEFILE $ARGS
 else
-	echo "$MAKEFILE does not exist."
+	echo "$MAKEFILE does not exist, falling back to default Makefile"
+    MAKEFILE=Makefile
+    make -j 4 $MAKE_FLAGS $MAKEFILE $ARGS
 fi
+
+
+

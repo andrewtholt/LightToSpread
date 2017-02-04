@@ -2,10 +2,11 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <string.h>
+#include <mine.h>
 #include "hash.h"
 
 
-static struct nlist *hashtab[HASHSIZE];
+static struct nlist *hashtab[SP_HASHSIZE];
 extern struct globalDefinitions global;
 
 
@@ -14,7 +15,7 @@ int hash(char *s) {
 
     for (hashval = 0; *s != '\0';)
         hashval += *s++;
-    return (hashval % HASHSIZE);
+    return (hashval % SP_HASHSIZE);
 }
 
 struct nlist   *lookup(char *s) {
@@ -194,7 +195,7 @@ void dumpInteractive () {
     fprintf (stdout,
             "==============================================================|\n");
 
-    for (i = 0; i < HASHSIZE; i++) {
+    for (i = 0; i < SP_HASHSIZE; i++) {
         if (hashtab[i] != 0) {
             for (np = hashtab[i]; np != NULL; np = np->next) {
                 fprintf (stdout, "|%-20s", np->name);
@@ -314,7 +315,7 @@ void saveSymbols () {
     fprintf (fp, "# Comments MUST be at the start of a line.\n");
     fprintf (fp, "# Any comments added will be lost.\n");
     fprintf (fp, "#\n");
-    for (i = 0; i < HASHSIZE; i++) {
+    for (i = 0; i < SP_HASHSIZE; i++) {
         if (hashtab[i] != 0) {
             for (np = hashtab[i]; np != NULL; np = np->next) {
                 if (np->local == GLOBAL) {

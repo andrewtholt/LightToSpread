@@ -1,5 +1,5 @@
 #define MAX_MESSLEN     102400
-#define HASHSIZE 31
+#define SP_HASHSIZE 31
 #define LOCAL 0
 #define GLOBAL 1
 

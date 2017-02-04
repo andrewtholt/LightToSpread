@@ -7,7 +7,7 @@ INC=-I/usr/local/include
 # Don'tbuild old utilities.  Retained for future reference.
 # 
 # BINS=spreadSource spreadSink lightSink lightSource # mine # PthreadsExample 
-BINS= dbCache tstLib toSpread lightSink lightSource # mine # PthreadsExample spreadSource spreadSink 
+BINS=redisSender dbCache tstLib toSpread lightSink lightSource # mine # PthreadsExample spreadSource spreadSink 
 # LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
 LIBS=-lpthread -lspread -ldl -lm
 LFLAGS=-Wl,--no-as-needed 
@@ -23,6 +23,9 @@ lightSink:	lightSink.c
 
 lightSource:	lightSource.c
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSource lightSource.c -L/usr/local/lib -ldl -lspread
+
+redisSender:	redisSender.c
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o redisSender redisSender.c -L/usr/local/lib -L . -lConnectToSpread $(LIBS)
 
 spreadSource:	source.o hash.o  connectToSpread.o
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) source.o hash.o connectToSpread.o -o spreadSource $(LIBS)
@@ -66,6 +69,9 @@ clean:
 install:	$(BINS)
 	mkdir -p $(DESTDIR)/usr/local/lib
 	cp libConnectToSpread.so $(DESTDIR)/usr/local/lib
+	cp connectToSpread.h $(DESTDIR)/usr/local/include
+	cp hash.h $(DESTDIR)/usr/local/include
+	cp mine.h $(DESTDIR)/usr/local/include
 	mkdir -p $(DESTDIR)/usr/local/bin
 	cp $(BINS) $(DESTDIR)/usr/local/bin
 	mkdir -p $(DESTDIR)/usr/local/etc/lightToSpread/App

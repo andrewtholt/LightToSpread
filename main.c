@@ -40,7 +40,7 @@ void            setSymbol(char *name, void *value, int string,int local);
 #define LOCK 0
 #define UNLOCK 1
 
-#define HASHSIZE 31
+#define SP_HASHSIZE 31
 #define LOCAL 0
 #define GLOBAL 1
 #define MAX_VSSETS      10
@@ -66,7 +66,7 @@ pthread_mutex_t cacheLock;
  *   struct cache   *next;
  *   };
  * 
- *   static struct cache cacheHash[HASHSIZE];
+ *   static struct cache cacheHash[SP_HASHSIZE];
  */
 
 struct nlist {
@@ -749,7 +749,7 @@ void cacheLoad(char *file) {
     }
 }
 
-static struct nlist *hashtab[HASHSIZE];
+static struct nlist *hashtab[SP_HASHSIZE];
 
 void dumpSymbols() {
     struct nlist   *np;
@@ -778,7 +778,7 @@ void dumpSymbols() {
     } else {
         fprintf(myStdout,"START_SYMBOLS\n");
     }
-    for (i = 0; i < HASHSIZE; i++) {
+    for (i = 0; i < SP_HASHSIZE; i++) {
         if (hashtab[i] != 0) {
             for (np = hashtab[i]; np != NULL; np = np->next) {
                 if(interactive) {
@@ -856,7 +856,7 @@ void saveSymbols() {
     fprintf(fp,"# Comments MUST be at the start of a line.\n");
     fprintf(fp,"# Any comments added will be lost.\n");    
     fprintf(fp,"#\n");
-    for (i = 0; i < HASHSIZE; i++) {
+    for (i = 0; i < SP_HASHSIZE; i++) {
         if (hashtab[i] != 0) {
             for (np = hashtab[i]; np != NULL; np = np->next) {
                 if(np->local == GLOBAL) {
@@ -883,7 +883,7 @@ int hash(char *s) {
 
     for (hashval = 0; *s != '\0';)
         hashval += *s++;
-    return (hashval % HASHSIZE);
+    return (hashval % SP_HASHSIZE);
 }
 
 struct nlist *lookup(char *s) {
