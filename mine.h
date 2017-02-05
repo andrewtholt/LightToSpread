@@ -8,6 +8,7 @@
 
 void redisSender(char *, char *) ;
 void redisGet(char *,char *);
+void redisSub(char *,char *);
 int getFiclBoolean(char *);
 void redisSet(char *,char *,char *);
 void toOut(char *);

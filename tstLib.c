@@ -77,7 +77,7 @@ int main(void) {
 
             printf("Sender %s\n",from);
             printf("Message >%s<\n",message);
-            printf("Message size >%d<\n",sizeof(message));
+            printf("Message size >%d<\n",(int)sizeof(message));
 
             toSpread(from,"Message recieved\n");
             //      loop=false;

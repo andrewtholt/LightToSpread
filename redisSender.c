@@ -45,6 +45,7 @@ void usage(void) {
     printf("\t-u <user>\tUser name.\n");
     printf("\t-s <server>\tSpread server.\n");
     printf("\t-v\t\tVerbose.\n\n");
+    printf("\t-C <cmd>\tRedis Cmd\n");
     printf("\t-K <key>\tRedis Key\n");
     printf("\t-V <value>\tRedis Value\n");
     printf("\t-H\t\tUse the redis HSET command, not SET.  Like sending\n");
@@ -78,13 +79,17 @@ int main(int argc, char* argv[]) {
     global.verbose = 0;
 
     char *group = (char *)NULL;
-    char *key  = (char *)NULL;
+    char *cmd   = (char *)NULL;
+    char *key   = (char *)NULL;
     char *value = (char *)NULL;
 
     setSymbolValue("USER","source");
 
-    while ((ch = getopt (argc, (char **) argv, "dhg:u:vs:HK:V:")) != -1) {
+    while ((ch = getopt (argc, (char **) argv, "C:dhg:u:vs:HK:V:")) != -1) {
         switch(ch) {
+            case 'C':
+                cmd=strsave( optarg );
+                break;
             case 'd':
                 global.debug=1;
                 break;
@@ -118,10 +123,12 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    /*
     if( (key == (char *)NULL) || (value == (char *)NULL) ) {
         usage();
         exit(1);
     }
+    */
 
     if( global.debug != 0) {
         dumpSymbols();
@@ -137,10 +144,19 @@ int main(int argc, char* argv[]) {
     bzero(message,sizeof(message));
     bzero(buff,BUFFSIZE);
 
-    if (hset == 0) {
-        redisSet(key,value,message);
+    if( (cmd == NULL) || (!strcmp( cmd,"SET" ))) {
+        if (hset == 0) {
+            redisSet(key,value,message);
+        } else {
+            redisHset(key,value,message);
+        }
     } else {
-        redisHset(key,value,message);
+        if(!strcmp("GET", cmd)) {
+            redisGet(key,message);
+        }
+        else if(!strcmp("SUB", cmd)) {
+            redisSub(key,message);
+        }
     }
 
     //    fromIn(global.in,buff);

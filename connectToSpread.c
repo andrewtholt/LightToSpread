@@ -451,6 +451,10 @@ void redisGet(char *k,char *buffer) {
     sprintf(buffer,"*2\n$3\nGET\n$%d\n%s\n",(int)strlen(k),k);
 }
 
+void redisSub(char *k, char *buffer) {
+    sprintf(buffer,"*2\n$3\nSUBSCRIBE\n$%d\n%s\n",(int)strlen(k),k);
+}
+
 /*! \brief Interpret a command recieved from Spread.
  * @param [in] sender The spread user/group the message was recieved from.
  * @param [in] data The message.

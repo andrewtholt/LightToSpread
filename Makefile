@@ -1,6 +1,6 @@
 
 # CFLAGS=-g -m32 -DFICL # -Wall
-CFLAGS=-g -m32 
+CFLAGS=-g -fPIC # -m32 
 # CFLAGS=-g # -Wall
 INC=-I/usr/local/include
 # 
@@ -53,7 +53,7 @@ connectToSpread.o:	connectToSpread.c connectToSpread.h
 	$(CC) $(INC) -c $(CFLAGS) connectToSpread.c -o connectToSpread.o
 
 libConnectToSpread.so:	connectToSpread.o hash.o
-	gcc -shared -Wl,-soname,libConnectToSpread.so -o libConnectToSpread.so connectToSpread.o hash.o -lspread
+	gcc -fPIC -shared -Wl,-soname,libConnectToSpread.so -o libConnectToSpread.so connectToSpread.o hash.o -lspread
 
 mine.o:	mine.c mine.h
 	$(CC) $(INC) -c $(CFLAGS) mine.c -o mine.o
