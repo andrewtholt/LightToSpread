@@ -24,8 +24,9 @@ lightSink:	lightSink.c
 lightSource:	lightSource.c
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSource lightSource.c -L/usr/local/lib -ldl -lspread
 
-redisSender:	redisSender.c
-	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o redisSender redisSender.c -L/usr/local/lib -L . -lConnectToSpread $(LIBS)
+redisSender:	redisSender.c libConnectToSpread.so
+#	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o redisSender redisSender.c -L/usr/local/lib -L . -lConnectToSpread $(LIBS)
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o redisSender redisSender.c -L . -lConnectToSpread $(LIBS)
 
 spreadSource:	source.o hash.o  connectToSpread.o
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) source.o hash.o connectToSpread.o -o spreadSource $(LIBS)

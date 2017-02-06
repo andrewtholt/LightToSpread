@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <string.h>
-#include <mine.h>
+#include "mine.h"
 #include "hash.h"
 
 
