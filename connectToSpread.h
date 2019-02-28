@@ -1,3 +1,4 @@
+#include <stdbool.h>
 
 #ifndef SINK
 #define SINK 1
@@ -31,6 +32,11 @@ void connectToSpread(void);
 void spreadJoin(char *);
 void spreadLeave(char *);
 void spreadDisconnect(void);
+int spreadPoll();
+
+int getBoolean(char *v);
+
+void redisHset(char *k,char *v,char *buffer);
 
 extern struct globalDefinitions global;
 

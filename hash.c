@@ -4,7 +4,7 @@
 #include <string.h>
 #include "mine.h"
 #include "hash.h"
-
+// #include "connectToSpread.h"
 
 static struct nlist *hashtab[SP_HASHSIZE];
 extern struct globalDefinitions global;
