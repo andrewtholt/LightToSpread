@@ -1,3 +1,5 @@
+#pragma once
+
 #define MAX_MESSLEN     102400
 #define SP_HASHSIZE 31
 #define LOCAL 0
@@ -20,7 +22,7 @@ void mkGlobal(char *);
 struct nlist *install (char *, void *, int , int );
 
 char *getSymbol(char *);
-void setSymbol(char *, void *, int ,int );
+void setSymbol(char *, const void *, int ,int );
 void setSymbolValue(char *, void *);
 
 void setBoolean(char *, int);

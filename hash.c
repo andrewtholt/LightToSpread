@@ -118,7 +118,7 @@ void mkGlobal(char *name) {
  * @param[in] ro None zero if the variable is read only
  * @param[in] local None zero if this is a local variable.
  */
-void setSymbol(char *name, void *value, int ro,int local) {
+void setSymbol(char *name, const void *value, int ro,int local) {
     pthread_mutex_lock(&hashLock);
     (void) install(name, value, ro, local);
     pthread_mutex_unlock(&hashLock);

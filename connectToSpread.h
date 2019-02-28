@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdbool.h>
 #include "mine.h"
 
@@ -19,6 +21,7 @@ void getGroup(char *);
 
 int fromSpread(char *, char *);
 void toSpread(char *, char *);
+void toSpreadCounted(char *, char *, int);
   
 void setBoolean(char *, int);
 

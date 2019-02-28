@@ -789,6 +789,28 @@ int fromSpread(char *s, char *m ) {
     }
     return(rc);
 }
+
+/*! \brief toSpread 
+ * @param [in] recipient Pointer to the name of the user or group the message is for.
+ * @param [in] buffer The message.
+ */
+void toSpreadCounted(char *recipient, char *buffer, int len) {
+    int rc=-1;
+    int ret;
+    char *ptr=(char *)NULL;
+
+    rc = pthread_mutex_lock(&spreadMutex);
+
+    if (len > 0) {
+        ret = SP_multicast (global.Mbox, AGREED_MESS, recipient, 1, len, buffer);
+
+        if( ret < 0) {
+            SP_error(ret);
+            global.connected=0;
+        }
+    }
+    rc = pthread_mutex_unlock(&spreadMutex);
+}
 /*! \brief toSpread 
  * @param [in] recipient Pointer to the name of the user or group the message is for.
  * @param [in] buffer The message.

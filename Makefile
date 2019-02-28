@@ -21,6 +21,7 @@ toSpread:	main.c libConnectToSpread.so
 
 tstLib:	tstLib.c libConnectToSpread.so
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) tstLib.c -o tstLib -L . -lConnectToSpread $(LIBS)
+#	$(CC) $(INC) $(CFLAGS) $(LFLAGS) tstLib.c -o tstLib -lConnectToSpread $(LIBS)
 
 lightSink:	lightSink.c
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSink lightSink.c -L/usr/local/lib -ldl -lspread
