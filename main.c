@@ -1445,6 +1445,7 @@ void spreadRX() {
                             break;
                         default:
                             SP_error(ret);
+                            break;
                     }
                 }
 
@@ -1857,8 +1858,8 @@ int main(int argc, const char *argv[]) {
         sprintf(buffer,"/var/tmp/%s.db",user);
         setSymbol("DATABASE",buffer,LOCK,LOCAL);
     }
-    setSymbol("SERVER","4803",UNLOCK,GLOBAL);
-    setSymbol("ALTSERVER","4803",UNLOCK,GLOBAL);
+    setSymbol("SERVER","localhost:4803",UNLOCK,GLOBAL);
+    setSymbol("ALTSERVER","localhost:4803",UNLOCK,GLOBAL);
 
     if(!getSymbol("START_FILE")) {
         tmp=getenv("HOME");
