@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include "mine.h"
 
 #ifndef SINK
 #define SINK 1

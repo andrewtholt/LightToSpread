@@ -9,14 +9,18 @@ INC=-I/usr/local/include
 # BINS=spreadSource spreadSink lightSink lightSource # mine # PthreadsExample 
 BINS=redisSender dbCache tstLib toSpread lightSink lightSource # mine # PthreadsExample spreadSource spreadSink 
 # LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
-LIBS=-lpthread -lspread -ldl -lm
+LIBS=-lpthread -lspread -ldl -lm 
 LFLAGS=-Wl,--no-as-needed 
 
 all:	$(BINS)
 
-toSpread:	main.c
-	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o toSpread main.c -lspread -L/usr/local/lib \
-	-lsqlite3 -lpthread 
+toSpread:	main.c libConnectToSpread.so
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) main.c -o toSpread -L . -lConnectToSpread $(LIBS) -lsqlite3
+#	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o toSpread main.c -lspread -L/usr/local/lib \
+#	-lsqlite3 -lpthread 
+
+tstLib:	tstLib.c libConnectToSpread.so
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) tstLib.c -o tstLib -L . -lConnectToSpread $(LIBS)
 
 lightSink:	lightSink.c
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSink lightSink.c -L/usr/local/lib -ldl -lspread
@@ -33,9 +37,6 @@ spreadSource:	source.o hash.o  connectToSpread.o
 
 source.o:	source.c mine.h hash.h hash.o
 	$(CC) $(INC) -c $(CFLAGS) -Wall source.c -o source.o 
-
-tstLib:	tstLib.c libConnectToSpread.so
-	$(CC) $(INC) $(CFLAGS) $(LFLAGS) tstLib.c -o tstLib -L . -lConnectToSpread $(LIBS)
 
 dbCache:	dbCache.c libConnectToSpread.so
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) dbCache.c -o dbCache -L . -lConnectToSpread $(LIBS) -lsqlite3

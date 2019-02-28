@@ -24,6 +24,7 @@
 #include <pwd.h>
 
 #include "sp.h"
+#include "mine.h"
 #define MAX_MESSLEN     102400
 mailbox         Mbox;
 
@@ -54,6 +55,7 @@ FILE *myStderr;
 int             runFlag = 1;
 pthread_mutex_t hashLock;
 pthread_mutex_t cacheLock;
+struct globalDefinitions global;
 
 /*
  *   static struct cache *head = NULL;
