@@ -959,8 +959,7 @@ void setSymbol(char *name, void *value, int ro,int local) {
     pthread_mutex_unlock(&hashLock);
 }
 
-void
-spreadDisconnect() {
+void spreadDisconnect() {
 
     char sql[BUFFSIZE];
     sqlite3 *db;
@@ -1190,9 +1189,7 @@ int spreadJoin(char *group) {
 
 }
 
-    void
-mkNodeDeclare(char *ptr, char *buffer)
-{
+void mkNodeDeclare(char *ptr, char *buffer) {
     char            scratch[BUFFSIZE];
     strcpy(scratch, ptr);
 

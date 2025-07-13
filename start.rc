@@ -15,7 +15,7 @@
 ^set CLIENT raw
 ^set AUTOPURGE false
 ^set DEBUG true
-^set PASSTHROUGH true
+^set PASSTHROUGH false
 ^set COMMS_VARS false
 ^set SAVE_ALLOWED true
 ^set EXIT_COMMAND true
@@ -28,3 +28,4 @@
 ^set AUTOCONNECT false
 ^set REMOTE_CREATE false
 ^lock REMOTE_CREATE
+
