@@ -13,8 +13,8 @@
 
 #define BUFFSIZE 255
 
-pthread_mutex_t hashLock;
-int symbolCount;
+extern pthread_mutex_t hashLock;
+extern int symbolCount;
 
 void lockSymbol(char *);
 void mkLocal(char *);

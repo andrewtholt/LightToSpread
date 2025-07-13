@@ -86,6 +86,7 @@ strsave(char *s)
 {
     char           *p;
 
+    printf("%s\n",s);
     if ((p = malloc(strlen(s) + 1)) != NULL)
         strcpy(p, s);
 
@@ -1860,7 +1861,8 @@ int main(int argc, const char *argv[]) {
         sprintf(buffer,"/var/tmp/%s.db",user);
         setSymbol("DATABASE",buffer,LOCK,LOCAL);
     }
-    setSymbol("SERVER","localhost:4803",UNLOCK,GLOBAL);
+//    setSymbol("SERVER","localhost:4803",UNLOCK,GLOBAL);
+    setSymbol("SERVER","4803",UNLOCK,GLOBAL);
     setSymbol("ALTSERVER","localhost:4803",UNLOCK,GLOBAL);
 
     if(!getSymbol("START_FILE")) {

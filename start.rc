@@ -13,14 +13,13 @@
 ^lock USER
 ^set ADD_CR false
 ^set CLIENT raw
-^set ALTSERVER 4803@proliant
 ^set AUTOPURGE false
-^set DEBUG false
+^set DEBUG true
 ^set PASSTHROUGH true
 ^set COMMS_VARS false
 ^set SAVE_ALLOWED true
 ^set EXIT_COMMAND true
-^set SPREAD_SERVER 4803
+^set SERVER 4803@127.0.0.1
 ^set INTERACTIVE true
 ^set GROUP global
 ^set SHOW_SENDER false

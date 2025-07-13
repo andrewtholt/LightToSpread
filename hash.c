@@ -6,6 +6,9 @@
 #include "hash.h"
 // #include "connectToSpread.h"
 
+pthread_mutex_t hashLock;
+int symbolCount;
+
 static struct nlist *hashtab[SP_HASHSIZE];
 extern struct globalDefinitions global;
 
