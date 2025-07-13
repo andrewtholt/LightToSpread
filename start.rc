@@ -19,7 +19,7 @@
 ^set COMMS_VARS false
 ^set SAVE_ALLOWED true
 ^set EXIT_COMMAND true
-^set SERVER 4803@127.0.0.1
+^set SERVER 4803@192.168.0.50
 ^set INTERACTIVE true
 ^set GROUP global
 ^set SHOW_SENDER false
