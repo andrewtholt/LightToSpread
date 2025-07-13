@@ -19,6 +19,7 @@
 ^set COMMS_VARS false
 ^set SAVE_ALLOWED true
 ^set EXIT_COMMAND true
+^set ALTSERVER 4803@192.168.10.124
 ^set SERVER 4803@192.168.0.50
 ^set INTERACTIVE true
 ^set GROUP global
