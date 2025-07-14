@@ -1,0 +1,12 @@
+{
+    "spread_daemon_ip": "192.168.10.124",
+    "spread_daemon_port": 4803,
+    "spread_private_name": "my_bridge_instance",
+    "spread_group": "global",
+    "socket_host": "0.0.0.0",
+    "socket_port": 12345,
+    "buffer_size": 8192,
+    "max_pending_connections": 10,
+    "verbose": true,
+    "my_port": 9191
+}

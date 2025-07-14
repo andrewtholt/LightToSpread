@@ -7,28 +7,137 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <jansson.h> // For JSON parsing
 
 // Spread Toolkit primary header
 #include <sp.h> // This is the main header for the C API now
 
-// --- Configuration ---
-#define SPREAD_DAEMON_IP       "127.0.0.1"
-#define SPREAD_DAEMON_PORT     4803
-#define SPREAD_PRIVATE_NAME    "c_socket_bridge"
-#define SPREAD_GROUP           "global"
-#define MESSAGE_TYPE           1 // Example Spread message type
+// --- Configuration Structure ---
+typedef struct {
+    char spread_daemon_ip[64];
+    int spread_daemon_port;
+    char spread_private_name[MAX_GROUP_NAME];
+    char spread_group[MAX_GROUP_NAME];
+    char socket_host[64];
+    int socket_port;
+    int my_port; // New config variable for the listening port
+    int buffer_size;
+    int max_pending_connections;
+    int verbose;
+} config_t;
 
-#define SOCKET_HOST            "0.0.0.0"
-#define SOCKET_PORT            12345
-#define BUFFER_SIZE            4096
-#define MAX_PENDING_CONNECTIONS 5
+// Default configuration values
+#define DEFAULT_SPREAD_DAEMON_IP       "127.0.0.1"
+#define DEFAULT_SPREAD_DAEMON_PORT     4803
+#define DEFAULT_SPREAD_PRIVATE_NAME    "c_socket_bridge"
+#define DEFAULT_SPREAD_GROUP           "global"
+#define DEFAULT_SOCKET_HOST            "0.0.0.0"
+#define DEFAULT_SOCKET_PORT            12345
+#define DEFAULT_MY_PORT                12345 // Default for the new listening port
+#define DEFAULT_BUFFER_SIZE            4096
+#define DEFAULT_MAX_PENDING_CONNECTIONS 5
+
+#define MESSAGE_TYPE           1 // Example Spread message type (fixed)
+
 
 // --- Global Variables for Spread Connection ---
 char           spread_private_group[MAX_GROUP_NAME];
 char           spread_private_name_buf[MAX_GROUP_NAME];
 mailbox        spread_mailbox;
 int            spread_connected = 0;
-int            verbose = 0; // Verbose flag
+config_t       app_config; // Global configuration instance
+
+// --- Function to Print Configuration ---
+void print_config(const config_t *config) {
+    printf("\n--- Loaded Configuration ---\n");
+    printf("  Spread Daemon IP: %s\n", config->spread_daemon_ip);
+    printf("  Spread Daemon Port: %d\n", config->spread_daemon_port);
+    printf("  Spread Private Name: %s\n", config->spread_private_name);
+    printf("  Spread Group: %s\n", config->spread_group);
+    printf("  Socket Host: %s\n", config->socket_host);
+    printf("  Socket Port (for Spread messages): %d\n", config->socket_port);
+    printf("  My Listening Port: %d\n", config->my_port);
+    printf("  Buffer Size: %d\n", config->buffer_size);
+    printf("  Max Pending Connections: %d\n", config->max_pending_connections);
+    printf("  Verbose: %s\n", config->verbose ? "true" : "false");
+    printf("----------------------------\n\n");
+}
+
+// --- Function to Load Configuration from JSON File ---
+int load_config_from_json(const char *config_file_path, config_t *config) {
+    json_t *root;
+    json_error_t error;
+
+    // Set default values
+    strncpy(config->spread_daemon_ip, DEFAULT_SPREAD_DAEMON_IP, sizeof(config->spread_daemon_ip) - 1);
+    config->spread_daemon_ip[sizeof(config->spread_daemon_ip) - 1] = '\0';
+    config->spread_daemon_port = DEFAULT_SPREAD_DAEMON_PORT;
+    strncpy(config->spread_private_name, DEFAULT_SPREAD_PRIVATE_NAME, sizeof(config->spread_private_name) - 1);
+    config->spread_private_name[sizeof(config->spread_private_name) - 1] = '\0';
+    strncpy(config->spread_group, DEFAULT_SPREAD_GROUP, sizeof(config->spread_group) - 1);
+    config->spread_group[sizeof(config->spread_group) - 1] = '\0';
+    strncpy(config->socket_host, DEFAULT_SOCKET_HOST, sizeof(config->socket_host) - 1);
+    config->socket_host[sizeof(config->socket_host) - 1] = '\0';
+    config->socket_port = DEFAULT_SOCKET_PORT;
+    config->my_port = DEFAULT_MY_PORT; // Initialize new config variable
+    config->buffer_size = DEFAULT_BUFFER_SIZE;
+    config->max_pending_connections = DEFAULT_MAX_PENDING_CONNECTIONS;
+    config->verbose = 0; // Default to non-verbose
+
+    root = json_load_file(config_file_path, 0, &error);
+
+    if (!root) {
+        fprintf(stderr, "Error loading config from %s: on line %d: %s\n",
+                config_file_path, error.line, error.text);
+        return -1;
+    }
+
+    if (!json_is_object(root)) {
+        fprintf(stderr, "Error: Root of config file is not an object.\n");
+        json_decref(root);
+        return -1;
+    }
+
+    json_t *value;
+
+    if ((value = json_object_get(root, "spread_daemon_ip")) && json_is_string(value)) {
+        strncpy(config->spread_daemon_ip, json_string_value(value), sizeof(config->spread_daemon_ip) - 1);
+        config->spread_daemon_ip[sizeof(config->spread_daemon_ip) - 1] = '\0';
+    }
+    if ((value = json_object_get(root, "spread_daemon_port")) && json_is_integer(value)) {
+        config->spread_daemon_port = json_integer_value(value);
+    }
+    if ((value = json_object_get(root, "spread_private_name")) && json_is_string(value)) {
+        strncpy(config->spread_private_name, json_string_value(value), sizeof(config->spread_private_name) - 1);
+        config->spread_private_name[sizeof(config->spread_private_name) - 1] = '\0';
+    }
+    if ((value = json_object_get(root, "spread_group")) && json_is_string(value)) {
+        strncpy(config->spread_group, json_string_value(value), sizeof(config->spread_group) - 1);
+        config->spread_group[sizeof(config->spread_group) - 1] = '\0';
+    }
+    if ((value = json_object_get(root, "socket_host")) && json_is_string(value)) {
+        strncpy(config->socket_host, json_string_value(value), sizeof(config->socket_host) - 1);
+        config->socket_host[sizeof(config->socket_host) - 1] = '\0';
+    }
+    if ((value = json_object_get(root, "socket_port")) && json_is_integer(value)) {
+        config->socket_port = json_integer_value(value);
+    }
+    if ((value = json_object_get(root, "my_port")) && json_is_integer(value)) {
+        config->my_port = json_integer_value(value);
+    }
+    if ((value = json_object_get(root, "buffer_size")) && json_is_integer(value)) {
+        config->buffer_size = json_integer_value(value);
+    }
+    if ((value = json_object_get(root, "max_pending_connections")) && json_is_integer(value)) {
+        config->max_pending_connections = json_integer_value(value);
+    }
+    if ((value = json_object_get(root, "verbose")) && json_is_boolean(value)) {
+        config->verbose = json_is_true(value);
+    }
+
+    json_decref(root);
+    return 0;
+}
 
 // --- Function to Connect to Spread ---
 int connect_to_spread(char *spread_ip, int spread_port, char *spread_user, char *spread_group) {
@@ -48,7 +157,7 @@ int connect_to_spread(char *spread_ip, int spread_port, char *spread_user, char 
         return -1;
     }
 
-    if (verbose) {
+    if (app_config.verbose) {
         printf("Connected to Spread daemon on %s as %s. Mailbox: %d\n",
                spread_daemon_address, spread_private_name_buf, spread_mailbox);
     }
@@ -60,7 +169,7 @@ int connect_to_spread(char *spread_ip, int spread_port, char *spread_user, char 
         SP_disconnect(spread_mailbox);
         return -1;
     }
-    if (verbose) printf("Joined Spread group '%s'\n", spread_group);
+    if (app_config.verbose) printf("Joined Spread group '%s'\n", spread_group);
     spread_connected = 1;
     return 0;
 }
@@ -68,7 +177,7 @@ int connect_to_spread(char *spread_ip, int spread_port, char *spread_user, char 
 // --- Function to Disconnect from Spread ---
 void disconnect_from_spread(char *spread_group) {
     if (spread_connected) {
-        if (verbose) printf("Leaving Spread group '%s' and disconnecting...\n", spread_group);
+        if (app_config.verbose) printf("Leaving Spread group '%s' and disconnecting...\n", spread_group);
         SP_leave(spread_mailbox, spread_group);
         SP_disconnect(spread_mailbox);
         spread_connected = 0;
@@ -76,13 +185,10 @@ void disconnect_from_spread(char *spread_group) {
 }
 
 void print_usage(char *prog_name) {
-    fprintf(stderr, "Usage: %s [-h] [-v] [-i <ip_address>] [-p <port>] [-g <group_name>] [-u <user_name>]\n", prog_name);
+    fprintf(stderr, "Usage: %s [-h] [-v] [-c <config_file_path>]\n", prog_name);
     fprintf(stderr, "    -h: Print this help message.\n");
-    fprintf(stderr, "    -v: Verbose output.\n");
-    fprintf(stderr, "    -i: Spread daemon IP address (default: %s).\n", SPREAD_DAEMON_IP);
-    fprintf(stderr, "    -p: Spread daemon port (default: %d).\n", SPREAD_DAEMON_PORT);
-    fprintf(stderr, "    -g: Spread group to join (default: %s).\n", SPREAD_GROUP);
-    fprintf(stderr, "    -u: Spread user name (default: %s).\n", SPREAD_PRIVATE_NAME);
+    fprintf(stderr, "    -v: Enable verbose output (overrides config file setting).\n");
+    fprintf(stderr, "    -c: Path to the JSON configuration file (default: /etc/mqtt/bridge.json).\n");
     exit(0);
 }
 
@@ -90,33 +196,22 @@ int main(int argc, char *argv[]) {
     int listen_sock, client_sock;
     struct sockaddr_in server_addr, client_addr;
     socklen_t client_addr_len;
-    char buffer[BUFFER_SIZE];
+    char *buffer;
     int ret;
     int opt;
-    char *spread_ip = SPREAD_DAEMON_IP;
-    int spread_port = SPREAD_DAEMON_PORT;
-    char *spread_group = SPREAD_GROUP;
-    char *spread_user = SPREAD_PRIVATE_NAME;
+    const char *config_file = "/etc/mqtt/bridge.json";
 
-    while ((opt = getopt(argc, argv, "hvi:p:g:u:")) != -1) {
+    // Parse command line arguments
+    while ((opt = getopt(argc, argv, "hvc:")) != -1) {
         switch (opt) {
             case 'h':
                 print_usage(argv[0]);
                 break;
             case 'v':
-                verbose = 1;
+                app_config.verbose = 1; // Override verbose setting from config
                 break;
-            case 'i':
-                spread_ip = optarg;
-                break;
-            case 'p':
-                spread_port = atoi(optarg);
-                break;
-            case 'g':
-                spread_group = optarg;
-                break;
-            case 'u':
-                spread_user = optarg;
+            case 'c':
+                config_file = optarg;
                 break;
             default:
                 print_usage(argv[0]);
@@ -124,13 +219,33 @@ int main(int argc, char *argv[]) {
         }
     }
 
+
+
+    // Load configuration from JSON file
+    if (load_config_from_json(config_file, &app_config) != 0) {
+        fprintf(stderr, "Failed to load configuration. Exiting.\n");
+        return 1;
+    }
+
+    if (app_config.verbose) {
+        print_config(&app_config);
+    }
+
+    // Allocate buffer based on config
+    buffer = (char *)malloc(app_config.buffer_size);
+    if (buffer == NULL) {
+        perror("malloc buffer");
+        return 1;
+    }
+
     fd_set read_fds;
     int max_fd;
 
-    if (verbose) printf("Spread Socket Bridge (C) starting...\n");
+    if (app_config.verbose) printf("Spread Socket Bridge (C) starting...\n");
 
     // --- 1. Connect to Spread ---
-    if (connect_to_spread(spread_ip, spread_port, spread_user, spread_group) != 0) {
+    if (connect_to_spread(app_config.spread_daemon_ip, app_config.spread_daemon_port, app_config.spread_private_name, app_config.spread_group) != 0) {
+        free(buffer);
         return 1; // Exit if Spread connection fails
     }
 
@@ -139,7 +254,8 @@ int main(int argc, char *argv[]) {
     listen_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (listen_sock == -1) {
         perror("socket");
-        disconnect_from_spread(spread_group);
+        disconnect_from_spread(app_config.spread_group);
+        free(buffer);
         return 1;
     }
 
@@ -148,29 +264,32 @@ int main(int argc, char *argv[]) {
     if (setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1) {
         perror("setsockopt");
         close(listen_sock);
-        disconnect_from_spread(spread_group);
+        disconnect_from_spread(app_config.spread_group);
+        free(buffer);
         return 1;
     }
 
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(SOCKET_PORT);
-    server_addr.sin_addr.s_addr = inet_addr(SOCKET_HOST);
+    server_addr.sin_port = htons(app_config.my_port);
+    server_addr.sin_addr.s_addr = inet_addr(app_config.socket_host);
 
     if (bind(listen_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
         perror("bind");
         close(listen_sock);
-        disconnect_from_spread(spread_group);
+        disconnect_from_spread(app_config.spread_group);
+        free(buffer);
         return 1;
     }
 
-    if (listen(listen_sock, MAX_PENDING_CONNECTIONS) == -1) {
+    if (listen(listen_sock, app_config.max_pending_connections) == -1) {
         perror("listen");
         close(listen_sock);
-        disconnect_from_spread(spread_group);
+        disconnect_from_spread(app_config.spread_group);
+        free(buffer);
         return 1;
     }
 
-    if (verbose) printf("Listening for incoming network connections on %s:%d...\n", SOCKET_HOST, SOCKET_PORT);
+    if (app_config.verbose) printf("Listening for incoming network connections on %s:%d...\n", app_config.socket_host, app_config.my_port);
 
     client_sock = -1; // No client connected initially
 
@@ -219,7 +338,7 @@ int main(int argc, char *argv[]) {
                 perror("accept");
                 // Continue listening for other connections
             } else {
-                if (verbose) printf("Accepted connection from %s:%d\n",
+                if (app_config.verbose) printf("Accepted connection from %s:%d\n",
                        inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
                 // For simplicity, we only handle one client at a time.
                 // If another client connects, the previous one would be dropped if we don't fork/thread.
@@ -228,10 +347,10 @@ int main(int argc, char *argv[]) {
 
         // --- Handle Data from Network Client (if connected) ---
         if (client_sock != -1 && FD_ISSET(client_sock, &read_fds)) {
-            ret = recv(client_sock, buffer, BUFFER_SIZE - 1, 0);
+            ret = recv(client_sock, buffer, app_config.buffer_size - 1, 0);
             if (ret <= 0) {
                 if (ret == 0) {
-                    if (verbose) printf("Client %s:%d disconnected.\n",
+                    if (app_config.verbose) printf("Client %s:%d disconnected.\n",
                            inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
                 } else {
                     perror("recv");
@@ -240,16 +359,16 @@ int main(int argc, char *argv[]) {
                 client_sock = -1; // Mark as no client connected
             } else {
                 buffer[ret] = '\0'; // Null-terminate the received data
-                if (verbose) printf("Received from socket (%d bytes): %s", ret, buffer); // Use %s directly, as it might have a newline
+                if (app_config.verbose) printf("Received from socket (%d bytes): %s", ret, buffer); // Use %s directly, as it might have a newline
 
                 // Forward to Spread
-                ret = SP_multicast(spread_mailbox, AGREED_MESS, spread_group, MESSAGE_TYPE,
+                ret = SP_multicast(spread_mailbox, AGREED_MESS, app_config.spread_group, MESSAGE_TYPE,
                                    strlen(buffer), buffer);
                 if (ret < 0) {
                     SP_error(ret);
                     // Decide how to handle this error (e.g., attempt reconnect, log)
                 } else {
-                    if (verbose) printf("Forwarded to Spread group '%s'.\n", spread_group);
+                    if (app_config.verbose) printf("Forwarded to Spread group '%s'.\n", app_config.spread_group);
                 }
             }
         }
@@ -265,14 +384,14 @@ int main(int argc, char *argv[]) {
 
             ret = SP_receive(spread_mailbox, &service_type, sender, MAX_GROUP_NAME,
                              &num_groups, target_groups,
-                             &mess_type, &endian_mismatch, BUFFER_SIZE, buffer);
+                             &mess_type, &endian_mismatch, app_config.buffer_size, buffer);
 
             if (ret < 0) {
                 SP_error(ret);
                 if (Is_causal_mess(ret)) {
                     fprintf(stderr, "Spread daemon disconnected. Attempting to reconnect...\n");
-                    disconnect_from_spread(spread_group);
-                    if (connect_to_spread(spread_ip, spread_port, spread_user, spread_group) != 0) {
+                    disconnect_from_spread(app_config.spread_group);
+                    if (connect_to_spread(app_config.spread_daemon_ip, app_config.spread_daemon_port, app_config.spread_private_name, app_config.spread_group) != 0) {
                         fprintf(stderr, "Reconnection to Spread failed. Exiting.\n");
                         break; // Exit if cannot reconnect
                     }
@@ -284,12 +403,12 @@ int main(int argc, char *argv[]) {
 
             // Process Spread message based on service_type
             if (Is_regular_mess(service_type)) {
-                if (verbose) printf("Received from Spread (Sender: %s, Group: %s, Type: %d, Size: %d): %s\n",
+                if (app_config.verbose) printf("Received from Spread (Sender: %s, Group: %s, Type: %d, Size: %d): %s\n",
                        sender, target_groups[0], mess_type, ret, buffer); // Using target_groups[0] for simplicity
 
                 // Forward to Network Socket (if connected)
                 if (client_sock != -1) {
-                    char formatted_message[BUFFER_SIZE + 128]; // Increased size for formatting
+                    char formatted_message[app_config.buffer_size + 128]; // Increased size for formatting
                     snprintf(formatted_message, sizeof(formatted_message),
                              "[SPREAD from %s@%s]: %s\n", sender, target_groups[0], buffer);
 
@@ -300,14 +419,14 @@ int main(int argc, char *argv[]) {
                         close(client_sock);
                         client_sock = -1;
                     } else {
-                        if (verbose) printf("Forwarded to socket (%d bytes).\n", bytes_sent);
+                        if (app_config.verbose) printf("Forwarded to socket (%d bytes).\n", bytes_sent);
                     }
                 }
             } else if (Is_membership_mess(service_type)) {
-                if (verbose) printf("Received Membership Message (not forwarded): Service Type: %d\n", service_type);
+                if (app_config.verbose) printf("Received Membership Message (not forwarded): Service Type: %d\n", service_type);
                 // You might want to handle membership changes, but for this bridge, we ignore for now.
             } else {
-                if (verbose) printf("Received unknown Spread message (Service Type: %d, Size: %d)\n", service_type, ret);
+                if (app_config.verbose) printf("Received unknown Spread message (Service Type: %d, Size: %d)\n", service_type, ret);
             }
         }
     }
@@ -317,8 +436,9 @@ int main(int argc, char *argv[]) {
         close(client_sock);
     }
     close(listen_sock);
-    disconnect_from_spread(spread_group);
+    disconnect_from_spread(app_config.spread_group);
+    free(buffer);
 
-    if (verbose) printf("Spread Socket Bridge (C) shutting down.\n");
+    if (app_config.verbose) printf("Spread Socket Bridge (C) shutting down.\n");
     return 0;
 }
