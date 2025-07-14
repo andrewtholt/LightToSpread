@@ -51,7 +51,7 @@ int main(void) {
     printf("Buff size = %d\n", MAX_MESSLEN);
     setSymbol("BUILD",__DATE__,LOCK,LOCAL);
     setSymbol("CLIENT","raw",UNLOCK,GLOBAL);
-    setSymbol("SPREAD_SERVER","4803",UNLOCK,GLOBAL);
+    setSymbol("SPREAD_SERVER","4803@192.168.10.124",UNLOCK,GLOBAL);
     setSymbol("GROUP","global",UNLOCK,GLOBAL);
     setSymbol("USER","tstLib",UNLOCK,GLOBAL);
     setSymbol("DEBUG","true",UNLOCK,GLOBAL);

@@ -7,7 +7,7 @@ INC=-I/usr/local/include
 # Don'tbuild old utilities.  Retained for future reference.
 # 
 # BINS=spreadSource spreadSink lightSink lightSource # mine # PthreadsExample 
-BINS=redisSender dbCache tstLib toSpread lightSink lightSource # mine # PthreadsExample spreadSource spreadSink 
+BINS=redisSender dbCache tstLib toSpread lightSink lightSource spread_socket_bridge # mine # PthreadsExample spreadSource spreadSink 
 # LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
 LIBS=-lpthread -lspread -ldl -lm 
 LFLAGS=-Wl,--no-as-needed 
@@ -45,6 +45,9 @@ dbCache:	dbCache.c libConnectToSpread.so
 spreadSink:	sink.o hash.o  connectToSpread.o
 #	$(CC) $(INC) $(CFLAGS) sink.o hash.o connectToSpread.o -o spreadSink -lpthread -lspread -ldl -lm  -lficl
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) sink.o hash.o connectToSpread.o -o spreadSink $(LIBS)
+
+spread_socket_bridge: spread_socket_bridge.c
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) spread_socket_bridge.c -o spread_socket_bridge $(LIBS)
 
 sink.o:	sink.c mine.h hash.h hash.o
 	$(CC) $(INC) -c $(CFLAGS) -Wall sink.c -o sink.o 
