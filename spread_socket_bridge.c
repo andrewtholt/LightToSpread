@@ -361,6 +361,22 @@ int main(int argc, char *argv[]) {
                 buffer[ret] = '\0'; // Null-terminate the received data
                 if (app_config.verbose) printf("Received from socket (%d bytes): %s", ret, buffer); // Use %s directly, as it might have a newline
 
+                // Remove trailing newline or carriage return characters
+                size_t len = strlen(buffer);
+                while (len > 0 && (buffer[len-1] == '\n' || buffer[len-1] == '\r')) {
+                    buffer[--len] = '\0';
+                }
+
+                // Check for the "^quit" command
+                if (strcmp(buffer, "^quit") == 0) {
+                    if (app_config.verbose) printf("Received ^quit command. Shutting down.\n");
+                    close(client_sock);
+                    close(listen_sock);
+                    disconnect_from_spread(app_config.spread_group);
+                    free(buffer);
+                    return 0; // Exit the program
+                }
+
                 // Forward to Spread
                 ret = SP_multicast(spread_mailbox, AGREED_MESS, app_config.spread_group, MESSAGE_TYPE,
                                    strlen(buffer), buffer);
