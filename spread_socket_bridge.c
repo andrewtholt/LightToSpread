@@ -47,6 +47,10 @@ mailbox        spread_mailbox;
 int            spread_connected = 0;
 config_t       app_config; // Global configuration instance
 
+#define MAX_ADDITIONAL_GROUPS 10
+char *additional_groups[MAX_ADDITIONAL_GROUPS];
+int num_additional_groups = 0;
+
 // --- Function to Print Configuration ---
 void print_config(const config_t *config) {
     printf("\n--- Loaded Configuration ---\n");
@@ -170,6 +174,17 @@ int connect_to_spread(char *spread_ip, int spread_port, char *spread_user, char 
         return -1;
     }
     if (app_config.verbose) printf("Joined Spread group '%s'\n", spread_group);
+
+    // Join additional Spread groups
+    for (int i = 0; i < num_additional_groups; i++) {
+        ret = SP_join(spread_mailbox, additional_groups[i]);
+        if (ret < 0) {
+            SP_error(ret);
+            fprintf(stderr, "Warning: Failed to join additional Spread group '%s'.\n", additional_groups[i]);
+        } else {
+            if (app_config.verbose) printf("Joined additional Spread group '%s'\n", additional_groups[i]);
+        }
+    }
     spread_connected = 1;
     return 0;
 }
@@ -179,16 +194,24 @@ void disconnect_from_spread(char *spread_group) {
     if (spread_connected) {
         if (app_config.verbose) printf("Leaving Spread group '%s' and disconnecting...\n", spread_group);
         SP_leave(spread_mailbox, spread_group);
+
+        // Leave additional Spread groups
+        for (int i = 0; i < num_additional_groups; i++) {
+            if (app_config.verbose) printf("Leaving additional Spread group '%s'.\n", additional_groups[i]);
+            SP_leave(spread_mailbox, additional_groups[i]);
+        }
+
         SP_disconnect(spread_mailbox);
         spread_connected = 0;
     }
 }
 
 void print_usage(char *prog_name) {
-    fprintf(stderr, "Usage: %s [-h] [-v] [-c <config_file_path>]\n", prog_name);
+    fprintf(stderr, "Usage: %s [-h] [-v] [-c <config_file_path>] [-g <group_name>]...\n", prog_name);
     fprintf(stderr, "    -h: Print this help message.\n");
     fprintf(stderr, "    -v: Enable verbose output (overrides config file setting).\n");
     fprintf(stderr, "    -c: Path to the JSON configuration file (default: /etc/mqtt/bridge.json).\n");
+    fprintf(stderr, "    -g: Join an additional Spread group. Can be specified multiple times.\n");
     exit(0);
 }
 
@@ -202,7 +225,7 @@ int main(int argc, char *argv[]) {
     const char *config_file = "/etc/mqtt/bridge.json";
 
     // Parse command line arguments
-    while ((opt = getopt(argc, argv, "hvc:")) != -1) {
+    while ((opt = getopt(argc, argv, "hvc:g:")) != -1) {
         switch (opt) {
             case 'h':
                 print_usage(argv[0]);
@@ -212,6 +235,13 @@ int main(int argc, char *argv[]) {
                 break;
             case 'c':
                 config_file = optarg;
+                break;
+            case 'g':
+                if (num_additional_groups < MAX_ADDITIONAL_GROUPS) {
+                    additional_groups[num_additional_groups++] = optarg;
+                } else {
+                    fprintf(stderr, "Warning: Maximum number of additional groups reached. Ignoring %s\n", optarg);
+                }
                 break;
             default:
                 print_usage(argv[0]);
