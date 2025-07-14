@@ -405,16 +405,21 @@ int main(int argc, char *argv[]) {
                     disconnect_from_spread(app_config.spread_group);
                     free(buffer);
                     return 0; // Exit the program
-                }
-
-                // Forward to Spread
-                ret = SP_multicast(spread_mailbox, AGREED_MESS, app_config.spread_group, MESSAGE_TYPE,
-                                   strlen(buffer), buffer);
-                if (ret < 0) {
-                    SP_error(ret);
-                    // Decide how to handle this error (e.g., attempt reconnect, log)
+                } else if (strcmp(buffer, "^whoami") == 0) {
+                    if (app_config.verbose) printf("Received ^whoami command. Responding with Spread user name.\n");
+                    char response[MAX_GROUP_NAME + 10]; // Buffer for "whoami: " + name + newline + null
+                    snprintf(response, sizeof(response), "whoami: %s\n", spread_private_name_buf);
+                    send(client_sock, response, strlen(response), 0);
                 } else {
-                    if (app_config.verbose) printf("Forwarded to Spread group '%s'.\n", app_config.spread_group);
+                    // Forward to Spread
+                    ret = SP_multicast(spread_mailbox, AGREED_MESS, app_config.spread_group, MESSAGE_TYPE,
+                                       strlen(buffer), buffer);
+                    if (ret < 0) {
+                        SP_error(ret);
+                        // Decide how to handle this error (e.g., attempt reconnect, log)
+                    } else {
+                        if (app_config.verbose) printf("Forwarded to Spread group '%s'.\n", app_config.spread_group);
+                    }
                 }
             }
         }
