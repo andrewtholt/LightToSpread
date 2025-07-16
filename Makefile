@@ -30,7 +30,7 @@ lightSource:	lightSource.c
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSource lightSource.c -L/usr/local/lib -ldl -lspread
 
 spreadToMysql:	spreadToMysql.c
-	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o spreadToMysql spreadToMysql.c -L/usr/local/lib -ldl -lspread -lmysqlclient
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o spreadToMysql spreadToMysql.c -L/usr/local/lib -ldl -lspread -lmysqlclient $(LIBS)
 
 
 redisSender:	redisSender.c libConnectToSpread.so

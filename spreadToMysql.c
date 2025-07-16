@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#include <jansson.h>
 #include <mariadb/mysql.h>
 
 #define MAX_MESSLEN     102400
@@ -16,6 +17,10 @@ char *Interp(char *);
 
 struct Global {
 	bool connectedToMysql;
+        char *database_name;    // The nmame or ip address of the MySQL instence
+        char *db_name;          // The database instance.
+        char *user_name;
+        char *passwd;
 };
 
 struct Global g;
@@ -45,18 +50,20 @@ char *Interp(char *cmd) {
 
 void usage() {
     printf("\n");
-    printf("Usage: spreadToMysql -h|? -u <user> -g <group> -s <server>\n");
+    printf("Usage: spreadToMysql -h|? -u <user> -g <group> -s <server> -c <config file>\n");
     printf("\nDescription:\n");
     printf("\tlightSink takes messages from spread and sends them\n");
     printf("\tto stdout.\n");
     printf("\n");
 
     printf("\t-h|?\t\tHelp\n");
+    printf("\t-c <config>\tPath to JSON.\n");
     printf("\t-f\t\tFormatted output\n");
     printf("\t-x\t\tExit. On reciept of a message exit.\n");
     printf("\t-u <user>\tConnect to spread as user.\n");
     printf("\t-g <group>\tOn connect join group.\n");
     printf("\t-s <server>\tConnect to server, e.g 4803, 4803@host.\n");
+    printf("\t-c <file>\tUse JSON config file for params.\n");
     printf("\t-t n\t\tTime out after n seconds\n");
     printf("\t-p\t\tPoll\n");
 
@@ -74,6 +81,7 @@ void sig_handler(int signo) {
     exit(signo);
 }
 
+
 int main(int argc, char *argv[]) {
     int             ch;
     int             service_type = 0;
@@ -86,6 +94,13 @@ int main(int argc, char *argv[]) {
     int incReciever = 0;
     int incType = 0;
     int incMsg = 1;
+    char *configFile = NULL;
+// 
+// Jansson library
+//
+
+    json_t *root;
+    json_error_t error;
 
     g.connectedToMysql = false;
 
@@ -110,9 +125,13 @@ int main(int argc, char *argv[]) {
     strcpy(server,"4803@localhost");
     group[0] = 0;
 
-    while ((ch = getopt(argc, argv, "f:lh?u:g:s:t:pvx")) != -1) {
+    while ((ch = getopt(argc, argv, "c:f:lh?u:g:s:t:pvx")) != -1) {
 
         switch (ch) {
+
+            case 'c':
+                configFile = optarg;
+                break;
             case 'f':
                 formatted=1;
                 {
@@ -168,11 +187,56 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    if (configFile) {
+        root= json_load_file(configFile,0,&error);
+        if(!root) {
+            fprintf(stderr,"Error loading/opening file %s\n", configFile);
+            return 1;
+        }
+
+        if(!json_is_object(root)) {     
+            fprintf(stderr, "Error: Root element is not an object\n");
+            return 1;
+        }
+    }
+    json_t *database_object = json_object_get(root,"database");
+    json_t *name_obj = NULL;
+    json_t *name_value = NULL;
+
+    if(json_is_object(database_object)) {
+        name_obj = json_object_get(database_object,"name");
+        if(json_is_string(name_obj)) {
+            printf("Host name is %s\n", json_string_value(name_obj));
+            g.database_name=strdup( json_string_value(name_obj));
+        }
+        json_t *db_obj = json_object_get(database_object,"db");
+        if(json_is_string(db_obj)) {
+            printf("db name is %s\n", json_string_value(db_obj));
+            g.db_name=strdup( json_string_value(db_obj));
+        }
+        json_t *user_obj = json_object_get(database_object,"user");
+        if(json_is_string(user_obj)) {
+            printf("User name is %s\n", json_string_value(user_obj));
+            g.user_name=strdup( json_string_value(user_obj));
+        }
+        json_t *passwd_obj = json_object_get(database_object,"passwd");
+        if(json_is_string(passwd_obj)) {
+            printf("Password is %s\n", json_string_value(passwd_obj));
+            g.passwd=strdup( json_string_value(passwd_obj));
+        }
+    }
+
 
     if(verbose) {
-        printf("User  :%s\n",user);
-        printf("Group :%s\n",group);
-        printf("Server:%s\n",server);
+        printf("=========\n");
+        printf("MySQL Host  :%s\n",g.database_name);
+        printf("MySQL db    :%s\n",g.db_name);
+        printf("MySQL User  :%s\n",g.user_name);
+        printf("MySQL Passwd:%s\n",g.passwd);
+        printf("\n");
+        printf("Spread Server:%s\n",server);
+        printf("Spread Group :%s\n",group);
+        printf("=========\n");
     }
     ret = SP_connect(server, user, 0, 1, &Mbox, Private_group);
 
