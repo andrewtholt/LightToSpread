@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#include <mariadb/mysql.h>
+
 #define MAX_MESSLEN     102400
 #define BUFFER_LEN 255
 
@@ -26,20 +28,17 @@ char *Interp(char *cmd) {
         int result;
 
         (void *)memset(outBuffer,0,BUFFER_LEN);
-//	printf("Interp IN: %s\n", cmd);
 
 	if(cmd[0] == '^') {
-//            printf("command >%s<\n", cmd);
 
             token = strtok_r(cmd," \n", &saveptr);
 
             if (!strcmp(token,"^status")){
-//                printf("\t:%s\n", token);
                 result = sprintf(outBuffer,"\nConnected to mySql:%d\n",(int)g.connectedToMysql);
             } else if (!strcmp(token,"^ping")) {
                 strcpy(outBuffer,"+pong");
             }
-    }
+        }
 
 	return(outBuffer);
 }
