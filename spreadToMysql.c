@@ -13,17 +13,70 @@
 #define MAX_MESSLEN     102400
 #define BUFFER_LEN 255
 
+// Structs for the new JSON structure
+typedef struct {
+    char *name;
+    char *db;
+    char *user;
+    char *passwd;
+} DatabaseConfig;
+
+typedef struct {
+    char *name;
+    char *port;
+    char *default_group;
+    char *user;
+} SpreadConfig;
+
 char *Interp(char *);
 
 struct Global {
 	bool connectedToMysql;
-        char *database_name;    // The nmame or ip address of the MySQL instence
-        char *db_name;          // The database instance.
-        char *user_name;
-        char *passwd;
+    DatabaseConfig database;
+    SpreadConfig spread;
 };
 
 struct Global g;
+
+// Helper function to extract string value from a json object
+void extract_string(json_t *parent, const char *key, char **target) {
+    json_t *obj = json_object_get(parent, key);
+    if (json_is_string(obj)) {
+        *target = strdup(json_string_value(obj));
+    }
+}
+
+int load_config(const char *filename, struct Global *g) {
+    json_t *root;
+    json_error_t error;
+
+    // Load the JSON file
+    root = json_load_file(filename, 0, &error);
+    if (!root) {
+        fprintf(stderr, "error: on line %d: %s\n", error.line, error.text);
+        return 1;
+    }
+
+    // Extract values from the JSON object
+    json_t *database_obj = json_object_get(root, "database");
+    if (database_obj) {
+        extract_string(database_obj, "name", &g->database.name);
+        extract_string(database_obj, "db", &g->database.db);
+        extract_string(database_obj, "user", &g->database.user);
+        extract_string(database_obj, "passwd", &g->database.passwd);
+    }
+
+    json_t *spread_obj = json_object_get(root, "spread");
+    if (spread_obj) {
+        extract_string(spread_obj, "name", &g->spread.name);
+        extract_string(spread_obj, "port", &g->spread.port);
+        extract_string(spread_obj, "default_group", &g->spread.default_group);
+        extract_string(spread_obj, "user", &g->spread.user);
+    }
+
+    json_decref(root);
+    return 0;
+}
 
 char *Interp(char *cmd) {
         char *c;
@@ -95,12 +148,6 @@ int main(int argc, char *argv[]) {
     int incType = 0;
     int incMsg = 1;
     char *configFile = NULL;
-// 
-// Jansson library
-//
-
-    json_t *root;
-    json_error_t error;
 
     g.connectedToMysql = false;
 
@@ -188,57 +235,35 @@ int main(int argc, char *argv[]) {
     }
 
     if (configFile) {
-        root= json_load_file(configFile,0,&error);
-        if(!root) {
-            fprintf(stderr,"Error loading/opening file %s\n", configFile);
+        if (load_config(configFile, &g) != 0) {
+            fprintf(stderr, "Failed to load config file: %s\n", configFile);
             return 1;
         }
-
-        if(!json_is_object(root)) {     
-            fprintf(stderr, "Error: Root element is not an object\n");
-            return 1;
+        if (g.spread.port && g.spread.name) {
+            sprintf(server, "%s@%s", g.spread.port, g.spread.name);
+        }
+        if (g.spread.default_group) {
+            strcpy(group, g.spread.default_group);
+        }
+        if (g.spread.user) {
+            strcpy(user, g.spread.user);
         }
     }
-    json_t *database_object = json_object_get(root,"database");
-    json_t *name_obj = NULL;
-    json_t *name_value = NULL;
-
-    if(json_is_object(database_object)) {
-        name_obj = json_object_get(database_object,"name");
-        if(json_is_string(name_obj)) {
-            printf("Host name is %s\n", json_string_value(name_obj));
-            g.database_name=strdup( json_string_value(name_obj));
-        }
-        json_t *db_obj = json_object_get(database_object,"db");
-        if(json_is_string(db_obj)) {
-            printf("db name is %s\n", json_string_value(db_obj));
-            g.db_name=strdup( json_string_value(db_obj));
-        }
-        json_t *user_obj = json_object_get(database_object,"user");
-        if(json_is_string(user_obj)) {
-            printf("User name is %s\n", json_string_value(user_obj));
-            g.user_name=strdup( json_string_value(user_obj));
-        }
-        json_t *passwd_obj = json_object_get(database_object,"passwd");
-        if(json_is_string(passwd_obj)) {
-            printf("Password is %s\n", json_string_value(passwd_obj));
-            g.passwd=strdup( json_string_value(passwd_obj));
-        }
-    }
-
 
     if(verbose) {
         printf("=========\n");
-        printf("MySQL Host  :%s\n",g.database_name);
-        printf("MySQL db    :%s\n",g.db_name);
-        printf("MySQL User  :%s\n",g.user_name);
-        printf("MySQL Passwd:%s\n",g.passwd);
+        printf("MySQL Host  :%s\n",g.database.name);
+        printf("MySQL db    :%s\n",g.database.db);
+        printf("MySQL User  :%s\n",g.database.user);
+        printf("MySQL Passwd:%s\n",g.database.passwd);
         printf("\n");
-        printf("Spread Server:%s\n",server);
-        printf("Spread Group :%s\n",group);
+        printf("Spread Server:%s\n",g.spread.name);
+//        printf("Spread Group :%s\n",g.default_group);
+        printf("Spread User  :%s\n",g.spread.user );
         printf("=========\n");
     }
-    ret = SP_connect(server, user, 0, 1, &Mbox, Private_group);
+//        extract_string(spread_obj, "user", &g->spread.user);
+    ret = SP_connect(server, g.spread.user, 0, 1, &Mbox, Private_group);
 
     if (ret < 0) {
         SP_error(ret);
@@ -275,7 +300,7 @@ int main(int argc, char *argv[]) {
         if (Is_regular_mess(service_type)) {
             message[ret] = 0;
 
-	    char *t = Interp(message);
+	char *t = Interp(message);
 //            printf("%s\n",t);
 
             if(strcmp(sender, Private_group)) {
