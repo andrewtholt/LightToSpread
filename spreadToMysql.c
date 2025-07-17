@@ -31,7 +31,7 @@ typedef struct {
 char *Interp(char *);
 
 struct Global {
-	bool connectedToMysql;
+        bool connectedToMysql;
     DatabaseConfig database;
     SpreadConfig spread;
 };
@@ -82,23 +82,40 @@ char *Interp(char *cmd) {
         char *c;
         char *saveptr;
         char *token;
+        char *s1=NULL;
         static char outBuffer[BUFFER_LEN];
         int result;
 
         (void *)memset(outBuffer,0,BUFFER_LEN);
 
-	if(cmd[0] == '^') {
+        token = strtok_r(cmd," \n", &saveptr);
 
-            token = strtok_r(cmd," \n", &saveptr);
+        if(cmd[0] == '^') {
 
             if (!strcmp(token,"^status")){
                 result = sprintf(outBuffer,"\nConnected to mySql:%d\n",(int)g.connectedToMysql);
             } else if (!strcmp(token,"^ping")) {
                 strcpy(outBuffer,"+pong");
             }
+        } else {
+            // now check if this is a valid command.
+            // So:
+            // GET <name> returns a string
+            // SET <name> ON|OFF set in db and returns state.
+            // Anything else returns -ERROR
+            if(!strcmp(cmd, "GET")) {
+                printf("GET\n");
+                s1 = strtok_r(NULL," \n",&saveptr);
+                sprintf(outBuffer,s1);
+                // 
+                // Now do the sql query.
+                //
+            } else {
+                strcpy(outBuffer,"-ERROR\n");
+            }
         }
 
-	return(outBuffer);
+        return(outBuffer);
 }
 
 void usage() {
@@ -300,7 +317,7 @@ int main(int argc, char *argv[]) {
         if (Is_regular_mess(service_type)) {
             message[ret] = 0;
 
-	char *t = Interp(message);
+        char *t = Interp(message);
 //            printf("%s\n",t);
 
             if(strcmp(sender, Private_group)) {
