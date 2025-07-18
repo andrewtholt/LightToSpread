@@ -134,7 +134,8 @@ char *Interp(char *cmd, MYSQL *conn) {
                     strcpy(outBuffer,"-EMPTY\n");
                 } else {
                     printf("\t%s\n",row[0]);
-                    strcpy(outBuffer,row[0]);
+//                    strcpy(outBuffer,row[0]);
+                    sprintf(outBuffer,"%s\n",row[0]);
                 }
             } else if(!strcmp(cmd,"SET")){
                 printf("SET\n");
@@ -149,7 +150,8 @@ char *Interp(char *cmd, MYSQL *conn) {
                 if ( rc != 0 ) {
                     finish_with_error(conn);
                 } else {
-                    strcpy(outBuffer,s2);
+//                    strcpy(outBuffer,s2);
+                    sprintf(outBuffer,"%s\n",s2);
                 }
             } else {
                 strcpy(outBuffer,"-ERROR\n");
@@ -327,6 +329,7 @@ int main(int argc, char *argv[]) {
         SP_error(ret);
         exit(1);
     }
+    printf("I am %s\n", Private_group);
     SP_join(Mbox, "global");
 
     if (strlen(group) > 0 ) {
@@ -366,8 +369,7 @@ int main(int argc, char *argv[]) {
         if (Is_regular_mess(service_type)) {
             message[ret] = 0;
 
-        char *t = Interp(message, conn);
-//            printf("%s\n",t);
+            char *t = Interp(message, conn);
 
             if(strcmp(sender, Private_group)) {
                 ret = SP_multicast(Mbox,AGREED_MESS, group, 1, strlen(t),t);
@@ -378,6 +380,8 @@ int main(int argc, char *argv[]) {
             } else {
                 exitFlag=0;
             }
+        } else if(Is_membership_mess(service_type)) {
+            printf("%s\n",sender);
         }
     } while (!exitFlag);
 
