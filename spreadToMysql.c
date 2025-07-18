@@ -28,13 +28,18 @@ typedef struct {
     char *user;
 } SpreadConfig;
 
-char *Interp(char *);
+char *Interp(char *, MYSQL *conn);
 
 struct Global {
         bool connectedToMysql;
     DatabaseConfig database;
     SpreadConfig spread;
 };
+void finish_with_error(MYSQL *con) {
+    fprintf(stderr,"%s\n", mysql_error(con));
+    mysql_close(con);
+    exit(1);
+}
 
 struct Global g;
 
@@ -78,12 +83,15 @@ int load_config(const char *filename, struct Global *g) {
     return 0;
 }
 
-char *Interp(char *cmd) {
+char *Interp(char *cmd, MYSQL *conn) {
         char *c;
         char *saveptr;
         char *token;
         char *s1=NULL;
+        char *s2=NULL;
+
         static char outBuffer[BUFFER_LEN];
+        static char sqlCmd[BUFFER_LEN];
         int result;
 
         (void *)memset(outBuffer,0,BUFFER_LEN);
@@ -91,7 +99,6 @@ char *Interp(char *cmd) {
         token = strtok_r(cmd," \n", &saveptr);
 
         if(cmd[0] == '^') {
-
             if (!strcmp(token,"^status")){
                 result = sprintf(outBuffer,"\nConnected to mySql:%d\n",(int)g.connectedToMysql);
             } else if (!strcmp(token,"^ping")) {
@@ -106,10 +113,44 @@ char *Interp(char *cmd) {
             if(!strcmp(cmd, "GET")) {
                 printf("GET\n");
                 s1 = strtok_r(NULL," \n",&saveptr);
-                sprintf(outBuffer,s1);
                 // 
                 // Now do the sql query.
                 //
+                sprintf(sqlCmd,"select state from  io_point where name='%s';",s1);
+
+                strcpy(outBuffer, sqlCmd);
+
+                MYSQL_FIELD *field;
+
+                int rc =mysql_query(conn,sqlCmd);
+                if ( rc != 0 ) {
+                    finish_with_error(conn);
+                }
+
+                MYSQL_RES *result = mysql_store_result(conn);
+                MYSQL_ROW row = mysql_fetch_row(result);
+
+                if (row == 0) {
+                    strcpy(outBuffer,"-EMPTY\n");
+                } else {
+                    printf("\t%s\n",row[0]);
+                    strcpy(outBuffer,row[0]);
+                }
+            } else if(!strcmp(cmd,"SET")){
+                printf("SET\n");
+                s1 = strtok_r(NULL," \n",&saveptr);     // get name
+                s2 = strtok_r(NULL," \n",&saveptr);     // get  value
+
+                sprintf(sqlCmd,"update io_point set state ='%s' where name='%s';",s2, s1);
+                strcpy(outBuffer, sqlCmd);
+                printf("%s\n", outBuffer);
+
+                int rc =mysql_query(conn,sqlCmd);
+                if ( rc != 0 ) {
+                    finish_with_error(conn);
+                } else {
+                    strcpy(outBuffer,s2);
+                }
             } else {
                 strcpy(outBuffer,"-ERROR\n");
             }
@@ -292,6 +333,14 @@ int main(int argc, char *argv[]) {
         SP_join(Mbox, group);
     }
 
+    MYSQL *conn = mysql_init(NULL);
+
+    if(mysql_real_connect(conn,g.database.name, g.database.user, g.database.passwd, g.database.db, 0,NULL,0) == NULL) {
+        fprintf(stderr,"%sb",mysql_error(conn));
+        finish_with_error(conn);
+    }
+
+
     if(polling) {
         ret = SP_poll( Mbox);
         if(ret <= 0)
@@ -317,7 +366,7 @@ int main(int argc, char *argv[]) {
         if (Is_regular_mess(service_type)) {
             message[ret] = 0;
 
-        char *t = Interp(message);
+        char *t = Interp(message, conn);
 //            printf("%s\n",t);
 
             if(strcmp(sender, Private_group)) {

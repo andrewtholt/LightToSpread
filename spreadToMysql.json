@@ -1,0 +1,47 @@
+{
+    "remote": {
+        "name": "test",
+        "port": "1883",
+        "prefix": "andrewtholt60@gmail.com"
+    },
+    "local": {
+        "name": "192.168.0.50",
+        "port": "1883"
+    },
+    "common": {
+        "topic": "/home/office/+/power"
+    },
+    "database" : {
+        "name"   : "192.168.0.50",
+        "db"     : "automation",
+        "user"   : "automation",
+        "passwd" : "automation"
+    },
+    "socket" : {
+        "name" : "192.168.0.50",
+        "port" : "9191",
+        "dispatch" : "/toDispatcher"
+
+    },
+    "topics" : {
+        "sunrise" : "/home/environment/SUNRISE",
+        "sunset"  : "/home/environment/SUNSET",
+        "time"    : "/home/environment/TIME",
+        "day"     : "/home/environment/DAY",
+        "dow"     : "/home/environment/DOW"
+    },
+    "location" : {
+        "long" : "-2.71315",
+        "lat"  : "53.664258"
+    },
+    "home_assistant" : {
+        "name" : "192.168.10.124",
+        "port" : "8123"
+    },
+    "spread" : {
+        "name" : "192.168.0.50",
+        "port" : "4803",
+        "user"  : "mysql",
+     	"default_group" : "global"
+    }
+}
