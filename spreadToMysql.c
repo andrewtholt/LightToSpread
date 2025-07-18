@@ -29,6 +29,7 @@ typedef struct {
 } SpreadConfig;
 
 char *Interp(char *, MYSQL *conn);
+void print_config();
 
 struct Global {
         bool connectedToMysql;
@@ -134,7 +135,6 @@ char *Interp(char *cmd, MYSQL *conn) {
                     strcpy(outBuffer,"-EMPTY\n");
                 } else {
                     printf("\t%s\n",row[0]);
-//                    strcpy(outBuffer,row[0]);
                     sprintf(outBuffer,"%s\n",row[0]);
                 }
             } else if(!strcmp(cmd,"SET")){
@@ -150,7 +150,6 @@ char *Interp(char *cmd, MYSQL *conn) {
                 if ( rc != 0 ) {
                     finish_with_error(conn);
                 } else {
-//                    strcpy(outBuffer,s2);
                     sprintf(outBuffer,"%s\n",s2);
                 }
             } else {
@@ -179,12 +178,27 @@ void usage() {
     printf("\t-c <file>\tUse JSON config file for params.\n");
     printf("\t-t n\t\tTime out after n seconds\n");
     printf("\t-p\t\tPoll\n");
+    printf("\t-P\t\tPrint config and exit.\n");
 
     printf("\n");
     printf("The defaults are:\n");
     printf("\tlightSink -u user -s 4803@localhost \n");
 
     printf("\n");
+}
+
+void print_config() {
+    printf("Current Configuration:\n");
+    printf("  Database:\n");
+    printf("    Host: %s\n", g.database.name ? g.database.name : "(not set)");
+    printf("    Database: %s\n", g.database.db ? g.database.db : "(not set)");
+    printf("    User: %s\n", g.database.user ? g.database.user : "(not set)");
+    printf("    Password: %s\n", g.database.passwd ? "(set)" : "(not set)"); // Avoid printing password
+    printf("  Spread:\n");
+    printf("    Name: %s\n", g.spread.name ? g.spread.name : "(not set)");
+    printf("    Port: %s\n", g.spread.port ? g.spread.port : "(not set)");
+    printf("    Default Group: %s\n", g.spread.default_group ? g.spread.default_group : "(not set)");
+    printf("    User: %s\n", g.spread.user ? g.spread.user : "(not set)");
 }
 
 void sig_handler(int signo) {
@@ -211,7 +225,7 @@ int main(int argc, char *argv[]) {
 
     g.connectedToMysql = false;
 
-    char            user[32];
+//    char            user[32];
     char            group[80];
     char            server[255];
     static char     message[MAX_MESSLEN];
@@ -228,11 +242,13 @@ int main(int argc, char *argv[]) {
 
     mailbox         Mbox;
 
-    strcpy(user,"user");
-    strcpy(server,"4803@localhost");
     group[0] = 0;
 
-    while ((ch = getopt(argc, argv, "c:f:lh?u:g:s:t:pvx")) != -1) {
+//    strcpy(user,"user");
+    strcpy(server,"4803@localhost");
+//    group[0] = 0;
+
+    while ((ch = getopt(argc, argv, "c:f:lh?u:g:s:t:pvxP")) != -1) {
 
         switch (ch) {
 
@@ -263,10 +279,21 @@ int main(int argc, char *argv[]) {
                 break;
             case 'g':
                 strcpy(group, optarg);
+//                strcpy(g.spread.default_group, optarg);
                 break;
             case 'h':
             case '?':
                 usage();
+                exit(0);
+                break;
+            case 'P':
+                if (configFile) {
+                    if (load_config(configFile, &g) != 0) {
+                        fprintf(stderr, "Failed to load config file: %s\n", configFile);
+                        return 1;
+                    }
+                }
+                print_config();
                 exit(0);
                 break;
             case 'x':
@@ -282,7 +309,7 @@ int main(int argc, char *argv[]) {
                 timeout=atoi(optarg);
                 break;
             case 'u':
-                strcpy(user, optarg);
+                strcpy(g.spread.user, optarg);
                 break;
             case 'v':
                 verbose = 1;
@@ -302,27 +329,10 @@ int main(int argc, char *argv[]) {
         if (g.spread.port && g.spread.name) {
             sprintf(server, "%s@%s", g.spread.port, g.spread.name);
         }
-        if (g.spread.default_group) {
-            strcpy(group, g.spread.default_group);
-        }
-        if (g.spread.user) {
-            strcpy(user, g.spread.user);
-        }
     }
 
-    if(verbose) {
-        printf("=========\n");
-        printf("MySQL Host  :%s\n",g.database.name);
-        printf("MySQL db    :%s\n",g.database.db);
-        printf("MySQL User  :%s\n",g.database.user);
-        printf("MySQL Passwd:%s\n",g.database.passwd);
-        printf("\n");
-        printf("Spread Server:%s\n",g.spread.name);
-//        printf("Spread Group :%s\n",g.default_group);
-        printf("Spread User  :%s\n",g.spread.user );
-        printf("=========\n");
-    }
-//        extract_string(spread_obj, "user", &g->spread.user);
+    print_config();
+
     ret = SP_connect(server, g.spread.user, 0, 1, &Mbox, Private_group);
 
     if (ret < 0) {
@@ -330,10 +340,15 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     printf("I am %s\n", Private_group);
-    SP_join(Mbox, "global");
+//    SP_join(Mbox, "global");
+    SP_join(Mbox, g.spread.default_group);
 
-    if (strlen(group) > 0 ) {
-        SP_join(Mbox, group);
+    if (group[0] != 0) {
+        SP_join(Mbox,group);
+    }
+
+    if (strlen(g.spread.default_group) > 0 ) {
+        SP_join(Mbox, g.spread.default_group);
     }
 
     MYSQL *conn = mysql_init(NULL);
@@ -371,8 +386,9 @@ int main(int argc, char *argv[]) {
 
             char *t = Interp(message, conn);
 
+            printf("Sender is %s\n", sender);
             if(strcmp(sender, Private_group)) {
-                ret = SP_multicast(Mbox,AGREED_MESS, group, 1, strlen(t),t);
+                ret = SP_multicast(Mbox,AGREED_MESS, sender, 1, strlen(t),t);
             }
 
             if(loop ==0) {
@@ -385,7 +401,7 @@ int main(int argc, char *argv[]) {
         }
     } while (!exitFlag);
 
-    ret = SP_leave(Mbox, group);
+    ret = SP_leave(Mbox, g.spread.default_group);
 
     exit(0);
 
