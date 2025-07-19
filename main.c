@@ -133,27 +133,19 @@ pid_t popen2(const char *command, int *infp, int *outfp)
 }
 
 void usage() {
-    printf("usage: toSpread -h -c <cfg> -u <user> -d <database> -f -n <hostname> -p <template> -P\n\n");
+    printf("usage: toSpread -h -c <cfg> -u <user> -d <database> -f -n <hostname> -P\n\n");
 
     printf("\t-c <cfg>\tConfig file.\n");
     printf("\t-d <database>\tCache databae.\n");
     printf("\t-f\t\tForce, remove default config.\n");
     printf("\t-h\t\tHelp.\n");
     printf("\t-n <hostname>\tSet hostname.\n");
-    printf("\t-p <template>\tPipe name template.  See NOTES.\n");
     printf("\t-u <user>\tSpread user.\n");
     printf("\t-P\t\tPrint config and exit.\n");
 
     printf("\nNOTES:\n\n");
     printf("\tDefaults are:\n");
     printf("\t\ttoSpread -u <unix user> -g global -c ~/.start.rc\n\n");
-
-    printf("\tThe -p option creates two named pipes (aka fifo's) using the given\n\ttemplate.\n\n");
-    printf("\t-p /tmp/fred would cause two fifo's to be created\n\n");
-    printf("\te.g.\t/tmp/fred.0 - stdin\n");
-    printf("\t\t/tmp/fred.1 - stdout\n\n");
-    printf("\tSo a client would write to fred.0 and read from fred.1.\n");
-
 }
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
