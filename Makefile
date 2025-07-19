@@ -7,7 +7,7 @@ INC=-I/usr/local/include
 # Don'tbuild old utilities.  Retained for future reference.
 # 
 # BINS=spreadSource spreadSink lightSink lightSource # mine # PthreadsExample 
-BINS=redisSender dbCache tstLib toSpread lightSink lightSource spread_socket_bridge spreadToMysql # mine # PthreadsExample spreadSource spreadSink 
+BINS=redisSender dbCache tstLib toSpread lightSink lightSource socketToMYSQL spreadToSocket # mine # PthreadsExample spreadSource spreadSink 
 # LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
 LIBS=-lpthread -lspread -ldl -lm -ljansson 
 LFLAGS=-Wl,--no-as-needed 
@@ -29,8 +29,9 @@ lightSink:	lightSink.c
 lightSource:	lightSource.c
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSource lightSource.c -L/usr/local/lib -ldl -lspread
 
-spreadToMysql:	spreadToMysql.c
-	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o spreadToMysql spreadToMysql.c -L/usr/local/lib -ldl -lspread -lmysqlclient $(LIBS)
+spreadToSocket:	spreadToSocket.c
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o spreadToSocket spreadToSocket.c -L/usr/local/lib -ldl -lspread -lmysqlclient $(LIBS)
+
 
 
 redisSender:	redisSender.c libConnectToSpread.so
@@ -50,8 +51,9 @@ spreadSink:	sink.o hash.o  connectToSpread.o
 #	$(CC) $(INC) $(CFLAGS) sink.o hash.o connectToSpread.o -o spreadSink -lpthread -lspread -ldl -lm  -lficl
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) sink.o hash.o connectToSpread.o -o spreadSink $(LIBS)
 
-spread_socket_bridge: spread_socket_bridge.c
-	$(CC) $(INC) $(CFLAGS) $(LFLAGS) spread_socket_bridge.c -o spread_socket_bridge $(LIBS)
+socketToMYSQL: socketToMYSQL.c
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) socketToMYSQL.c -o socketToMYSQL $(LIBS)
+
 
 sink.o:	sink.c mine.h hash.h hash.o
 	$(CC) $(INC) -c $(CFLAGS) -Wall sink.c -o sink.o 
