@@ -241,13 +241,29 @@ void disconnect_from_spread(char *spread_group) {
 }
 
 void print_usage(char *prog_name) {
-    fprintf(stderr, "Usage: %s [-h] [-v] [-c <config_file_path>] [-g <group_name>] [-u <user_name>]...\n", prog_name);
+    fprintf(stderr, "Usage: %s [-h] [-v] [-c <config_file_path>] [-g <group_name>] [-u <user_name>] [-m <socket_name>] [-D]...\n", prog_name);
     fprintf(stderr, "    -h: Print this help message.\n");
     fprintf(stderr, "    -v: Enable verbose output (overrides config file setting).\n");
     fprintf(stderr, "    -c: Path to the JSON configuration file (default: spreadToMysql.json).\n");
     fprintf(stderr, "    -g: Join an additional Spread group. Can be specified multiple times.\n");
     fprintf(stderr, "    -u: Override the Spread user from the config file.\n");
+    fprintf(stderr, "    -m: Override the socket name from the config file.\n");
+    fprintf(stderr, "    -D: Dump the JSON config file to stdout and exit.\n");
     exit(0);
+}
+
+void dump_json_config(const char *config_file_path) {
+    FILE *fp = fopen(config_file_path, "r");
+    if (fp == NULL) {
+        perror("fopen");
+        return;
+    }
+    char buffer[4096];
+    size_t n;
+    while ((n = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
+        fwrite(buffer, 1, n, stdout);
+    }
+    fclose(fp);
 }
 
 int main(int argc, char *argv[]) {
@@ -257,11 +273,14 @@ int main(int argc, char *argv[]) {
     char *buffer;
     int ret;
     int opt;
-    const char *config_file = "spreadToMysql.json";
+//    const char *config_file = "spreadToMysql.json";
+    const char *config_file = "/etc/mqtt/bridge.json";
     char *user_override = NULL;
+    char *me_override = NULL;
+    int dump_config = 0;
 
     // Parse command line arguments
-    while ((opt = getopt(argc, argv, "hvc:g:u:")) != -1) {
+    while ((opt = getopt(argc, argv, "hvc:g:u:Dm:")) != -1) {
         switch (opt) {
             case 'h':
                 print_usage(argv[0]);
@@ -282,13 +301,22 @@ int main(int argc, char *argv[]) {
             case 'u':
                 user_override = optarg;
                 break;
+            case 'D':
+                dump_config = 1;
+                break;
+            case 'm':
+                me_override = optarg;
+                break;
             default:
                 print_usage(argv[0]);
                 break;
         }
     }
 
-
+    if (dump_config) {
+        dump_json_config(config_file);
+//        return 0;
+    }
 
     // Load configuration from JSON file
     if (load_config_from_json(config_file, &app_config) != 0) {
@@ -301,10 +329,14 @@ int main(int argc, char *argv[]) {
         app_config.spread.user = user_override;
     }
 
+    // Override socket name if provided
+    if (me_override) {
+        app_config.socket.name = me_override;
+    }
+
     if (app_config.verbose) {
         print_config(&app_config);
     }
-
 
     // Allocate buffer based on config
     buffer = (char *)malloc(app_config.buffer_size);
@@ -316,7 +348,7 @@ int main(int argc, char *argv[]) {
     fd_set read_fds;
     int max_fd;
 
-    if (app_config.verbose) printf("Spread Socket Bridge (C) starting...\n");
+    if (app_config.verbose) printf("Spread Socket Bridge starting...\n");
 
     // --- 1. Connect to Spread ---
     if (connect_to_spread(app_config.spread.name, atoi(app_config.spread.port), app_config.spread.user, app_config.spread.default_group) != 0) {
@@ -505,8 +537,9 @@ int main(int argc, char *argv[]) {
                 // Forward to Network Socket (if connected)
                 if (client_sock != -1) {
                     char formatted_message[app_config.buffer_size + 128]; // Increased size for formatting
-                    snprintf(formatted_message, sizeof(formatted_message),
-                             "[SPREAD from %s@%s]: %s\n", sender, target_groups[0], buffer);
+//                    snprintf(formatted_message, sizeof(formatted_message), "[SPREAD from %s@%s]: %s\n", 
+//                    sender, target_groups[0], buffer);
+                    snprintf(formatted_message, sizeof(formatted_message), "%s\n", buffer);
 
                     int bytes_sent = send(client_sock, formatted_message, strlen(formatted_message), 0);
                     if (bytes_sent == -1) {

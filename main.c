@@ -133,7 +133,7 @@ pid_t popen2(const char *command, int *infp, int *outfp)
 }
 
 void usage() {
-    printf("usage: toSpread -h -c <cfg> -u <user> -d <database> -f -n <hostname> -p <template>\n\n");
+    printf("usage: toSpread -h -c <cfg> -u <user> -d <database> -f -n <hostname> -p <template> -P\n\n");
 
     printf("\t-c <cfg>\tConfig file.\n");
     printf("\t-d <database>\tCache databae.\n");
@@ -142,6 +142,7 @@ void usage() {
     printf("\t-n <hostname>\tSet hostname.\n");
     printf("\t-p <template>\tPipe name template.  See NOTES.\n");
     printf("\t-u <user>\tSpread user.\n");
+    printf("\t-P\t\tPrint config and exit.\n");
 
     printf("\nNOTES:\n\n");
     printf("\tDefaults are:\n");
@@ -1732,6 +1733,7 @@ int main(int argc, const char *argv[]) {
     int             fromFile = 0;
     int             v;
     struct passwd *userRecord;
+    int             dump_config = 0;
 
     FILE           *fp = stdin;
 
@@ -1762,7 +1764,7 @@ int main(int argc, const char *argv[]) {
 
     //    (void)daemon(1,1);
     strcpy(buffer, "false");
-    while((ch = getopt(argc, ( char **)argv,"hc:u:d:fg:l:n:p:i:o:")) != -1) {
+    while((ch = getopt(argc, ( char **)argv,"hc:u:d:fg:l:n:p:i:o:P")) != -1) {
         switch(ch) {
             case 'h':
                 usage();
@@ -1805,6 +1807,8 @@ int main(int argc, const char *argv[]) {
             case 'o':
                 stdoutFifo=(char *)strsave(optarg);
                 break;
+            case 'P':
+                dump_config = 1;
                 break;
         }
     }
@@ -1897,6 +1901,11 @@ int main(int argc, const char *argv[]) {
         fprintf(stderr,"The default name is $HOME/.start.rc\n");
         fprintf(stderr,"Safe buffer is %s\n", safeBuffer);
         exit(1);
+    }
+
+    if (dump_config) {
+        dumpSymbols();
+        exit(0);
     }
     /*
      *       ^set <param> <value>

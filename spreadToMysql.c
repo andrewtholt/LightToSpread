@@ -221,7 +221,7 @@ int main(int argc, char *argv[]) {
     int incReciever = 0;
     int incType = 0;
     int incMsg = 1;
-    char *configFile = NULL;
+    char *configFile = "/etc/mqtt/bridge.json";
 
     g.connectedToMysql = false;
 
@@ -239,6 +239,7 @@ int main(int argc, char *argv[]) {
     char            sender[MAX_GROUP_NAME];
     char            Private_group[MAX_GROUP_NAME];
     char            target_groups[100][MAX_GROUP_NAME];
+    char *user = NULL;
 
     mailbox         Mbox;
 
@@ -294,7 +295,7 @@ int main(int argc, char *argv[]) {
                     }
                 }
                 print_config();
-                exit(0);
+
                 break;
             case 'x':
                 loop=0;
@@ -309,7 +310,9 @@ int main(int argc, char *argv[]) {
                 timeout=atoi(optarg);
                 break;
             case 'u':
-                strcpy(g.spread.user, optarg);
+                user=strdup(optarg);
+//                g.spread.user=strdup(optarg);
+//                strcpy(g.spread.user, optarg);
                 break;
             case 'v':
                 verbose = 1;
@@ -321,6 +324,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
+
     if (configFile) {
         if (load_config(configFile, &g) != 0) {
             fprintf(stderr, "Failed to load config file: %s\n", configFile);
@@ -329,6 +333,10 @@ int main(int argc, char *argv[]) {
         if (g.spread.port && g.spread.name) {
             sprintf(server, "%s@%s", g.spread.port, g.spread.name);
         }
+    }
+
+    if(user) {
+        g.spread.user=user;
     }
 
     print_config();
