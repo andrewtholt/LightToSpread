@@ -244,7 +244,7 @@ void print_usage(char *prog_name) {
     fprintf(stderr, "Usage: %s [-h] [-v] [-c <config_file_path>] [-g <group_name>] [-u <user_name>] [-m <socket_name>] [-D]...\n", prog_name);
     fprintf(stderr, "    -h: Print this help message.\n");
     fprintf(stderr, "    -v: Enable verbose output (overrides config file setting).\n");
-    fprintf(stderr, "    -c: Path to the JSON configuration file (default: spreadToMysql.json).\n");
+    fprintf(stderr, "    -c: Path to the JSON configuration file (default: /etc/mqtt/bridge.json).\n");
     fprintf(stderr, "    -g: Join an additional Spread group. Can be specified multiple times.\n");
     fprintf(stderr, "    -u: Override the Spread user from the config file.\n");
     fprintf(stderr, "    -m: Override the socket name from the config file.\n");
@@ -315,7 +315,6 @@ int main(int argc, char *argv[]) {
 
     if (dump_config) {
         dump_json_config(config_file);
-//        return 0;
     }
 
     // Load configuration from JSON file
