@@ -1,0 +1,16 @@
+{
+  "spread": {
+    "name": "127.0.0.1",
+    "port": "4803",
+    "user": "spread_user",
+    "default_group": "public"
+  },
+  "database": {
+    "name": "127.0.0.1",
+    "db": "test_db",
+    "user": "test_user",
+    "passwd": "test_password"
+  },
+  "verbose": true,
+  "buffer_size": 4096
+}

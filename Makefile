@@ -7,7 +7,7 @@ INC=-I/usr/local/include
 # Don'tbuild old utilities.  Retained for future reference.
 # 
 # BINS=spreadSource spreadSink lightSink lightSource # mine # PthreadsExample 
-BINS=redisSender dbCache tstLib toSpread lightSink lightSource socketToMYSQL spreadToSocket # mine # PthreadsExample spreadSource spreadSink 
+BINS=redisSender dbCache tstLib toSpread lightSink lightSource socketToMYSQL spreadToSocket spreadToMySQL # mine # PthreadsExample spreadSource spreadSink 
 # LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
 LIBS=-lpthread -lspread -ldl -lm -ljansson 
 LFLAGS=-Wl,--no-as-needed 
@@ -25,6 +25,9 @@ tstLib:	tstLib.c libConnectToSpread.so
 
 lightSink:	lightSink.c
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSink lightSink.c -L/usr/local/lib -ldl -lspread
+
+spreadToMySQL:	spreadToMySQL.c
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o spreadToMySQL spreadToMySQL.c -L/usr/local/lib -ldl -lspread -lmysqlclient $(LIBS)
 
 lightSource:	lightSource.c
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o lightSource lightSource.c -L/usr/local/lib -ldl -lspread
