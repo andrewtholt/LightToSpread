@@ -321,68 +321,17 @@ void interp(const char *sender, const char *query) {
             printf("data %s \n",row[0]);
             snprintf(response_buffer, app_config.buffer_size,"%s\n",row[0] );
         }
-    }
-    ret = SP_multicast(spread_mailbox, AGREED_MESS, (char *)sender, MESSAGE_TYPE, strlen(response_buffer), response_buffer);
-    if (ret < 0) {
-        SP_error(ret);
-        fprintf(stderr, "Failed to send MySQL response to Spread sender %s.\n", sender);
-    } else {
-        if (app_config.verbose) printf("Sent MySQL response to Spread sender %s.\n", sender);
-    }
-}
-
-// --- Function to execute MySQL query and send response to Spread ---
-void execute_mysql_query_and_send_response(const char *sender, const char *query) {
-    char response_buffer[app_config.buffer_size];
-    int ret;
-
-    if (app_config.verbose) printf("Executing MySQL query: %s\n", query);
-
-    if (mysql_query(conn, query)) {
-        snprintf(response_buffer, app_config.buffer_size, "MYSQL_ERROR: %s", mysql_error(conn));
-        fprintf(stderr, "MySQL query failed: %s\n", mysql_error(conn));
-    } else {
-        MYSQL_RES *result = mysql_store_result(conn);
-        if (result) {
-            // SELECT query
-            MYSQL_FIELD *field;
-            MYSQL_ROW row;
-            int num_fields = mysql_num_fields(result);
-            int current_len = 0;
-
-            // Append column headers
-            /*
-            for (int i = 0; i < num_fields; i++) {
-                field = mysql_fetch_field(result); // Corrected: use mysql_fetch_field
-                current_len += snprintf(response_buffer + current_len, app_config.buffer_size - current_len, "%s%s", field->name, (i < num_fields - 1) ? "\t" : "");
-            }
-            current_len += snprintf(response_buffer + current_len, app_config.buffer_size - current_len, "\n");
-            */
-            // Append rows
-            while ((row = mysql_fetch_row(result))) {
-                for (int i = 0; i < num_fields; i++) {
-                    current_len += snprintf(response_buffer + current_len, app_config.buffer_size - current_len, "%s%s", row[i] ? row[i] : "NULL", (i < num_fields - 1) ? "\t" : "");
-                }
-//                current_len += snprintf(response_buffer + current_len, app_config.buffer_size - current_len, "\n");
-//                current_len += snprintf(response_buffer, app_config.buffer_size - current_len, "\n");
-
-                if (current_len >= app_config.buffer_size - 100) { // Leave some room for "TRUNCATED"
-                    current_len += snprintf(response_buffer + current_len, app_config.buffer_size - current_len, "...TRUNCATED\n");
-                    break;
-                }
-            }
-            mysql_free_result(result);
+    } else if (!strncmp(s1,"SET",3) ) {
+        snprintf(sqlCmd, sizeof(sqlCmd), "update io_point set state='%s' where name = '%s';", s3,s2);
+        printf("%s\n", sqlCmd);
+        if (mysql_query(conn, sqlCmd)) {
+            fprintf(stderr,"mysql_query() failed.\n");
+            mysql_close(conn);
+            exit(1);
         } else {
-            // Non-SELECT query (INSERT, UPDATE, DELETE, etc.)
-            if (mysql_field_count(conn) == 0) {
-                snprintf(response_buffer, app_config.buffer_size, "MYSQL_OK: %lu rows affected.", (unsigned long)mysql_affected_rows(conn));
-            } else {
-                snprintf(response_buffer, app_config.buffer_size, "MYSQL_ERROR: %s", mysql_error(conn));
-            }
+            sprintf(response_buffer,"%s\n", s3);
         }
     }
-
-    // Send response back to the sender via Spread
     ret = SP_multicast(spread_mailbox, AGREED_MESS, (char *)sender, MESSAGE_TYPE, strlen(response_buffer), response_buffer);
     if (ret < 0) {
         SP_error(ret);
@@ -391,7 +340,6 @@ void execute_mysql_query_and_send_response(const char *sender, const char *query
         if (app_config.verbose) printf("Sent MySQL response to Spread sender %s.\n", sender);
     }
 }
-
 
 void print_usage(char *prog_name) {
     fprintf(stderr, "Usage: %s [-h] [-v] [-c <config_file_path>] [-g <group_name>] [-u <user_name>] [-D]...\n", prog_name);
