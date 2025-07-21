@@ -269,6 +269,68 @@ void disconnect_from_mysql() {
     }
 }
 
+void interp(const char *sender, const char *query) {
+    char response_buffer[app_config.buffer_size];
+    int ret;
+
+    char *s1 =NULL;
+    char *s2 =NULL;
+    char *s3 =NULL;
+    char *save_ptr=NULL;
+    char *buffer=NULL;
+    char sqlCmd[128];
+
+    // Allocate buffer based on config
+    buffer = (char *)calloc(app_config.buffer_size,sizeof(unsigned char));
+    if (buffer == NULL) {
+        perror("malloc buffer");
+        exit( 1);
+    }
+    strncpy(buffer, query, app_config.buffer_size);
+
+    s1 = strtok_r(buffer," ",&save_ptr);
+    s2 = strtok_r(NULL," \n",&save_ptr);
+    s3 = strtok_r(NULL," \n",&save_ptr);
+
+    if (app_config.verbose) {
+        printf("Executing command: %s\n", s1);
+        printf("\t\t%s\n", s1);
+    }
+
+    if(!strncmp(s1,"GET",3)) {
+        printf("GET\n");
+        snprintf(sqlCmd, sizeof(sqlCmd), "select state from io_point where name = '%s';", s2);
+        printf(sqlCmd);
+//        MYSQL_RES *result = mysql_store_result(conn);
+        if (mysql_query(conn, sqlCmd)) {
+            fprintf(stderr,"mysql_query() failed.\n");
+            mysql_close(conn);
+            exit(1);
+        }
+        MYSQL_RES *res = mysql_store_result(conn);
+        if (res == NULL) {
+            fprintf(stderr,"mysql_store_result() failed.\n");
+            mysql_close(conn);
+            exit(1);
+        }
+        MYSQL_ROW row;
+        int num=0;
+
+        if((row = mysql_fetch_row(res)) != NULL) {
+            printf("\n");
+            printf("data %s \n",row[0]);
+            snprintf(response_buffer, app_config.buffer_size,"%s\n",row[0] );
+        }
+    }
+    ret = SP_multicast(spread_mailbox, AGREED_MESS, (char *)sender, MESSAGE_TYPE, strlen(response_buffer), response_buffer);
+    if (ret < 0) {
+        SP_error(ret);
+        fprintf(stderr, "Failed to send MySQL response to Spread sender %s.\n", sender);
+    } else {
+        if (app_config.verbose) printf("Sent MySQL response to Spread sender %s.\n", sender);
+    }
+}
+
 // --- Function to execute MySQL query and send response to Spread ---
 void execute_mysql_query_and_send_response(const char *sender, const char *query) {
     char response_buffer[app_config.buffer_size];
@@ -289,18 +351,21 @@ void execute_mysql_query_and_send_response(const char *sender, const char *query
             int current_len = 0;
 
             // Append column headers
+            /*
             for (int i = 0; i < num_fields; i++) {
                 field = mysql_fetch_field(result); // Corrected: use mysql_fetch_field
                 current_len += snprintf(response_buffer + current_len, app_config.buffer_size - current_len, "%s%s", field->name, (i < num_fields - 1) ? "\t" : "");
             }
             current_len += snprintf(response_buffer + current_len, app_config.buffer_size - current_len, "\n");
-
+            */
             // Append rows
             while ((row = mysql_fetch_row(result))) {
                 for (int i = 0; i < num_fields; i++) {
                     current_len += snprintf(response_buffer + current_len, app_config.buffer_size - current_len, "%s%s", row[i] ? row[i] : "NULL", (i < num_fields - 1) ? "\t" : "");
                 }
-                current_len += snprintf(response_buffer + current_len, app_config.buffer_size - current_len, "\n");
+//                current_len += snprintf(response_buffer + current_len, app_config.buffer_size - current_len, "\n");
+//                current_len += snprintf(response_buffer, app_config.buffer_size - current_len, "\n");
+
                 if (current_len >= app_config.buffer_size - 100) { // Leave some room for "TRUNCATED"
                     current_len += snprintf(response_buffer + current_len, app_config.buffer_size - current_len, "...TRUNCATED\n");
                     break;
@@ -318,8 +383,7 @@ void execute_mysql_query_and_send_response(const char *sender, const char *query
     }
 
     // Send response back to the sender via Spread
-    ret = SP_multicast(spread_mailbox, AGREED_MESS, (char *)sender, MESSAGE_TYPE,
-                       strlen(response_buffer), response_buffer);
+    ret = SP_multicast(spread_mailbox, AGREED_MESS, (char *)sender, MESSAGE_TYPE, strlen(response_buffer), response_buffer);
     if (ret < 0) {
         SP_error(ret);
         fprintf(stderr, "Failed to send MySQL response to Spread sender %s.\n", sender);
@@ -358,7 +422,7 @@ int main(int argc, char *argv[]) {
     char *buffer;
     int ret;
     int opt;
-    const char *config_file = "spreadToMySQL.json"; // Default config file
+    const char *config_file = "/etc/mqtt/bridge.json"; // Default config file
     char *user_override = NULL;
     int dump_config = 0;
 
@@ -495,9 +559,30 @@ int main(int argc, char *argv[]) {
                 if (app_config.verbose) printf("Received from Spread (Sender: %s, Group: %s, Type: %d, Size: %d): %s\n",
                        sender, target_groups[0], mess_type, ret, buffer); // Using target_groups[0] for simplicity
 
+                char query[255];
+                char *s1 = NULL;
+                char *s2 = NULL;
+                char *s3 = NULL;
+                char *save_ptr=NULL;
+
+                interp(sender,buffer);
                 // Check if the message is a MySQL query
-                if (strstr(buffer, MYSQL_QUERY_PREFIX) == buffer) {
-                    const char *query = buffer + strlen(MYSQL_QUERY_PREFIX);
+                // Check if this is a valid command, starting with a ^
+                //
+                /*
+                if(!strncmp(buffer,"GET ",4)) {
+                    s1 = strtok_r(buffer," ",&save_ptr);
+                    s2 = strtok_r(NULL," \n",&save_ptr);
+                    snprintf(query, sizeof(query), "select state from io_point where name = '%s';", s2);
+                    // select state from io_point where name = '%s'
+//                if (strstr(buffer, MYSQL_QUERY_PREFIX) == buffer) {
+//                    const char *query = buffer + strlen(MYSQL_QUERY_PREFIX);
+//                    execute_mysql_query_and_send_response(sender, query);
+                } else if (!strncmp(buffer,"SET ",4)) {
+                    s1 = strtok_r(buffer," ",&save_ptr);
+                    s2 = strtok_r(NULL," \n",&save_ptr);
+                    s3 = strtok_r(NULL," \n",&save_ptr);
+                    snprintf(query,sizeof(query),"update io_point set state='%s' where name='%s';",s3, s2);
                     execute_mysql_query_and_send_response(sender, query);
                 } else {
                     // Original logic: Insert into spread_messages table
@@ -507,19 +592,8 @@ int main(int argc, char *argv[]) {
                         continue;
                     }
                     mysql_real_escape_string(conn, escaped_message, buffer, strlen(buffer));
-
-                    char query[app_config.buffer_size + 256]; // Sufficient size for query
-                    snprintf(query, sizeof(query), "INSERT INTO spread_messages (sender, group_name, message_type, message_content) VALUES ('%s', '%s', %d, '%s')",
-                             sender, target_groups[0], mess_type, escaped_message);
-
-                    free(escaped_message);
-
-                    if (mysql_query(conn, query)) {
-                        fprintf(stderr, "MySQL insert query failed: %s\n", mysql_error(conn));
-                    } else {
-                        if (app_config.verbose) printf("Message successfully inserted into MySQL.\n");
-                    }
                 }
+                */
             } else if (Is_membership_mess(service_type)) {
                 if (app_config.verbose) printf("Received Membership Message (not forwarded): Service Type: %d\n", service_type);
             } else {
