@@ -1,0 +1,10 @@
+select JSON_OBJECT('type',io_type,
+                   'state',state 
+                   ) as io_point from io_point where name='START';
+
+select JSON_OBJECT('topic',topic,
+                   'status_topic',status_topic,
+                   'direction',direction,
+                   'enabled',enabled,
+                   'data_type',data_type
+                   ) as mqtt_point from mqttQuery where name='START';
