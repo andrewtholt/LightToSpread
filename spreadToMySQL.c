@@ -278,7 +278,7 @@ void interp(const char *sender, const char *query) {
     char *s3 =NULL;
     char *save_ptr=NULL;
     char *buffer=NULL;
-    char sqlCmd[128];
+    char sqlCmd[DEFAULT_BUFFER_SIZE];
 
     // Allocate buffer based on config
     buffer = (char *)calloc(app_config.buffer_size,sizeof(unsigned char));
@@ -331,6 +331,42 @@ void interp(const char *sender, const char *query) {
         } else {
             sprintf(response_buffer,"%s\n", s3);
         }
+    } else if (!strncmp(s1,"JGET",4) ) {
+        sprintf(response_buffer,"RX: JGET\n");
+        memset(sqlCmd,0,sizeof(sqlCmd));
+
+//        sprintf(sqlCmd, "select JSON_OBJECT('type',io_type,'state',state ) as io_point from io_point where name='%s';", s2);
+        sprintf(sqlCmd, "select JSON_OBJECT("
+                    "'topic',topic,"
+                    "'status_topic',status_topic,"
+                    "'direction',direction,"
+                    "'data_type',data_type,"
+                    "'io_type',io_type"
+                ") as mqtt_point from mqttQuery where name='%s' and enabled='YES';",s2);
+
+        printf("%s\n",sqlCmd);
+        if (mysql_query(conn, sqlCmd)) {
+            fprintf(stderr,"mysql_query() failed.\n");
+            mysql_close(conn);
+            exit(1);
+        }
+        MYSQL_RES *res = mysql_store_result(conn);
+        if (res == NULL) {
+            fprintf(stderr,"mysql_store_result() failed.\n");
+            mysql_close(conn);
+            exit(1);
+        }
+        MYSQL_ROW row;
+        int num=0;
+
+        if((row = mysql_fetch_row(res)) != NULL) {
+            printf("\n");
+            printf("data %s \n",row[0]);
+            snprintf(response_buffer, app_config.buffer_size,"%s\n",row[0] );
+        }
+
+
+
     }
     ret = SP_multicast(spread_mailbox, AGREED_MESS, (char *)sender, MESSAGE_TYPE, strlen(response_buffer), response_buffer);
     if (ret < 0) {
