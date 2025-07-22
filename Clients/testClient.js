@@ -1,7 +1,13 @@
 const net = require('net');
+const fs = require('fs');
 
-const HOST = '127.0.0.1'; // Or the IP address of your server
-const PORT = 9192;       // The port your server is listening on
+// Read and parse the configuration file
+const config = JSON.parse(fs.readFileSync('../bridge.json', 'utf8'));
+const socketConfig = config.socket;
+console.log('Socket Config:', socketConfig);
+
+const HOST = socketConfig.name; // Or the IP address of your server
+const PORT = parseInt(socketConfig.port, 10);       // The port your server is listening on
 
 // Create a new TCP client
 const client = new net.Socket();

@@ -385,6 +385,7 @@ void print_usage(char *prog_name) {
     fprintf(stderr, "    -g: Join an additional Spread group. Can be specified multiple times.\n");
     fprintf(stderr, "    -u: Override the Spread user from the config file.\n");
     fprintf(stderr, "    -D: Dump the JSON config file to stdout and exit.\n");
+    fprintf(stderr, "    -r: select a random user name.\n");
     exit(0);
 }
 
@@ -408,10 +409,11 @@ int main(int argc, char *argv[]) {
     int opt;
     const char *config_file = "/etc/mqtt/bridge.json"; // Default config file
     char *user_override = NULL;
+    char randomUser[32];
     int dump_config = 0;
 
     // Parse command line arguments
-    while ((opt = getopt(argc, argv, "hvc:g:u:D")) != -1) {
+    while ((opt = getopt(argc, argv, "hvc:g:u:Dr")) != -1) {
         switch (opt) {
             case 'h':
                 print_usage(argv[0]);
@@ -431,6 +433,14 @@ int main(int argc, char *argv[]) {
                 break;
             case 'u':
                 user_override = optarg;
+                break;
+            case 'r':
+                {
+                    pid_t iam;
+                    iam = getpid();
+                    snprintf(randomUser,sizeof(randomUser),"mysql_%d", iam);
+                    user_override = randomUser;
+                }
                 break;
             case 'D':
                 dump_config = 1;
@@ -470,6 +480,8 @@ int main(int argc, char *argv[]) {
 
     fd_set read_fds;
     int max_fd;
+
+    dump_json_config(config_file);
 
     if (app_config.verbose) printf("Spread to MySQL Bridge starting...\n");
 

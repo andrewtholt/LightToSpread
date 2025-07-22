@@ -174,6 +174,7 @@ int main(int argc, char *argv[]) {
         }
     }
     
+    print_config();
     snprintf(spread_server_str, sizeof(spread_server_str), "%s@%s", g.spread.port, g.spread.name);
 
     // Setup Spread connection
