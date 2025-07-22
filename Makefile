@@ -85,16 +85,8 @@ clean:
 	rm -f $(BINS) *.o *~ cscope.out libConnectToSpread.so
 
 install:	$(BINS)
-	mkdir -p $(DESTDIR)/usr/local/lib
-	cp libConnectToSpread.so $(DESTDIR)/usr/local/lib
-	cp connectToSpread.h $(DESTDIR)/usr/local/include
-	cp hash.h $(DESTDIR)/usr/local/include
-	cp mine.h $(DESTDIR)/usr/local/include
-	mkdir -p $(DESTDIR)/usr/local/bin
-	cp $(BINS) $(DESTDIR)/usr/local/bin
-	mkdir -p $(DESTDIR)/usr/local/etc/lightToSpread/App
-	cp sink_start.rc source_start.rc $(DESTDIR)/usr/local/etc/lightToSpread
-	cp App/*.fth $(DESTDIR)/usr/local/etc/lightToSpread/App
+	mkdir -p ~/Source/bin
+	cp $(BINS) ~/Source/bin
 
 package:
 	./install-deb-i686

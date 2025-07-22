@@ -18,9 +18,9 @@
         "passwd" : "automation"
     },
     "socket" : {
-        "name" : "192.168.0.50",
+        "name" : "127.0.0.1",
         "port" : "9191",
-        "dispatch" : "/toDispatcher"
+        "user" : "socket"
 
     },
     "topics" : {
@@ -35,13 +35,13 @@
         "lat"  : "53.664258"
     },
     "home_assistant" : {
-        "name" : "192.168.10.124",
+        "name" : "192.168.0.50",
         "port" : "8123"
     },
     "spread" : {
         "name" : "192.168.0.50",
         "port" : "4803",
-        "user"  : "spreadToMysql",
+        "user"  : "mysql",
      	"default_group" : "global"
     }
 }
