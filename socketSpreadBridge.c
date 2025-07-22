@@ -117,7 +117,8 @@ int main(int argc, char *argv[]) {
     g.spread.default_group = strdup("spread_group");
     g.sock.name = strdup("127.0.0.1");
     g.sock.port = strdup("9191");
-    char *configFile = "spreadToSocket.json";
+//    char *configFile = "spreadToSocket.json";
+    char *configFile = "/etc/mqtt/bridge.json";
     char spread_server_str[255];
 
     // Command line parsing
