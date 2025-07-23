@@ -9,6 +9,7 @@ console.log('Socket Config:', socketConfig);
 const HOST = socketConfig.name; // Or the IP address of your server
 const PORT = parseInt(socketConfig.port, 10);       // The port your server is listening on
 
+const names = ['START','STOP','MOTOR'];
 // Create a new TCP client
 const client = new net.Socket();
 // const msg = 'Hello from the Node.js client!';
@@ -19,6 +20,9 @@ client.connect(PORT, HOST, () => {
     console.log(`Connected to server: ${HOST}:${PORT}`);
     // Send data to the server
 //    client.write('Hello from the Node.js client!');
+    for ( name of names ) {
+        console.log(`Name: ${name}`);
+    }
     client.write(msg);
 });
 
