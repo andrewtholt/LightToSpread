@@ -18,7 +18,7 @@
         "passwd" : "automation"
     },
     "socket" : {
-        "name" : "127.0.0.1",
+        "name" : "192.168.0.50",
         "port" : "9191",
         "user" : "socket"
 
