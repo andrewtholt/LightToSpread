@@ -288,9 +288,9 @@ void interp(const char *sender, const char *query) {
     }
     strncpy(buffer, query, app_config.buffer_size);
 
-    s1 = strtok_r(buffer," ",&save_ptr);
-    s2 = strtok_r(NULL," \n",&save_ptr);
-    s3 = strtok_r(NULL," \n",&save_ptr);
+    s1 = strtok_r(buffer," \r\n",&save_ptr);
+    s2 = strtok_r(NULL," \r\n",&save_ptr);
+    s3 = strtok_r(NULL," \r\n",&save_ptr);
 
     if (app_config.verbose) {
         printf("Executing command: %s\n", s1);
@@ -331,6 +331,9 @@ void interp(const char *sender, const char *query) {
         } else {
             sprintf(response_buffer,"%s\n", s3);
         }
+    } else if (!strncmp(s1,"PING",4) ) {
+        sprintf(response_buffer,"PONG\n");
+
     } else if (!strncmp(s1,"JGET",4) ) {
         sprintf(response_buffer,"RX: JGET\n");
         memset(sqlCmd,0,sizeof(sqlCmd));

@@ -83,6 +83,7 @@ int main(void) {
             //      loop=false;
         } else if (Is_membership_mess (service_type)) {
             printf("Membership\n");
+            // TODO segv here.
             ret = SP_get_memb_info(message, service_type, &memb_info);
 
         } else if (Is_reg_memb_mess (service_type)) {

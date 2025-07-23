@@ -3,11 +3,11 @@
 ^set IGN_GLOBAL false
 ^set USER andrewh
 ^lock USER
-^set SPREAD_SERVER 4803@192.168.10.124
+^set SPREAD_SERVER 4803@192.168.0.50
 ^set OWN_MESSAGES false
 ^set ADD_CR false
 ^set CLIENT raw
-^set ALTSERVER 4803@192.168.0.50
+^set ALTSERVER 4803@192.168.10.124
 ^set DEBUG false
 ^set SAVE_ALLOWED true
 ^set INTERACTIVE true

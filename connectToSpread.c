@@ -20,6 +20,8 @@ char *loadPath;
 #include "sp.h"
 #include "connectToSpread.h"
 
+struct spreadServerStatus servers[5];
+
 #define MAX_MESSLEN     102400
 #define BUFFSIZE 255
 
@@ -41,7 +43,7 @@ sem_t connected;
 /*! \brief Pass in a pointer to a string, allocate sufficient space to hold it and copy.
 */
 
-char *strsave (char *s) { 
+char *strsave (const char *s) { 
     char *p;
 
     if ((p = (char *) malloc (strlen (s) + 1)) != NULL) {
@@ -134,7 +136,8 @@ void connectToSpread() {
     }
 
     idx=0;
-    strcpy(servers[idx++].server,"4803@localhost");
+    // TODO Fix this
+    strcpy(servers[idx++].server,"4803@192.168.0.50");
 
     user=getSymbol("USER");
     spreadServer = getSymbol("SPREAD_SERVER");
@@ -150,9 +153,11 @@ void connectToSpread() {
             idx++;
         }
 
+        /*
         if( !strcmp(ptr,"4803") || !strcmp(ptr,"4803@localhost")) {
             ptr=(char *)NULL;
         } 
+        */
 
         for(i=idx; (i<5 && ptr != (char *)NULL); i++) {
             ptr=strtok(NULL,": \n");

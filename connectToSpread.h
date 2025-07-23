@@ -11,12 +11,12 @@
 #define SOURCE 2
 #endif
 
-int loadFile(char *);
+
 void dumpSymbols(void);
 void saveSymbols(void);
 
 int cmdInterp(int, char *) ;
-char *strsave (char *);
+char *strsave (const char *);
 void getGroup(char *);
 
 int fromSpread(char *, char *);
@@ -49,6 +49,6 @@ struct spreadServerStatus {
     int status; // -1 unknown, 0 OK, 1 None fail.
 };
 
-struct spreadServerStatus servers[5];
+extern struct spreadServerStatus servers[5];
 
 

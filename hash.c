@@ -4,7 +4,7 @@
 #include <string.h>
 #include "mine.h"
 #include "hash.h"
-// #include "connectToSpread.h"
+#include "connectToSpread.h"
 
 pthread_mutex_t hashLock;
 int symbolCount;
@@ -44,7 +44,7 @@ int exists(char *key) {
     }
 }
 
-struct nlist   *install(char *name, void *def, int ro,int local) {
+struct nlist   *install(char *name, const void *def, int ro,int local) {
     struct nlist   *np;
     int             hashval;
 
@@ -61,11 +61,11 @@ struct nlist   *install(char *name, void *def, int ro,int local) {
         hashtab[hashval] = np;
         np->ro = ro;
         np->local=local;
-        np->def = (char *) strsave(def);
+        np->def = (char *) strsave((const char *)def);
     } else {
         if (np->ro == UNLOCK) {
             free(np->def);
-            np->def = strsave(def);
+            np->def = strsave((const char *)def);
         }
     }
     return (np);
@@ -138,13 +138,13 @@ void setSymbolValue(char *name, void *value) {
     pthread_mutex_lock(&hashLock);
     np=lookup(name);
     if(!np) { // Does not exists
-        (void) install(name, value, UNLOCK, LOCAL);
+        (void) install(name, (const char *)value, UNLOCK, LOCAL);
     } else { // Exists
         if( (char *)NULL == np->def ) {
-            np->def=strsave(value);
+            np->def=strsave((const char *)value);
         } else {
             free(np->def);
-            np->def=strsave(value);
+            np->def=strsave((const char *)value);
         }
     }
 

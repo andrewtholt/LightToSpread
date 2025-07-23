@@ -82,11 +82,10 @@ struct nlist {
 };
 
     char           *
-strsave(char *s)
+strsave(const char *s)
 {
     char           *p;
 
-    printf("%s\n",s);
     if ((p = malloc(strlen(s) + 1)) != NULL)
         strcpy(p, s);
 

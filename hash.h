@@ -19,7 +19,7 @@ extern int symbolCount;
 void lockSymbol(char *);
 void mkLocal(char *);
 void mkGlobal(char *);
-struct nlist *install (char *, void *, int , int );
+struct nlist *install (char *, const void *, int , int );
 
 char *getSymbol(char *);
 void setSymbol(char *, const void *, int ,int );
@@ -29,8 +29,9 @@ void setBoolean(char *, int);
 char *getFiclParam(char *);
 int exists(char *);
 void loadSymbols();
+void loadFile(char *);
 
-char *strsave(char *);
+char *strsave(const char *);
 
 struct cString {
     unsigned char length;
