@@ -89,6 +89,7 @@ void usage(const char *prog_name) {
     printf("\t-s, --server <server>\tSpread server address (e.g., 4803@localhost).\n");
     printf("\t-p, --port <port>\tTCP port to listen on.\n");
     printf("\t-P, --print-config\tPrint loaded configuration and exit.\n");
+    printf("\t-r, --random\t\tRandom user name.\n");
     printf("\n");
 }
 
@@ -123,7 +124,7 @@ int main(int argc, char *argv[]) {
 
     // Command line parsing
     int ch;
-    const char* short_opts = "hc:u:g:s:p:P";
+    const char* short_opts = "hc:u:g:s:p:Pr";
     const struct option long_opts[] = {
         {"help", no_argument, NULL, 'h'},
         {"config", required_argument, NULL, 'c'},
@@ -132,6 +133,7 @@ int main(int argc, char *argv[]) {
         {"server", required_argument, NULL, 's'},
         {"port", required_argument, NULL, 'p'},
         {"print-config", no_argument, NULL, 'P'},
+        {"random", no_argument, NULL, 'r'},
         {NULL, 0, NULL, 0}
     };
 
@@ -168,6 +170,23 @@ int main(int argc, char *argv[]) {
                 print_config();
                 exit(0);
             case 'h':
+                usage(argv[0]);
+                exit(0);
+            case 'r':
+                printf("Random user\n");
+                {
+                    if (g.spread.user) {
+                        free(g.spread.user);
+                    }
+                    pid_t pid = getpid();
+                    char *ptr;
+                    char tmp[50];
+
+                    sprintf(tmp,"BR%010d", pid);
+                    g.spread.user = strdup(tmp);
+
+                }
+                break;
             default:
                 usage(argv[0]);
                 exit(0);
