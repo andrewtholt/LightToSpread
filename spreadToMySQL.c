@@ -454,7 +454,9 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    printf("Config file: %s\n", config_file);
     if (dump_config) {
+        printf("Config file: %s\n", config_file);
         dump_json_config(config_file);
         return 0;
     }
