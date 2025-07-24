@@ -27,7 +27,7 @@ int main(void) {
     membership_info memb_info;
 
 
-    int service_type;
+    service service_type;
     int rc;
     int ret;
 
