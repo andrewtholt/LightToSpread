@@ -1421,6 +1421,7 @@ void spreadRX() {
         runFlag=1;
 
         while (runFlag) {
+            memset(message,0,sizeof(message));
             do {
                 ret = SP_receive(Mbox, &service_type, sender, 100,
                         &num_groups, target_groups,
