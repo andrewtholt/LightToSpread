@@ -934,9 +934,7 @@ char *getSymbol(char *name) {
 }
 
 
-    void
-lockSymbol(char *name)
-{
+void lockSymbol(char *name) {
     struct nlist   *np;
 
     np = lookup(name);
@@ -1465,15 +1463,6 @@ void spreadRX() {
             if (Is_regular_mess(service_type)) {
                 message[ret] = 0;
 
-                // TODO add sender to cache, if not known.
-            /*    if (!strcmp(sender, me)) {
-                    if (!strcmp(getSymbol("OWN_MESSAGES"), "true")) {
-                        fprintf(myStdout,"%s", message);
-                    }
-                    // } else  if (flag != 0) {
-            } 
-            */
-
             if (flag != 0) {
                 if(!strcmp( getSymbol("SHOW_SENDER"),"true")) {
                     fprintf(myStdout,"%s ", sender);
@@ -1490,7 +1479,6 @@ void spreadRX() {
                 //
                 if (message[0] == '^') {
                     if(!strcmp(cmd,"^set")) {
-                        // printf("\np1=%s\np2=%s\n",p1,p2);
                         rxSet(p1,p2);
                     } else if(!strcmp(cmd,"^exit")) {
                         rxExit();
@@ -1701,11 +1689,6 @@ void startSpreadRX() {
     pthread_t       spread;
 
     lockSymbol("USER");
-    //    sprintf(safeBuffer, "#%s#%s", getSymbol("USER"), getSymbol("HOSTNAME"));
-    //    setSymbol("ME", safeBuffer,UNLOCK,LOCAL);
-    //    lockSymbol("ME");
-
-    //    spreadConnect();
 
     threadId = pthread_create(&spread, NULL, (void *) spreadRX, (void *) NULL);
     setSymbol("CONNECTED","true",UNLOCK,LOCAL);
@@ -1834,6 +1817,7 @@ int main(int argc, const char *argv[]) {
     setSymbol("REMOTE_CREATE","false",LOCK,GLOBAL); // If true remote ^set commands will create the variable, if it does not exist.
     setSymbol("ON_CHANGE","",LOCK,GLOBAL);          // If a set command changes a variable run this command.  If null or undefined do nothing.
     setSymbol("ON_CONNECT","",UNLOCK,GLOBAL);       // Issue this string on a succesfull connect to spread.
+    setSymbol("PROMPT","toSpread>",UNLOCK,GLOBAL);       // Issue this string on a succesfull connect to spread.
 
     //    setSymbol("RUN_SLAVE","false",UNLOCK,GLOBAL);       // if set to true, will run designated slave and attach to stdin & stdout
     //    setSymbol("SLAVE","/usr/bin/false",UNLOCK,GLOBAL);
@@ -1854,7 +1838,7 @@ int main(int argc, const char *argv[]) {
         sprintf(buffer,"/var/tmp/%s.db",user);
         setSymbol("DATABASE",buffer,LOCK,LOCAL);
     }
-//    setSymbol("SERVER","localhost:4803",UNLOCK,GLOBAL);
+
     setSymbol("SERVER","4803",UNLOCK,GLOBAL);
     setSymbol("ALTSERVER","localhost:4803",UNLOCK,GLOBAL);
 
@@ -1938,9 +1922,30 @@ int main(int argc, const char *argv[]) {
     dbg = ( !strcmp(debug,"true") );
 
     while (runFlag) {
-        while ((status = fgets(buffer, BUFFSIZE, fp)) != 0) {
-            strcpy(safeBuffer, buffer);
+        char *prompt=NULL;
+        tmp=getSymbol("PROMPT");
 
+        memset(safeBuffer,0, sizeof(safeBuffer));
+        prompt=strdup(tmp);
+        strcpy(safeBuffer, buffer);
+
+        /*
+        if(strcmp(prompt, "NONE")) {
+            if ( 0 == fromFile) {
+                printf("%s", prompt);
+                fflush(stdout);
+            }
+        }
+        */
+
+        while ((status = fgets(buffer, BUFFSIZE, fp)) != 0) {
+
+            if(strcmp(prompt, "NONE")) {
+                if ( 0 == fromFile) {
+                    printf("%s", prompt);
+                    fflush(stdout);
+                }
+            }
             if( (0 != dbg ) && (0 == fromFile))  {
                 fprintf( myStderr,"C:stdin:%s\n",safeBuffer);
                 fflush( myStderr );
@@ -2134,7 +2139,7 @@ int main(int argc, const char *argv[]) {
                         }
                     } else if(!strcmp(cmd,"^end")) {    
                         multiLine = 0;
-                        //                            printf("%s",mPtr);
+
                         ret = SP_multicast(Mbox, AGREED_MESS, getSymbol("GROUP"), 1, strlen(mPtr), mPtr);
                         if( mPtr ) {
                             free(mPtr);
@@ -2146,7 +2151,7 @@ int main(int argc, const char *argv[]) {
                     }  else {
                         //message to go.
                         if(multiLine) {
-                            //                            printf("\tMULTI\n");
+
                             if(!mPtr) {
                                 mPtr = strsave(safeBuffer);
                             } else {
@@ -2159,6 +2164,12 @@ int main(int argc, const char *argv[]) {
                             }
                         } else {
                             ret = SP_multicast(Mbox, AGREED_MESS, getSymbol("GROUP"), 1, strlen(safeBuffer), safeBuffer);
+                        }
+                    }
+                    if(strcmp(prompt, "NONE")) {
+                        if ( 0 == fromFile) {
+                            printf("%s", prompt);
+                            fflush(stdout);
                         }
                     }
                 }
