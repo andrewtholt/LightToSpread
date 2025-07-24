@@ -137,7 +137,8 @@ void connectToSpread() {
 
     idx=0;
     // TODO Fix this
-    strcpy(servers[idx++].server,"4803@192.168.0.50");
+//    strcpy(servers[idx++].server,"4803@192.168.0.50");
+    strcpy(servers[idx].server,"4803@192.168.0.50");
 
     user=getSymbol("USER");
     spreadServer = getSymbol("SPREAD_SERVER");
@@ -158,7 +159,7 @@ void connectToSpread() {
             ptr=(char *)NULL;
         } 
         */
-
+    
         for(i=idx; (i<5 && ptr != (char *)NULL); i++) {
             ptr=strtok(NULL,": \n");
 

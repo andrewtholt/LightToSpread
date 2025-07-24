@@ -69,7 +69,7 @@ int main(void) {
 
     dumpGlobals();
     while(loop) {
-        memset(message,0,128);
+        memset(message,0,sizeof(message));
         service_type = fromSpread(from,message);
 
         if (Is_regular_mess (service_type)) {
@@ -77,14 +77,15 @@ int main(void) {
 
             printf("Sender %s\n",from);
             printf("Message >%s<\n",message);
+            printf("    Len >%d<\n",strlen(message));
             printf("Message size >%d<\n",(int)sizeof(message));
 
             toSpread(from,"Message recieved\n");
             //      loop=false;
         } else if (Is_membership_mess (service_type)) {
             printf("Membership\n");
-            // TODO segv here.
-            ret = SP_get_memb_info(message, service_type, &memb_info);
+            // TODO FIX segv here.
+//            ret = SP_get_memb_info(message, service_type, &memb_info);
 
         } else if (Is_reg_memb_mess (service_type)) {
             printf("Regular memebership\n");
