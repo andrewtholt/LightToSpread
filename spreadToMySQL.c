@@ -297,6 +297,10 @@ void interp(const char *sender, const char *query) {
         printf("\t\t%s\n", s1);
     }
 
+    if ( NULL == s1) {
+        return;
+    }
+
     if(!strncmp(s1,"GET",3)) {
         printf("GET\n");
         snprintf(sqlCmd, sizeof(sqlCmd), "select state from io_point where name = '%s';", s2);
