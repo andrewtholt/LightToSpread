@@ -1265,18 +1265,12 @@ void rxSet(char *name,char *value) {
         //         
         //         The alternatives are:
         //            Have a more tolerent command processor, which will simply error if it doen't understand.
-        //         The problem is that forth does not suffer fools.  
-        //         If you do something stupid, bad things will happen.
         //         
-        //         The alternatives are:
-        //            Have a more tolerent command processor, which will simply error 
-        //            if it doen't understand.
-        //            
         //            Treat the strings recieved as commands for parsing.
-
+        //
         //        strcpy(scr, name);
         //        fprintf(myStdout,"%s to %s\n", value, name);
-
+        //
         //        tmp = (char *)strtok(scr,".");
         //        tmp1 = (char *)strtok(NULL,".");
         //        
@@ -1417,7 +1411,7 @@ void spreadRX() {
         me=getSymbol("ME");
         ign=getSymbol("IGN_GLOBAL");
         runFlag=1;
-
+        
         while (runFlag) {
             memset(message,0,sizeof(message));
             do {
@@ -1929,16 +1923,11 @@ int main(int argc, const char *argv[]) {
         prompt=strdup(tmp);
         strcpy(safeBuffer, buffer);
 
-        /*
-        if(strcmp(prompt, "NONE")) {
-            if ( 0 == fromFile) {
-                printf("%s", prompt);
-                fflush(stdout);
-            }
-        }
-        */
-
         while ((status = fgets(buffer, BUFFSIZE, fp)) != 0) {
+            tmp=getSymbol("PROMPT");
+
+            memset(safeBuffer,0, sizeof(safeBuffer));
+            prompt=strdup(tmp);
 
             if(strcmp(prompt, "NONE")) {
                 if ( 0 == fromFile) {
@@ -2174,6 +2163,8 @@ int main(int argc, const char *argv[]) {
                     }
                 }
             }
+//            printf("\nHello >%s<\n",safeBuffer);
+            memset(safeBuffer,0, sizeof(safeBuffer));
         }
         if (fromFile != 0) {
             char *autoConnect;
