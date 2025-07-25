@@ -16,7 +16,7 @@
 #include "config.h"
 
 // Default configuration values
-#define DEFAULT_BUFFER_SIZE            4096
+#define DEFAULT_BUFFER_SIZE 4096
 #define DEFAULT_MAX_PENDING_CONNECTIONS 5
 
 #define MESSAGE_TYPE           1 // Example Spread message type (fixed)
