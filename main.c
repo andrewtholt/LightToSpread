@@ -135,16 +135,23 @@ void usage() {
     printf("usage: toSpread -h -c <cfg> -u <user> -d <database> -f -n <hostname> -P\n\n");
 
     printf("\t-c <cfg>\tConfig file.\n");
-    printf("\t-d <database>\tCache databae.\n");
+    printf("\t-d <database>\tCache database.\n");
     printf("\t-f\t\tForce, remove default config.\n");
+    printf("\t-g <group>\tDefault group to join.\n");
     printf("\t-h\t\tHelp.\n");
+    printf("\t-i <fifo>\tUse named pipe for stdin.\n");
+    printf("\t-l <logfile>\tLog file.\n");
     printf("\t-n <hostname>\tSet hostname.\n");
+    printf("\t-o <fifo>\tUse named pipe for stdout.\n");
     printf("\t-u <user>\tSpread user.\n");
-    printf("\t-P\t\tPrint config and exit.\n");
+    printf("\t-P\t\tPrint config and exit.\n\n");
 
     printf("\nNOTES:\n\n");
     printf("\tDefaults are:\n");
     printf("\t\ttoSpread -u <unix user> -g global -c ~/.start.rc\n\n");
+    printf("\tExamples are:\n");
+    printf("\t\ttoSpread -i /tmp/toSpread.in -o /tmp/toSpread.out\n");
+    printf("\n");
 }
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
