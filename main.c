@@ -47,10 +47,12 @@ void            setSymbol(char *name, void *value, int string,int local);
 #define MAX_VSSETS      10
 #define MAX_MEMBERS 100
 
-FILE *debugOut;
-FILE *myStdin;
-FILE *myStdout;
-FILE *myStderr;
+FILE *debugOut=NULL;
+FILE *myStdin=NULL;
+FILE *myStdout=NULL;
+FILE *myStderr=NULL;
+
+extern char *optarg;
 
 int             runFlag = 1;
 pthread_mutex_t hashLock;
@@ -386,9 +388,7 @@ inCache(char *name)
     return(cnt);
 }
 
-    int
-isConnected(char *name)
-{
+int isConnected(char *name) {
     char sql[BUFFSIZE];
     sqlite3 *mydb;
     char *dbName;
@@ -541,6 +541,7 @@ void disconnectCache() {
     sqlite3_close(mydb);
     pthread_mutex_unlock(&cacheLock);
 }
+
 void emptyCache(char *all) {
     sqlite3 *mydb;
     char *dbName;
@@ -582,9 +583,7 @@ void emptyCache(char *all) {
 
 }
 
-    void
-cacheSave()
-{
+void cacheSave() {
 
 }
 
