@@ -9,13 +9,13 @@ INC=-I/usr/local/include
 # BINS=spreadSource spreadSink lightSink lightSource # mine # PthreadsExample 
 BINS=redisSender dbCache tstLib toSpread lightSink lightSource socketToMYSQL spreadToSocket spreadToMySQL socketSpreadBridge # mine # PthreadsExample spreadSource spreadSink 
 # LIBS=-lpthread -lspread -ldl -L/usr/local/lib -lficl -lm
-LIBS=-lpthread -lspread -ldl -lm -ljansson 
+LIBS=-lpthread -L/usr/local/lib -lspread -ldl -lm -ljansson 
 LFLAGS=-Wl,--no-as-needed 
 
 all:	$(BINS)
 
-toSpread:	main.c libConnectToSpread.so
-	$(CC) $(INC) $(CFLAGS) $(LFLAGS) main.c -o toSpread -L . -lConnectToSpread $(LIBS) -lsqlite3
+toSpread:	toSpread.c libConnectToSpread.so
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) toSpread.c -o toSpread -L . -lConnectToSpread $(LIBS) -lsqlite3
 #	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o toSpread main.c -lspread -L/usr/local/lib \
 #	-lsqlite3 -lpthread 
 
