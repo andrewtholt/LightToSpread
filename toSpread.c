@@ -1430,7 +1430,6 @@ void spreadRX() {
                         &mess_type, &endian_mismatch, sizeof(message), message);
 
                 if( ret < 0) {
-
                     switch(ret) {
                         case NET_ERROR_ON_SESSION:
                             runFlag =0 ;
@@ -1443,15 +1442,20 @@ void spreadRX() {
                             break;
                     }
                 }
-
+                /*
                 debug=getSymbol("DEBUG");
                 debugFlag=strcmp(debug,"false");
+                */
             } while((!strcmp(sender,me)) && (!strcmp(getSymbol("OWN_MESSAGES"), "false"))) ;
+
+            debug=getSymbol("DEBUG");
+            debugFlag=strcmp(debug,"false");
 
 
             flag= (!strcmp(ign,"false")) || ((num_groups == 1) && (!strcmp(ign,"true")) && (!strcmp(target_groups[0],me)));
 
-            if(debugFlag != 0) {
+//            if(debugFlag != 0) {
+            if(debugFlag) {
                 fprintf(debugOut,"Flag = %d\n",flag);
                 fprintf(debugOut,"R:%s\n",message);
                 fprintf(debugOut,"Message sent to %d recipients\n",num_groups);
@@ -1475,7 +1479,7 @@ void spreadRX() {
                 strcpy(buffer, message);
 
                 cmd=(char *)strtok(buffer," \n");
-                // printf("\nmsg=%s\n",message);
+
                 p1=(char *)strtok(NULL," \n");
                 p2=(char *)strtok(NULL," \n");
                 //
@@ -2150,6 +2154,7 @@ int main(int argc, const char *argv[]) {
                     } else if (!strcmp(cmd, "^disconnect")) {
                         spreadDisconnect();
                     } else if (!strcmp(cmd, "^send")) {
+                        // TODO BUG here if no more tokens
                         p1 = (char *)strtok(NULL," ");
                         p2 = (char *)strtok(NULL,"\n");
                         strcat(p2,"\n");
