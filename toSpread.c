@@ -1423,8 +1423,8 @@ void spreadRX() {
         runFlag=1;
         
         while (runFlag) {
-            memset(message,0,sizeof(message));
             do {
+                memset(message,0,sizeof(message));
                 ret = SP_receive(Mbox, &service_type, sender, 100,
                         &num_groups, target_groups,
                         &mess_type, &endian_mismatch, sizeof(message), message);
@@ -1451,6 +1451,8 @@ void spreadRX() {
             debug=getSymbol("DEBUG");
             debugFlag=strcmp(debug,"false");
 
+            debugFlag = (debugFlag != 0);
+
 
             flag= (!strcmp(ign,"false")) || ((num_groups == 1) && (!strcmp(ign,"true")) && (!strcmp(target_groups[0],me)));
 
@@ -1466,6 +1468,10 @@ void spreadRX() {
 
                 }
                 fprintf(debugOut,"===========>\n");
+            } else{
+                fprintf(myStdout,"%s",message);
+                fflush(myStdout);
+
             }
 
             if (Is_regular_mess(service_type)) {
