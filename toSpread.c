@@ -1508,7 +1508,6 @@ void spreadRX() {
                             p2="NOT SET";
                         }
 
-
                         ret = SP_multicast(Mbox, AGREED_MESS, sender, 1, strlen(p2), p2);
                     }
                 } else if(!strcmp( getSymbol("PASSTHROUGH"),"true")) {
@@ -1974,12 +1973,15 @@ int main(int argc, const char *argv[]) {
 
     while (runFlag) {
         char *prompt=NULL;
+        memset(safeBuffer,0, sizeof(safeBuffer));
+
+        /*
         tmp=getSymbol("PROMPT");
 
         memset(safeBuffer,0, sizeof(safeBuffer));
         prompt=strdup(tmp);
         strcpy(safeBuffer, buffer);
-
+        */
         // This inner loop reads commands and processes them
         while ((status = fgets(buffer, BUFFSIZE, fp)) != 0) {
             tmp=getSymbol("PROMPT");
@@ -2020,6 +2022,8 @@ int main(int argc, const char *argv[]) {
                                 lockSymbol(p1);
                             }
 
+                        } else if (!strcmp(cmd, "^version")) {
+                            fprintf(myStdout,"Version 0.1.0\n");
                         } else if (!strcmp(cmd, "^get")) {
                             p1 = (char *) strtok(NULL, " ");
                             if(p1 != (char *)NULL) {
@@ -2071,6 +2075,9 @@ int main(int argc, const char *argv[]) {
                             } else {
                                  dumpSymbols();
                             }
+                        } else if (!strcmp(cmd, "^exit")) {
+                            printf("Exiting toSpread.\n");
+                            exit(0);
                         } else if (!strcmp(cmd, "^lock")) {
                             p1 = (char *) strtok(NULL, " ");
                             lockSymbol(p1);
@@ -2200,7 +2207,6 @@ int main(int argc, const char *argv[]) {
                             ret = SP_multicast(Mbox, AGREED_MESS, getSymbol("GROUP"), 1, strlen(safeBuffer), safeBuffer);
                         }
                     }
-                    fflush(myStdout);
                 }
             }
         }
