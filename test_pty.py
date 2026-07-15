@@ -47,8 +47,14 @@ def interact_with_tospread_no_initial_prompt():
         output1 = read_until_prompt_or_timeout(master_fd, timeout=2, prompt_patterns=TOSPREAD_PROMPT_PATTERNS)
         print(f"\n--- Output of '{command1.strip()}' (via PTY) ---\n{output1.strip()}\n------------------------------------------------\n")
 
+        command2 = "^set DEBUG false\n" # 
+        print(f"Sending command: {command2.strip()}")
+        os.write(master_fd, command2.encode())
+
+        output2 = read_until_prompt_or_timeout(master_fd, timeout=3, prompt_patterns=TOSPREAD_PROMPT_PATTERNS) # Give more time for file operations
+        print(f"\n--- Output of '{command2.strip()}' (via PTY) ---\n{output2.strip()}\n------------------------------------------------\n")
         # --- Example Command 2: Load data (replace with actual toSpread command) ---
-        command2 = "^dump\n" # Assuming 'load' command for a file
+        command2 = "^connect\n" # 
         print(f"Sending command: {command2.strip()}")
         os.write(master_fd, command2.encode())
 
@@ -56,7 +62,7 @@ def interact_with_tospread_no_initial_prompt():
         print(f"\n--- Output of '{command2.strip()}' (via PTY) ---\n{output2.strip()}\n------------------------------------------------\n")
 
         # --- Example Command 3: Perform a calculation (replace with actual toSpread command) ---
-        command3 = "^get CONNECTED\n"
+        command3 = "^send mysql GET START\n"
         print(f"Sending command: {command3.strip()}")
         os.write(master_fd, command3.encode())
 

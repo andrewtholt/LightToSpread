@@ -1,12 +1,12 @@
 /*
- * 
+ *
  * Date: Thu 26 Feb 2009
- * 
+ *
  * ToDo
- * 
+ *
  * 1. in spreadRX catch join messages and if unknown create entries in cache marked dirty & connected.  If known mark as connected.
  * 2.             catch leave & exit messages and if unknown create entries in cache marked dirty & not connected. If know mark as disconnected.
- * 
+ *
  */
 
 #include <stdio.h>
@@ -61,7 +61,7 @@ struct globalDefinitions global;
 
 /*
  *   static struct cache *head = NULL;
- * 
+ *
  *   struct cache {
  *   char           *name;
  *   char           *group;
@@ -69,7 +69,7 @@ struct globalDefinitions global;
  *   int             connected;
  *   struct cache   *next;
  *   };
- * 
+ *
  *   static struct cache cacheHash[SP_HASHSIZE];
  */
 
@@ -83,9 +83,7 @@ struct nlist {
     struct nlist   *next;
 };
 
-    char           *
-strsave(const char *s)
-{
+ char *strsave(const char *s) {
     char           *p;
 
     if ((p = malloc(strlen(s) + 1)) != NULL)
@@ -96,8 +94,7 @@ strsave(const char *s)
 
 #define READ 0
 #define WRITE 1
-pid_t popen2(const char *command, int *infp, int *outfp)
-{
+pid_t popen2(const char *command, int *infp, int *outfp) {
     int p_stdin[2], p_stdout[2];
     pid_t pid;
 
@@ -167,8 +164,7 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
     return 0;
 }
 
-int lookupCache(char *name)
-{
+int lookupCache(char *name) {
     char sql[BUFFSIZE];
     sqlite3 *mydb;
     char *dbName;
@@ -241,7 +237,7 @@ cacheTouch(char *name)
     dbName = getSymbol("DATABASE");
     rc = sqlite3_open(dbName, &mydb);
 
-    sprintf(sql , "update nodes set touched=%d; where name='%s';",(int)now,name);
+    sprintf(sql , "update nodes set touched=%d; where name='%s';", (int)now,name);
 
     rc = sqlite3_exec(mydb, sql, 0, 0, &zErrMsg);
     if(rc != SQLITE_OK) {
@@ -358,9 +354,7 @@ void cacheSetConnected(char *name, char *group, int c) {
     sqlite3_close( mydb );
 }
 
-    int
-inCache(char *name)
-{
+int inCache(char *name) {
     char sql[BUFFSIZE];
     sqlite3 *mydb;
     char *dbName;
@@ -467,7 +461,8 @@ void cacheDump() {
                     case 0:
                         if(interactive) {
                             fprintf(myStdout,"|%-25s|",results[(i*columns)+j]);
-                        } else {
+                        }
+ else {
                             fprintf(myStdout,"%s:",results[(i*columns)+j]);
                         }
                         break;
@@ -592,29 +587,29 @@ void cacheSave() {
  *   cacheTouchAll()
  *   {
  *   sqlite3 *mydb;
- * 
+ *
  *   char *dbName;
  *   char sql[BUFFSIZE];
  *   char *zErrMsg;
  *   int rc;
  *   time_t now;
  *   now = time(NULL);
- * 
+ *
  *   dbName = getSymbol("DATABASE");
  *   rc = sqlite3_open(dbName, &mydb);
- * 
- * 
+ *
+ *
  *   sprintf(sql , "update nodes set dirty='Y',touched=%d;",now);
- * 
+ *
  *   rc = sqlite3_exec(mydb, sql, 0, 0, &zErrMsg);
  *   if(rc != SQLITE_OK ) {
  *   fprintf(debugOut,"cacheTouchAll:INSERT:%s\n",zErrMsg);
  *   fprintf(debugOut,"%s\n",sqlite3_errmsg(mydb));
  *   fflush(debugOut);
  *   }
- * 
+ *
  *   sqlite3_close(mydb);
- * 
+ *
  *   }
  */
 void cacheRemove(char *n, char *g) {
@@ -980,7 +975,7 @@ void spreadDisconnect() {
         fflush(debugOut);
     } 
 
-    strcpy(sql,"update nodes set state='DISCONNECTED';");
+    strcpy(sql,"update nodes set state = 'DISCONNECTED';");
     rc = sqlite3_exec(db, sql, 0, 0, &zErrMsg);
 
     if(rc != SQLITE_OK) {
@@ -1736,7 +1731,7 @@ int main(int argc, const char *argv[]) {
     int threadId;
     pthread_t       clean;
     char *stdinFifo=(char *)NULL;
-    char *stdoutFifo=(char *)NULL;;
+    char *stdoutFifo=(char *)NULL;
 
     int dbg;
     char *debug;
@@ -1838,6 +1833,7 @@ int main(int argc, const char *argv[]) {
     }
     
     /*
+     *
      * Set defaults.
      *
      */
@@ -1969,32 +1965,29 @@ int main(int argc, const char *argv[]) {
      */    
 
     debug = (char *)getSymbol("DEBUG");
-    dbg = ( !strcmp(debug,"true") );
+    dbg = ( ( !strcmp(debug,"true") ) );
+
+    char *prompt;
 
     while (runFlag) {
         char *prompt=NULL;
         memset(safeBuffer,0, sizeof(safeBuffer));
 
-        /*
-        tmp=getSymbol("PROMPT");
-
-        memset(safeBuffer,0, sizeof(safeBuffer));
-        prompt=strdup(tmp);
-        strcpy(safeBuffer, buffer);
-        */
         // This inner loop reads commands and processes them
-        while ((status = fgets(buffer, BUFFSIZE, fp)) != 0) {
-            tmp=getSymbol("PROMPT");
+        for (;;) {
+            if ( 0 == fromFile) {
+                tmp=getSymbol("PROMPT");
+                prompt=strdup(tmp);
 
-            memset(safeBuffer,0, sizeof(safeBuffer));
-            prompt=strdup(tmp);
-
-            if(strcmp(prompt, "NONE")) {
-                if ( 0 == fromFile) {
+                if(strcmp(prompt, "NONE")) {
                     printf("%s", prompt);
                     fflush(stdout);
                 }
             }
+
+            if ((status = fgets(buffer, BUFFSIZE, fp)) == 0)
+                break;
+
             if( (0 != dbg ) && (0 == fromFile))  {
                 fprintf( myStderr,"C:stdin:%s\n",safeBuffer);
                 fflush( myStderr );
@@ -2003,207 +1996,89 @@ int main(int argc, const char *argv[]) {
             tmp = (char *) strtok(buffer, "\n");
 
             if (tmp) {
-                if (strlen(tmp) > 0) {
-                    cmd = (char *) strtok(tmp, " ");
-                    if (cmd[0] == '^') {
-                        if (!strcmp(cmd, "^set")) {
-                            p1 = (char *) strtok(NULL, " ");
-                            p2 = (char *) strtok(NULL, "\n");
+                strcpy(safeBuffer, tmp);
+                cmd = (char *) strtok(tmp, " ");
 
-                            if ((p1 != (char *) NULL) && (p2 != (char *) NULL)) {
-                                setSymbol(p1, p2, 1,GLOBAL);
-                            }
-                        } else if (!strcmp(cmd, "^set+lock")) {
-                            p1 = (char *) strtok(NULL, " ");
-                            p2 = (char *) strtok(NULL, "\n");
-
-                            if ((p1 != (char *) NULL) && (p2 != (char *) NULL)) {
-                                setSymbol(p1, p2, 1,GLOBAL);
-                                lockSymbol(p1);
-                            }
-
-                        } else if (!strcmp(cmd, "^version")) {
-                            fprintf(myStdout,"Version 0.1.0\n");
-                        } else if (!strcmp(cmd, "^get")) {
-                            p1 = (char *) strtok(NULL, " ");
-                            if(p1 != (char *)NULL) {
-                                p2=getSymbol(p1);
-                                p3=getSymbol("CLIENT");
-
-                                if(!strcmp(p3,"nodebrain")) {
-                                    fprintf(myStdout,"alert %s=\"%s\";\n",p1,p2);
-                                } else if(!strcmp(p3, "forth")) {
-                                    if(!strcmp(p2,"true")) {
-                                        fprintf(myStdout,"-1\n");
-                                    } else if(!strcmp(p2,"false"))  {
-                                        fprintf(myStdout,"0\n");
-                                    } else
-                                        fprintf(myStdout,"s\" %s\"\n",p2);
-                                } else {
-                                    fprintf(myStdout,"%s\n",p2);
-                                }
-                                fflush(myStdout);
-                            }
-
-                        } else if (!strcmp(cmd, "^connected")) {
-                            //	      p1 = (char *) strtok(NULL, " ");
-                            p1 = (char *) getSymbol("CONNECTED");
-                            p3=getSymbol("CLIENT");
-
-                            if(!strcmp(p3,"nodebrain")) {
-                                if(!strcmp( p1,"true" ) ) {
-                                    printf("alert CONNECTED=\"true\";\n");
-                                } else {
-                                    printf("alert CONNECTED=\"false\";\n");
-                                }
-                            } else {
-                                if(!strcmp( p1,"true" ) ) {
-                                    fprintf(myStdout,"true\n");
-                                } else {
-                                    fprintf(myStdout,"false\n");
-                                }
-                                fflush(myStdout);
-                            }
-                        } else if (!strcmp(cmd, "^dump")) {
-                            p1 = (char *) strtok(NULL, " ");
-                            if( NULL != p1) {
-                                if (!strcmp(p1, "symbols")) {
-                                 dumpSymbols();
-                                } else if (!strcmp(p1, "cache")) {
-                                    cacheDump();
-                                }
-                            } else {
-                                 dumpSymbols();
-                            }
-                        } else if (!strcmp(cmd, "^exit")) {
-                            printf("Exiting toSpread.\n");
-                            exit(0);
-                        } else if (!strcmp(cmd, "^lock")) {
-                            p1 = (char *) strtok(NULL, " ");
-                            lockSymbol(p1);
-                        } else if (!strcmp(cmd, "^add")) {
-                            p1 = (char *) strtok(NULL, " ");
-                            p2 = (char *) strtok(NULL, " ");
-                            if (p2 == (char *) NULL) {
-                                p2 = (char *) getSymbol("GROUP");
-                            }
-                            cacheAdd(p1, p2, UNKNOWN);
-                        } else if (!strcmp(cmd, "^del")) {
-                            p1 = (char *) strtok(NULL, " ");
-                            p2 = (char *) strtok(NULL, " ");
-                            cacheRemove(p1,p2);
-                        } else if (!strcmp(cmd, "^connect")) {
-                            {                            
-                                char *connected = (char *) getSymbol("CONNECTED");
-                                if (!strcmp(connected, "true")) {
-                                    fprintf(myStdout, "Already connected.\n");
-                                } else {
-                                    startSpreadRX();
-                                    setSymbol("CONNECTED", "true", UNLOCK,LOCAL);
-                                    fprintf(myStdout, "Connected to Spread.\n");
-                                }
-                                fflush(myStdout);
-
-                                /*
-                            p1 = (char *) getSymbol("AUTOCONNECT");
-                            if(!strcmp(p1,"true")) {
-                                startSpreadRX();
-                            } else {
-                                runFlag = 0;
-                            }
-                            */
-                            }
-                            break;
-                            
-                        } else if (!strcmp(cmd, "^save")) {
-                            p1 = (char *) strtok(NULL, " ");
-                            if (p1 == (char *) NULL) {
-                                setSymbol("CONFIGURED","true",UNLOCK,GLOBAL);
-                                saveSymbols();
-                            } else {
-                                if (!strcmp(p1, "cache")) {
-                                } else if (!strcmp(p1, "settings")) {
-                                    setSymbol("CONFIGURED","true",UNLOCK,GLOBAL);
-                                    saveSymbols();
-                                } else if (!strcmp(p1, "state")) {
-                                    saveSymbols();
-                                }
-                            }
-                        } else if (!strcmp(cmd, "^empty")) {
-                            p1 = (char *) strtok(NULL, " ");
-                            emptyCache(p1);
-                        } else if (!strcmp(cmd, "^join")) {
-                            int             status = 0;
-
-                            p1 = (char *) strtok(NULL, " ");
-                            if (p1 != (char *) NULL) {
-                                status = spreadJoin(p1);
-                            }
-                        } else if (!strcmp(cmd, "^leave")) {
-                            p1 = (char *) strtok(NULL, " ");
-                            spreadLeave(p1);
-
-                        } else if(!strcmp(cmd,"^help")) {
-                            printf("Build date %s\n",__DATE__);
-
-                            printf("^dump <cache|symbols>\n");
-                            printf("^set <param> <value>\n");
-                            printf("^set+lock <param> <value>\n");
-                            printf("^get <param>\n");
-                            printf("^add <node>             Add to local cache only.\n");
-                            printf("^save | ^save state\n");
-                            printf("^save cache\n");
-                            printf("^save settings\n");
-                            printf("^join <group>\n");
-                            printf("^leave                  Leave all groups\n");
-                            printf("^leave <group>\n");
-                            printf("^disconnect             Terminate spread connection\n");
-                            printf("^empty                  Delete cache entries that are in state disconnected.\n");
-                            printf("^empty all              Delete cache entries that are not in state connected.\n");
-                            printf("^send <group> <textd>\tSend text to group as given.\n");
-
-                            printf("^start\t\t\tStart a block of lines.\n");
-                            printf("^end\t\t\tEnd a block of lines.\n");
-                    } else if (!strcmp(cmd, "^disconnect")) {
-                        spreadDisconnect();
-                    } else if (!strcmp(cmd, "^send")) {
-                        // TODO BUG here if no more tokens
-                        p1 = (char *)strtok(NULL," ");
-                        p2 = (char *)strtok(NULL,"\n");
-                        strcat(p2,"\n");
-                        ret = SP_multicast(Mbox, AGREED_MESS, p1, 1, strlen(p2), p2);
-                    } else if(!strcmp(cmd,"^start")) {
-                        multiLine = 1;
-                        if( mPtr ) {
-                            free(mPtr);
-                            mPtr = (char *)NULL;
-                        }
-                    } else if(!strcmp(cmd,"^end")) {    
-                        multiLine = 0;
-
-                        ret = SP_multicast(Mbox, AGREED_MESS, getSymbol("GROUP"), 1, strlen(mPtr), mPtr);
-                        if( mPtr ) {
-                            free(mPtr);
-                            mPtr = (char *)NULL;
-                        }
-                    }
-                    } else if(cmd[0] == '#') {
+                if (cmd) {
+                    if (cmd[0] == '#') {
                         // comment
-                    }  else {
-                        //message to go.
-                        if(multiLine) {
+                    } else if (cmd[0] == '^') {
+                        p1 = (char *) strtok(NULL, " ");
+                        p2 = (char *) strtok(NULL, " ");
+                        p3 = (char *) strtok(NULL, " ");
 
-                            if(!mPtr) {
-                                mPtr = strsave(safeBuffer);
-                            } else {
-                                char *t1;
-                                t1 = malloc(strlen(mPtr) + strlen(safeBuffer) + 1 );
-                                strcpy(t1,mPtr);
-                                free(mPtr);
-                                mPtr=t1;
-                                strcat(mPtr,safeBuffer);
+                        if (!strcmp(cmd, "^set")) {
+                            if (p1 && p2) {
+                                setSymbol(p1, p2, UNLOCK,GLOBAL);
                             }
-                        } else {
+                        } else if (!strcmp(cmd, "^lock")) {
+                            if(p1) lockSymbol(p1);
+                        } else if (!strcmp(cmd, "^get")) {
+                            if(p1) {
+                                p2 = getSymbol(p1);
+                                if (p2)
+                                    fprintf(myStdout, "%s\n", p2);
+                                else
+                                    fprintf(myStdout, "NOT SET\n");
+                            }
+                        } else if (!strcmp(cmd, "^join")) {
+                            if(p1) spreadJoin(p1);
+                        }
+ else if (!strcmp(cmd, "^leave")) {
+                            if(p1) spreadLeave(p1);
+                        } else if (!strcmp(cmd, "^dump")) {
+                            if(!p1) {
+                                dumpSymbols();
+                                cacheDump();
+                            } else if(p1 && !strcmp(p1,"symbols")) {
+                                dumpSymbols();
+                            } else if(p1 && !strcmp(p1,"cache")) {
+                                cacheDump();
+                            }
+                        } else if (!strcmp(cmd, "^save")) {
+                            saveSymbols();
+                        } else if (!strcmp(cmd, "^connect")) {
+                            spreadConnect();
+                        } else if (!strcmp(cmd, "^disconnect")) {
+                            spreadDisconnect();
+                        } else if (!strcmp(cmd, "^exit")) {
+                            runFlag = 0;
+                        } else if (!strcmp(cmd, "^add")) {
+                            if(p1 && p2) cacheAdd(p1,p2,UNKNOWN);
+                        } else if (!strcmp(cmd, "^del")) {
+                            if(p1) cacheRemove(p1,p2);
+                        } else if (!strcmp(cmd, "^empty")) {
+                            emptyCache(p1);
+                        } else if (!strcmp(cmd, "^connected")) {
+                            if(p1 && isConnected(p1)) {
+                                fprintf(myStdout,"TRUE\n");
+                            } else {
+                                fprintf(myStdout,"FALSE\n");
+                            }
+                        } else if (!strcmp(cmd, "^multicast")) {
+                            // ^multicast <group> <message>
+                            if(p1 && p2) ret = SP_multicast(Mbox, AGREED_MESS, p1, 1, strlen(p2), p2);
+                        } else if (!strcmp(cmd, "^exec")) {
+                            p1=strtok(safeBuffer," ");
+                            p1=strtok(NULL,"");
+                            if(p1) system(p1);
+                        } else if (!strcmp(cmd, "^start")) {
+                            startSpreadRX();
+                        } else if (!strcmp(cmd, "^send")) {
+                            p1 = (char *)strtok(NULL," ");
+                            p2 = (char *)strtok(NULL,"\n");
+                            if(p1 && p2) {
+                                strcat(p2,"\n");
+                                ret = SP_multicast(Mbox, AGREED_MESS, p1, 1, strlen(p2), p2);
+                            }
+                        }
+ else {
+                            fprintf(myStdout, "Unknown command %s\n", cmd);
+                        }
+                    } else if (multiLine) {
+                        // not implemented
+                    } else {
+                        if(strlen(cmd) > 0) {
                             ret = SP_multicast(Mbox, AGREED_MESS, getSymbol("GROUP"), 1, strlen(safeBuffer), safeBuffer);
                         }
                     }
@@ -2235,9 +2110,6 @@ int main(int argc, const char *argv[]) {
                  // EOF from a source that wasn't the FIFO, so exit.
                 runFlag = 0;
             }
-//        } else {
-            // Any other reason for loop exit (like an error), we should also exit.
-//            runFlag = 0;
         }
     }
     if( mPtr ) {
