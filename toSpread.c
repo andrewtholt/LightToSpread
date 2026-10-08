@@ -1002,6 +1002,9 @@ int spreadConnect() {
     char *action;
     int dbg=0;
 
+    static int flipFlop=0;
+    char *tstServer;
+
     char            Private_group[MAX_GROUP_NAME];
 
     setSymbol("CONNECTED", "false",UNLOCK,LOCAL);
@@ -1015,6 +1018,15 @@ int spreadConnect() {
 
     mainServer = (char *) getSymbol("SERVER");
     altServer = (char *) getSymbol("ALTSERVER");
+    tstServer=malloc(255);
+
+    if(flipFlop == 0) {
+        strcpy(tstServer, mainServer);
+        flipFlop++;
+    } else {
+        strcpy(tstServer, altServer);
+        flipFlop=0;
+    }
 
     if(altServer == (char *)NULL) {
         altServer = mainServer;
@@ -1027,7 +1039,13 @@ int spreadConnect() {
         fprintf( debugOut, "Connecting to %s ... \n", mainServer);
     }
 
+    /*
     ret = SP_connect((char *) mainServer,
+            user,
+            0, 1, &Mbox,
+            Private_group);
+            */
+    ret = SP_connect((char *) tstServer,
             user,
             0, 1, &Mbox,
             Private_group);
@@ -1061,7 +1079,7 @@ int spreadConnect() {
     }
 
     if(server != (char *)NULL) {
-        tmp=strtok(server,"@");
+        tmp=strtok(tstServer,"@");
         tmp=strtok(NULL," ");
         setSymbol("CONNECTED_TO",tmp,UNLOCK,LOCAL);
         sprintf(scratch,"#%s#%s", user,tmp);
@@ -2023,9 +2041,10 @@ int main(int argc, const char *argv[]) {
                             }
                         } else if (!strcmp(cmd, "^join")) {
                             if(p1) spreadJoin(p1);
-                        }
- else if (!strcmp(cmd, "^leave")) {
-                            if(p1) spreadLeave(p1);
+                        } else if (!strcmp(cmd, "^leave")) {
+                            if(p1) { 
+                                spreadLeave(p1);
+                            }
                         } else if (!strcmp(cmd, "^dump")) {
                             if(!p1) {
                                 dumpSymbols();
@@ -2065,12 +2084,34 @@ int main(int argc, const char *argv[]) {
                         } else if (!strcmp(cmd, "^start")) {
                             startSpreadRX();
                         } else if (!strcmp(cmd, "^send")) {
-                            p1 = (char *)strtok(NULL," ");
-                            p2 = (char *)strtok(NULL,"\n");
+//                            p1 = (char *)strtok(NULL," ");
+//                            p2 = (char *)strtok(NULL,"\n");
                             if(p1 && p2) {
                                 strcat(p2,"\n");
                                 ret = SP_multicast(Mbox, AGREED_MESS, p1, 1, strlen(p2), p2);
                             }
+                        } else if (!strcmp(cmd, "^help")) {
+                            fprintf(myStdout, "Available commands:\n");
+                            fprintf(myStdout, "  ^set <param> <value>\n");
+                            fprintf(myStdout, "  ^lock <param>\n");
+                            fprintf(myStdout, "  ^get <param>\n");
+                            fprintf(myStdout, "  ^join <group>\n");
+                            fprintf(myStdout, "  ^leave <group>\n");
+                            fprintf(myStdout, "  ^dump [symbols|cache]\n");
+                            fprintf(myStdout, "  ^save\n");
+                            fprintf(myStdout, "  ^connect\n");
+                            fprintf(myStdout, "  ^disconnect\n");
+                            fprintf(myStdout, "  ^add <node> <grp>\n");
+                            fprintf(myStdout, "  ^del <node> <grp>\n");
+                            fprintf(myStdout, "  ^empty [all|stale]\n");
+                            fprintf(myStdout, "  ^connected <name>\n");
+                            fprintf(myStdout, "  ^multicast <group> <message>\n");
+                            fprintf(myStdout, "  ^exec <command>\n");
+                            fprintf(myStdout, "  ^start\tiAction the settings and connect.\n");
+                            fprintf(myStdout, "  ^send <group> <message>\n");
+                            fprintf(myStdout, "  ^exit\n");
+                            fprintf(myStdout, "  ^help\n");
+                            fflush(myStdout);
                         }
  else {
                             fprintf(myStdout, "Unknown command %s\n", cmd);

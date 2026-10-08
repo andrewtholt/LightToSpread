@@ -1,31 +1,33 @@
 #
-# Save Date:Tue May 12 13:01:09 2015
+# Save Date:Thu Oct  8 14:19:29 2026
 #
-# Startup file.
+# toSpread startup file.
 # Comments MUST be at the start of a line.
 # Any comments added will be lost.
 #
-^set SET_FMT %s %s
+^set SET_FMT %s
 ^set STALE_AFTER 600
+^set SERVER 4803@192.168.10.124
+^lock SERVER
 ^set IGN_GLOBAL false
 ^set OWN_MESSAGES false
-^set USER andrewh
-^lock USER
 ^set ADD_CR false
 ^set CLIENT raw
-^set AUTOPURGE false
+^set ALTSERVER 4803@127.0.0.1
+^set PROMPT toSpread>
+^set AUTOPURGE true
 ^set DEBUG true
-^set PASSTHROUGH false
 ^set COMMS_VARS false
+^set PASSTHROUGH false
 ^set SAVE_ALLOWED true
 ^set EXIT_COMMAND true
-^set ALTSERVER 4803@192.168.10.124
-^set SERVER 4803@192.168.0.50
+^set ON_CHANGE 
+^lock ON_CHANGE
 ^set INTERACTIVE true
 ^set GROUP global
-^set SHOW_SENDER false
 ^set CLEARDB true
+^set SHOW_SENDER false
 ^set AUTOCONNECT false
+^set ON_CONNECT 
 ^set REMOTE_CREATE false
 ^lock REMOTE_CREATE
-
