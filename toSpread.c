@@ -1992,7 +1992,8 @@ int main(int argc, const char *argv[]) {
         memset(safeBuffer,0, sizeof(safeBuffer));
 
         // This inner loop reads commands and processes them
-        for (;;) {
+//        for (;;) {
+        while (runFlag) {
             if ( 0 == fromFile) {
                 tmp=getSymbol("PROMPT");
                 prompt=strdup(tmp);
