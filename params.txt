@@ -149,13 +149,13 @@ Default:
 Notes:
 
 Name:	ON_CONNECT
-Description:
+Description: Send the string to output on connect.
 Values:
     true|false
 Default:
     false
 Notes:
-    Not implemented.
+
 
 Name:	OWN_MESSAGES
 Description:
@@ -191,8 +191,8 @@ Default:
 Notes:
 
 Name:	SERVER
-Description:
-Values:
+Description: On ^connect or ^start attempt to connect to this Spread host.
+Values: 4803@127.0.0.1
 Notes:
 
 Name:	SET_FMT
