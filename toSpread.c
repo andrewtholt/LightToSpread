@@ -2090,6 +2090,7 @@ int main(int argc, const char *argv[]) {
                             if(p1 && p2) {
                                 strcat(p2,"\n");
                                 ret = SP_multicast(Mbox, AGREED_MESS, p1, 1, strlen(p2), p2);
+//                                SP_error(ret);
                             }
                         } else if (!strcmp(cmd, "^help")) {
                             fprintf(myStdout, "Available commands:\n");

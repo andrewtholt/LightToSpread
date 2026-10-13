@@ -177,8 +177,8 @@ Notes:
 
 Name:	REMOTE_CREATE
 Description:
-Values:
-Default:
+Values: true|false
+Default: false
 Notes:
 
 Name:	SAVE_ALLOWED
@@ -193,6 +193,7 @@ Notes:
 Name:	SERVER
 Description: On ^connect or ^start attempt to connect to this Spread host.
 Values: 4803@127.0.0.1
+Default:
 Notes:
 
 Name:	SET_FMT
