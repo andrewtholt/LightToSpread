@@ -2109,7 +2109,7 @@ int main(int argc, const char *argv[]) {
                             fprintf(myStdout, "  ^connected <name>\n");
                             fprintf(myStdout, "  ^multicast <group> <message>\n");
                             fprintf(myStdout, "  ^exec <command>\n");
-                            fprintf(myStdout, "  ^start\tiAction the settings and connect.\n");
+                            fprintf(myStdout, "  ^start\tAction the settings and connect.\n");
                             fprintf(myStdout, "  ^send <group> <message>\n");
                             fprintf(myStdout, "  ^exit\n");
                             fprintf(myStdout, "  ^help\n");
