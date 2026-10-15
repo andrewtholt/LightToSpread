@@ -61,3 +61,5 @@ spreadToSocket
 .vscode
 unixTestClient
 unixToSpread
+socketTestClient
+socketToSpread

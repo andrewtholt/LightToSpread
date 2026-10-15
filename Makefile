@@ -5,14 +5,14 @@ INC=-I/usr/local/include
 # 
 # Don't build old utilities.  Retained for future reference.
 # 
-BINS=redisSender dbCache tstLib unixToSpread lightSink lightSource socketToMYSQL spreadToSocket spreadToMySQL socketSpreadBridge unixTestClient 
+BINS=redisSender dbCache tstLib socketToSpread lightSink lightSource socketToMYSQL spreadToSocket spreadToMySQL socketSpreadBridge socketTestClient 
 LIBS=-lpthread -L/usr/local/lib -lspread -ldl -lm -ljansson 
 LFLAGS=-Wl,--no-as-needed 
 
 all:	$(BINS)
 
-unixToSpread:	unixToSpread.c libConnectToSpread.so
-	$(CC) $(INC) $(CFLAGS) $(LFLAGS) unixToSpread.c -o unixToSpread -L . -lConnectToSpread $(LIBS) -lsqlite3
+socketToSpread:	socketToSpread.c libConnectToSpread.so
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) socketToSpread.c -o socketToSpread -L . -lConnectToSpread $(LIBS) -lsqlite3
 
 tstLib:	tstLib.c libConnectToSpread.so
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) tstLib.c -o tstLib -L . -lConnectToSpread $(LIBS)
@@ -32,8 +32,8 @@ spreadToSocket:	spreadToSocket.c
 socketSpreadBridge:	socketSpreadBridge.c
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o socketSpreadBridge socketSpreadBridge.c $(LIBS)
 
-unixTestClient:	test_client.c
-	$(CC) $(INC) $(CFLAGS) $(LFLAGS) test_client.c -o unixTestClient $(LIBS)
+socketTestClient:	socketTestClient.c
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) socketTestClient.c -o socketTestClient $(LIBS)
 
 redisSender:	redisSender.c libConnectToSpread.so
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -o redisSender redisSender.c -L . -lConnectToSpread $(LIBS)
