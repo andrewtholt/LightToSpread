@@ -59,3 +59,5 @@ socketToMYSQL
 spreadToSocket
 
 .vscode
+unixTestClient
+unixToSpread
