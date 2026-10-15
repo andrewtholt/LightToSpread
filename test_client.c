@@ -7,8 +7,17 @@
 #include <sys/un.h>
 #include <sys/select.h>
 
-#define SOCKET_PATH "/tmp/toSpread.sock"
+#define SOCKET_PATH "/tmp/unixToSpread.sock"
 #define BUFFSIZE 255
+
+extern char *optarg;
+extern int optind, opterr, optopt;
+
+void usage(const char *progname) {
+    printf("usage: %s [-h] [-s <socket_path>]\n\n", progname);
+    printf("\t-h\t\tHelp.\n");
+    printf("\t-s <socket>\tUnix domain socket path (default: %s).\n\n", SOCKET_PATH);
+}
 
 int main(int argc, char *argv[]) {
     int sock;
@@ -16,9 +25,20 @@ int main(int argc, char *argv[]) {
     char buffer[BUFFSIZE];
     fd_set read_fds;
     char *socket_path = SOCKET_PATH;
+    int opt;
 
-    if (argc > 1) {
-        socket_path = argv[1];
+    while ((opt = getopt(argc, argv, "hs:")) != -1) {
+        switch (opt) {
+            case 'h':
+                usage(argv[0]);
+                exit(0);
+            case 's':
+                socket_path = optarg;
+                break;
+            default:
+                usage(argv[0]);
+                exit(1);
+        }
     }
 
     sock = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -28,7 +48,7 @@ int main(int argc, char *argv[]) {
     }
 
     server.sun_family = AF_UNIX;
-    strcpy(server.sun_path, socket_path);
+    strncpy(server.sun_path, socket_path, sizeof(server.sun_path) - 1);
 
     if (connect(sock, (struct sockaddr *)&server, sizeof(struct sockaddr_un)) < 0) {
         perror("connecting stream socket");
@@ -36,7 +56,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    printf("Connected to toSpread server at %s\n", socket_path);
+    printf("Connected to unixToSpread server at %s\n", socket_path);
     printf("Type commands (e.g., ^help, ^start, ^dump, ^exit):\n> ");
     fflush(stdout);
 
