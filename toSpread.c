@@ -1415,6 +1415,7 @@ void spreadRX() {
     //    char *onjoindelay;
 
 
+    setupDatabase();
     membership_info memb_info;
     runFlag=1;
 
