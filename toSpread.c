@@ -2136,6 +2136,13 @@ int main(int argc, const char *argv[]) {
             fclose(fp);
             fp = myStdin;
             fromFile = 0;
+            char *autoconnect;
+            
+            autoconnect = getSymbol("AUTOCONNECT");
+            if ( !strcmp( autoconnect, "true")) {
+                startSpreadRX();
+            }
+
         } else if (feof(fp)) {
             // This was an EOF from the pipe, meaning a client disconnected
             if (fp == myStdin && stdinFifo != NULL) {
