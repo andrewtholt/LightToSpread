@@ -5,7 +5,7 @@ INC=-I/usr/local/include
 # 
 # Don't build old utilities.  Retained for future reference.
 # 
-BINS=redisSender dbCache tstLib socketToSpread lightSink lightSource socketToMYSQL spreadToSocket spreadToMySQL socketSpreadBridge socketTestClient toSpread 
+BINS=unixToSpread redisSender dbCache tstLib socketToSpread lightSink lightSource socketToMYSQL spreadToSocket spreadToMySQL socketSpreadBridge socketTestClient toSpread 
 LIBS=-lpthread -L/usr/local/lib -lspread -ldl -lm -ljansson 
 LFLAGS=-Wl,--no-as-needed 
 
@@ -16,6 +16,9 @@ toSpread:	toSpread.c libConnectToSpread.so
 
 socketToSpread:	socketToSpread.c libConnectToSpread.so
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) socketToSpread.c -o socketToSpread -L . -lConnectToSpread $(LIBS) -lsqlite3
+
+unixToSpread:	unixToSpread.c libConnectToSpread.so
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) unixToSpread.c -o unixToSpread -L . -lConnectToSpread $(LIBS) -lsqlite3
 
 tstLib:	tstLib.c libConnectToSpread.so
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) tstLib.c -o tstLib -L . -lConnectToSpread $(LIBS)
