@@ -5,7 +5,9 @@ INC=-I/usr/local/include
 # 
 # Don't build old utilities.  Retained for future reference.
 # 
-BINS=unixToSpread redisSender dbCache tstLib socketToSpread lightSink lightSource socketToMYSQL spreadToSocket spreadToMySQL socketSpreadBridge socketTestClient toSpread newToSpread newSocketToSpread newUnixToSpread 
+# BINS=unixToSpread redisSender dbCache tstLib socketToSpread lightSink lightSource socketToMYSQL spreadToSocket spreadToMySQL socketSpreadBridge socketTestClient toSpread 
+BINS=newToSpread newSocketToSpread newUnixToSpread 
+
 LIBS=-lpthread -L/usr/local/lib -lspread -ldl -lm -ljansson 
 LFLAGS=-Wl,--no-as-needed 
 
