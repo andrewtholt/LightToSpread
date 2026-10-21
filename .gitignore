@@ -63,3 +63,6 @@ unixTestClient
 unixToSpread
 socketTestClient
 socketToSpread
+newToSpread
+newSocketToSpread
+newUnixToSpread

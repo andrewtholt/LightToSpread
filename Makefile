@@ -5,7 +5,7 @@ INC=-I/usr/local/include
 # 
 # Don't build old utilities.  Retained for future reference.
 # 
-BINS=unixToSpread redisSender dbCache tstLib socketToSpread lightSink lightSource socketToMYSQL spreadToSocket spreadToMySQL socketSpreadBridge socketTestClient toSpread 
+BINS=unixToSpread redisSender dbCache tstLib socketToSpread lightSink lightSource socketToMYSQL spreadToSocket spreadToMySQL socketSpreadBridge socketTestClient toSpread newToSpread newSocketToSpread newUnixToSpread 
 LIBS=-lpthread -L/usr/local/lib -lspread -ldl -lm -ljansson 
 LFLAGS=-Wl,--no-as-needed 
 
@@ -14,11 +14,20 @@ all:	$(BINS)
 toSpread:	toSpread.c libConnectToSpread.so
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) toSpread.c -o toSpread -L . -lConnectToSpread $(LIBS) -lsqlite3
 
+newToSpread:	newToSpread.c libcommonToSpread.so
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -Wl,-rpath,. newToSpread.c -o newToSpread -L . -lcommonToSpread $(LIBS) -lsqlite3
+
 socketToSpread:	socketToSpread.c libConnectToSpread.so
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) socketToSpread.c -o socketToSpread -L . -lConnectToSpread $(LIBS) -lsqlite3
 
+newSocketToSpread:	newSocketToSpread.c libcommonToSpread.so
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -Wl,-rpath,. newSocketToSpread.c -o newSocketToSpread -L . -lcommonToSpread $(LIBS) -lsqlite3
+
 unixToSpread:	unixToSpread.c libConnectToSpread.so
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) unixToSpread.c -o unixToSpread -L . -lConnectToSpread $(LIBS) -lsqlite3
+
+newUnixToSpread:	newUnixToSpread.c libcommonToSpread.so
+	$(CC) $(INC) $(CFLAGS) $(LFLAGS) -Wl,-rpath,. newUnixToSpread.c -o newUnixToSpread -L . -lcommonToSpread $(LIBS) -lsqlite3
 
 tstLib:	tstLib.c libConnectToSpread.so
 	$(CC) $(INC) $(CFLAGS) $(LFLAGS) tstLib.c -o tstLib -L . -lConnectToSpread $(LIBS)
@@ -68,6 +77,12 @@ mine:	mine.o hash.o connectToSpread.o
 connectToSpread.o:	connectToSpread.c connectToSpread.h
 	$(CC) $(INC) -c $(CFLAGS) connectToSpread.c -o connectToSpread.o
 
+commonToSpread.o:	commonToSpread.c commonToSpread.h
+	$(CC) $(INC) -c $(CFLAGS) commonToSpread.c -o commonToSpread.o
+
+libcommonToSpread.so:	commonToSpread.o
+	gcc -fPIC -shared -Wl,-soname,libcommonToSpread.so -o libcommonToSpread.so commonToSpread.o $(LIBS) -lsqlite3
+
 libConnectToSpread.so:	connectToSpread.o hash.o
 	gcc -fPIC -shared -Wl,-soname,libConnectToSpread.so -o libConnectToSpread.so connectToSpread.o hash.o -lspread
 
@@ -81,7 +96,7 @@ hash.o:	hash.h hash.c mine.h
 	$(CC) $(CFLAGS) -c hash.c -o hash.o
 
 clean:
-	rm -f $(BINS) *.o *~ cscope.out libConnectToSpread.so
+	rm -f $(BINS) *.o *~ cscope.out libConnectToSpread.so libcommonToSpread.so
 
 install:	$(BINS)
 	mkdir -p ~/Source/bin

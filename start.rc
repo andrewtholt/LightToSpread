@@ -1,5 +1,5 @@
 #
-# Save Date:Thu Oct  8 14:19:29 2026
+# Save Date:Wed Oct 21 15:50:56 2026
 #
 # toSpread startup file.
 # Comments MUST be at the start of a line.
@@ -24,10 +24,10 @@
 ^set ON_CHANGE 
 ^lock ON_CHANGE
 ^set INTERACTIVE true
-^set GROUP global
+^set GROUP testing
 ^set CLEARDB true
 ^set SHOW_SENDER false
-^set AUTOCONNECT false
+^set AUTOCONNECT true
 ^set ON_CONNECT 
 ^set REMOTE_CREATE false
 ^lock REMOTE_CREATE
