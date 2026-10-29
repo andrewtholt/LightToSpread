@@ -1436,8 +1436,11 @@ int processSpreadCommand(char *line, int *pRunFlag) {
         } else if (!strcmp(cmd, "^disconnect")) {
             spreadDisconnect();
         } else if (!strcmp(cmd, "^exit")) {
-            if (pRunFlag) *pRunFlag = 0;
-            return 0;
+            char *exitCmd = getSymbol("EXIT_COMMAND");
+            if (exitCmd && !strcmp(exitCmd, "true")) {
+                if (pRunFlag) *pRunFlag = 0;
+                return 0;
+            }
         } else if (!strcmp(cmd, "^add")) {
             if (p1 && p2) cacheAdd(p1, p2, UNKNOWN);
         } else if (!strcmp(cmd, "^del")) {

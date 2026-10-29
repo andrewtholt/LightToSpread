@@ -1023,7 +1023,10 @@ int main(int argc, const char *argv[]) {
                     } else if (!strcmp(cmd, "^disconnect")) {
                         spreadDisconnect();
                     } else if (!strcmp(cmd, "^exit")) {
-                        runFlag = 0;
+                        char *exitCmd = getSymbol("EXIT_COMMAND");
+                        if (exitCmd && !strcmp(exitCmd, "true")) {
+                            runFlag = 0;
+                        }
                     } else if (!strcmp(cmd, "^start")) {
                         startSpreadRX();
                     } else if (!strcmp(cmd, "^help")) {

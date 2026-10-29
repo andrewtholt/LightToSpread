@@ -2063,7 +2063,10 @@ int main(int argc, const char *argv[]) {
                         } else if (!strcmp(cmd, "^disconnect")) {
                             spreadDisconnect();
                         } else if (!strcmp(cmd, "^exit")) {
-                            runFlag = 0;
+                            char *exitCmd = getSymbol("EXIT_COMMAND");
+                            if (exitCmd && !strcmp(exitCmd, "true")) {
+                                runFlag = 0;
+                            }
                         } else if (!strcmp(cmd, "^add")) {
                             if(p1 && p2) cacheAdd(p1,p2,UNKNOWN);
                         } else if (!strcmp(cmd, "^del")) {
