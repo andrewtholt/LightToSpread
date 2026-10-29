@@ -1,5 +1,5 @@
 # CFLAGS=-g -m32 -DFICL # -Wall
-CFLAGS=-g -fPIC # -m32 
+CFLAGS=-g -fPIC -Wall # -m32 
 # CFLAGS=-g # -Wall
 INC=-I/usr/local/include
 # 

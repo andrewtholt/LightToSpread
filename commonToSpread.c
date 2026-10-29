@@ -907,13 +907,15 @@ int spreadConnect(void) {
     }
 
     if (server != NULL) {
-        tmp = strtok(tstServer, "@");
-        tmp = strtok(NULL, " ");
-        if (tmp) {
-            setSymbol("CONNECTED_TO", tmp, UNLOCK, LOCAL);
-            snprintf(scratch, sizeof(scratch), "#%s#%s", user ? user : "", tmp);
-            setSymbol("ME", scratch, LOCK, LOCAL);
+        char *hostPart = strchr(tstServer, '@');
+        if (hostPart) {
+            hostPart++;
+        } else {
+            hostPart = tstServer;
         }
+        setSymbol("CONNECTED_TO", hostPart, UNLOCK, LOCAL);
+        snprintf(scratch, sizeof(scratch), "#%s#%s", user ? user : "", hostPart);
+        setSymbol("ME", scratch, LOCK, LOCAL);
     }
     free(tstServer);
 
@@ -1192,7 +1194,8 @@ void spreadRX(void) {
                         }
                         cacheSetConnected((char *)memb_info.changed_member, sender, DISCONNECTED);
                     } else if (Is_caused_network_mess(service_type)) {
-                        int num_vs_sets, j;
+                        int num_vs_sets;
+                        unsigned int j;
                         unsigned int my_vsset_index;
                         vs_set_info vssets[MAX_VSSETS];
                         char sql[1024];
@@ -1263,6 +1266,11 @@ void initDefaultSymbols(const char *progname) {
 
     snprintf(prompt, sizeof(prompt), "%s>", progName);
     setSymbol("PROMPT", prompt, UNLOCK, GLOBAL);
+
+    char *home = getenv("HOME");
+    char defaultStart[BUFFSIZE];
+    snprintf(defaultStart, sizeof(defaultStart), "%s/.start.rc", home ? home : "/tmp");
+    setSymbol("START_FILE", defaultStart, UNLOCK, LOCAL);
 }
 
 void finishSymbolInitialization(void) {
@@ -1403,8 +1411,8 @@ int processSpreadCommand(char *line, int *pRunFlag) {
         (void)p3;
 
         if (!strcmp(cmd, "^set")) {
-            if (p1 && p2) {
-                setSymbol(p1, p2, UNLOCK, GLOBAL);
+            if (p1) {
+                setSymbol(p1, p2 ? p2 : "", UNLOCK, GLOBAL);
             }
         } else if (!strcmp(cmd, "^lock")) {
             if (p1) lockSymbol(p1);
@@ -1456,7 +1464,13 @@ int processSpreadCommand(char *line, int *pRunFlag) {
             }
         } else if (!strcmp(cmd, "^multicast")) {
             if (p1 && p2) {
-                ret = SP_multicast(Mbox, AGREED_MESS, p1, 1, strlen(p2), p2);
+                char *msg = safeBuffer;
+                while (*msg && *msg != ' ') msg++;
+                while (*msg == ' ') msg++;
+                while (*msg && *msg != ' ') msg++;
+                while (*msg == ' ') msg++;
+                if (!*msg) msg = p2;
+                ret = SP_multicast(Mbox, AGREED_MESS, p1, 1, strlen(msg), msg);
                 (void)ret;
             }
         } else if (!strcmp(cmd, "^exec")) {
@@ -1470,8 +1484,14 @@ int processSpreadCommand(char *line, int *pRunFlag) {
             startSpreadRX();
         } else if (!strcmp(cmd, "^send")) {
             if (p1 && p2) {
+                char *msg = safeBuffer;
+                while (*msg && *msg != ' ') msg++;
+                while (*msg == ' ') msg++;
+                while (*msg && *msg != ' ') msg++;
+                while (*msg == ' ') msg++;
+                if (!*msg) msg = p2;
                 char sendBuf[BUFFSIZE + 2];
-                snprintf(sendBuf, sizeof(sendBuf), "%s\n", p2);
+                snprintf(sendBuf, sizeof(sendBuf), "%s\n", msg);
                 ret = SP_multicast(Mbox, AGREED_MESS, p1, 1, strlen(sendBuf), sendBuf);
                 (void)ret;
             }

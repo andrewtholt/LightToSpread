@@ -1362,6 +1362,7 @@ void cleanCache() {
 
     while (1) {
         sleep(10);
+        now = time(NULL);
         tmp=getSymbol("STALE_AFTER");
         ttl=atoi(tmp);
 
@@ -1370,9 +1371,6 @@ void cleanCache() {
         if(!strcmp(autoPurge,"true")) {
             dbName = getSymbol("DATABASE");        
             //        printf("Nap time.\n");
-
-
-            now = time(NULL);
             sprintf(sql,"delete from nodes where state <> 'CONNECTED' and stale < %d;",(int)now);
 
             //            printf("%s\n",sql);
