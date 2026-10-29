@@ -1,7 +1,7 @@
 #
-# Save Date:Thu Oct  8 14:19:29 2026
+# Save Date:Thu Oct 29 14:02:17 2026
 #
-# toSpread startup file.
+# newSocketToSpread startup file.
 # Comments MUST be at the start of a line.
 # Any comments added will be lost.
 #
@@ -20,7 +20,8 @@
 ^set COMMS_VARS false
 ^set PASSTHROUGH true
 ^set SAVE_ALLOWED true
-^set EXIT_COMMAND true
+^set EXIT_COMMAND false
+^lock EXIT_COMMAND
 ^set ON_CHANGE 
 ^lock ON_CHANGE
 ^set INTERACTIVE false
