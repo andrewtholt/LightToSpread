@@ -155,7 +155,23 @@ int main(int argc, const char *argv[]) {
             continue;
         }
 
-        processSpreadCommand(buffer, &runFlag);
+        if (processSpreadCommand(buffer, &runFlag) == CMD_DISCONNECT) {
+            if (myStdout) {
+                fflush(myStdout);
+                fclose(myStdout);
+                myStdout = NULL;
+            }
+            if (myStdin) {
+                fclose(myStdin);
+                myStdin = NULL;
+            }
+            client_fd = -1;
+            if (debugOut) {
+                fprintf(debugOut, "Client disconnected.\n");
+                fflush(debugOut);
+            }
+            continue;
+        }
     }
 
     close(server_fd);

@@ -1433,12 +1433,12 @@ int processSpreadCommand(char *line, int *pRunFlag) {
         } else if (!strcmp(cmd, "^connect")) {
             spreadConnect();
         } else if (!strcmp(cmd, "^disconnect")) {
-            spreadDisconnect();
+            return CMD_DISCONNECT;
         } else if (!strcmp(cmd, "^exit")) {
             char *exitCmd = getSymbol("EXIT_COMMAND");
             if (exitCmd && !strcmp(exitCmd, "true")) {
                 if (pRunFlag) *pRunFlag = 0;
-                return 0;
+                return CMD_EXIT;
             }
         } else if (!strcmp(cmd, "^add")) {
             if (p1 && p2) cacheAdd(p1, p2, UNKNOWN);
@@ -1513,5 +1513,5 @@ int processSpreadCommand(char *line, int *pRunFlag) {
     }
 
     if (myStdout) fflush(myStdout);
-    return 1;
+    return CMD_OK;
 }

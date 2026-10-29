@@ -34,6 +34,10 @@
 #define GLOBAL 0
 #define LOCAL 1
 
+#define CMD_EXIT 0
+#define CMD_OK 1
+#define CMD_DISCONNECT 2
+
 #define MAX_VSSETS 10
 #define MAX_MEMBERS 100
 
