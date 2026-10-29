@@ -1223,7 +1223,6 @@ void startSpreadRX(void) {
     pthread_t spread;
     lockSymbol("USER");
     pthread_create(&spread, NULL, (void *)spreadRX, (void *)NULL);
-    setSymbol("CONNECTED", "true", UNLOCK, LOCAL);
 }
 
 void initDefaultSymbols(const char *progname) {

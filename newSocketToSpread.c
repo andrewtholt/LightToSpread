@@ -133,6 +133,17 @@ int main(int argc, const char *argv[]) {
                 client_fd = -1;
                 continue;
             }
+
+            char *onConnect = getSymbol("ON_CONNECT");
+            if (onConnect && strlen(onConnect) > 0 && myStdout) {
+                char *connected = getSymbol("CONNECTED");
+                if (connected && !strcmp(connected, "true")) {
+                    fprintf(myStdout, "%s\n", onConnect);
+                } else {
+                    fprintf(myStdout, "NOT %s\n", onConnect);
+                }
+                fflush(myStdout);
+            }
         }
 
         if (fgets(buffer, BUFFSIZE, myStdin) == NULL) {
