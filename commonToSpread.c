@@ -1094,6 +1094,7 @@ void spreadRX(void) {
             if (debugFlag) {
                 fprintf(debugOut, "Flag = %d\n", flag);
                 fprintf(debugOut, "R:%s\n", message);
+                fprintf(debugOut, "Message sent by %s\n", sender);
                 fprintf(debugOut, "Message sent to %d recipients\n", num_groups);
                 for (i = 0; i < num_groups; i++) {
                     fprintf(debugOut, "Message sent to %d:%s\n", i, target_groups[i]);
@@ -1108,7 +1109,7 @@ void spreadRX(void) {
                 if (flag != 0) {
                     if (myStdout) {
                         if (!strcmp(getSymbol("SHOW_SENDER"), "true")) {
-                            fprintf(myStdout, "%s ", sender);
+                            fprintf(myStdout, "%s:", sender);
                         }
                     }
 
