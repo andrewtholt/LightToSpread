@@ -914,7 +914,10 @@ int spreadConnect(void) {
             hostPart = tstServer;
         }
         setSymbol("CONNECTED_TO", hostPart, UNLOCK, LOCAL);
-        snprintf(scratch, sizeof(scratch), "#%s#%s", user ? user : "", hostPart);
+        char *tmp = getSymbol("HOSTNAME");
+
+//        snprintf(scratch, sizeof(scratch), "#%s#%s", user ? user : "", hostPart);
+        snprintf(scratch, sizeof(scratch), "#%s#%s", user ? user : "", tmp);
         setSymbol("ME", scratch, LOCK, LOCAL);
     }
     free(tstServer);
