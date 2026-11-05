@@ -1335,6 +1335,14 @@ int handleCommonOption(int ch, const char *arg, int *dump_config) {
         case 'd':
             setSymbol("DATABASE", (char *)arg, LOCK, GLOBAL);
             return 1;
+        case 'r':
+            {
+                pid_t pid = getpid();
+                char id[64];
+                sprintf(id,"r%d", pid);
+                setSymbol("USER", (char *)id,LOCK,LOCAL);
+            }
+            return 1;
         case 'u':
             setSymbol("USER", (char *)arg, LOCK, LOCAL);
             return 1;

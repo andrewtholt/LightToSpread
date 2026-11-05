@@ -27,7 +27,8 @@ void usage(void) {
     printf("\t-n <hostname>\tSet hostname.\n");
     printf("\t-p <port>\tTCP port to listen on (default: 9090).\n");
     printf("\t-u <user>\tSpread user.\n");
-    printf("\t-P\t\tPrint config and exit.\n\n");
+    printf("\t-P\t\tPrint config and exit.\n");
+    printf("\t-r\t\tSet user to a random (pid) name, in the form r<pid>.\n\n");
 }
 
 int main(int argc, const char *argv[]) {
@@ -39,7 +40,7 @@ int main(int argc, const char *argv[]) {
     signal(SIGPIPE, SIG_IGN);
     initDefaultSymbols("newSocketToSpread");
 
-    while ((ch = getopt(argc, (char **)argv, "hc:u:d:fg:l:n:p:P")) != -1) {
+    while ((ch = getopt(argc, (char **)argv, "hc:u:d:fg:l:n:p:P:r")) != -1) {
         if (handleCommonOption(ch, optarg, &dump_config)) {
             continue;
         }
