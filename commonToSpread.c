@@ -435,6 +435,102 @@ int isConnected(char *name) {
     return cnt;
 }
 
+void cacheQuery(char *opt) {
+    sqlite3 *mydb;
+    char *dbName;
+    char *sql;
+    char *zErrMsg;
+    int rc;
+    char **results = NULL;
+    int rows, columns;
+    int i, j;
+    time_t clock;
+    char *tmp;
+    int interactive = 0;
+
+    if (!myStdout) return;
+
+    tmp = getSymbol("INTERACTIVE");
+    if (tmp) {
+        interactive = (strcmp(tmp, "false") != 0);
+    }
+
+    dbName = getSymbol("DATABASE");
+    if (!dbName) return;
+
+    rc = sqlite3_open(dbName, &mydb);
+    if (rc != SQLITE_OK) {
+        if (debugOut) {
+            fprintf(debugOut, "DBERROR:cacheDump:cannot open db %s\n", dbName);
+            fflush(debugOut);
+        }
+        return;
+    }
+
+    if ( opt == (char *) NULL) {
+        sql = "select name, sp_group, state, touched from nodes order by name, sp_group, touched;";
+    } else if (!strcmp(opt, "uniq")) {
+        sql = "select distinct name from nodes where state = 'CONNECTED';";
+    }
+    rc = sqlite3_get_table(mydb, sql, &results, &rows, &columns, &zErrMsg);
+
+    printf("Number of columns in result: %d\n", columns);
+
+    if (rc != SQLITE_OK) {
+        if (debugOut) {
+            fprintf(debugOut, "DBERROR:cacheDump:%s\n", zErrMsg ? zErrMsg : "unknown");
+            fflush(debugOut);
+        }
+        if (zErrMsg) sqlite3_free(zErrMsg);
+    } else {
+        if (interactive) {
+            fprintf(myStdout, "================================================================================\n");
+            fprintf(myStdout, "|Name                     |Group          |State       |Touched\n");
+            fprintf(myStdout, "================================================================================\n");
+        } else {
+            fprintf(myStdout, "START_CACHE\n");
+        }
+        for (i = 1; i <= rows; i++) {
+            for (j = 0; j < columns; j++) {
+                char *val = results[(i * columns) + j];
+                switch (j) {
+                    case 0:
+                        if (interactive) fprintf(myStdout, "|%-25s|", val ? val : "");
+                        else fprintf(myStdout, "%s:", val ? val : "");
+                        if(columns == 1) {
+                            fprintf(myStdout,"\n");
+                        }
+                        break;
+                    case 1:
+                        if (interactive) fprintf(myStdout, "%-15s|", val ? val : "");
+                        else fprintf(myStdout, "%s:", val ? val : "");
+                        break;
+                    case 2:
+                        if (interactive) fprintf(myStdout, "%-12s|", val ? val : "");
+                        else fprintf(myStdout, "%s:", val ? val : "");
+                        break;
+                    case 3:
+                        clock = (time_t)(val ? atoi(val) : 0);
+                        if (interactive) fprintf(myStdout, "%s", asctime(localtime(&clock)));
+                        else fprintf(myStdout, "%d:\n", (int)clock);
+                        break;
+                    default:
+                        if (interactive) fprintf(myStdout, "%-5s|", val ? val : "");
+                        break;
+                }
+            }
+        }
+        if (interactive) {
+            fprintf(myStdout, "================================================================================\n");
+        } else {
+            fprintf(myStdout, "END_CACHE\n");
+        }
+        sqlite3_free_table(results);
+    }
+    sqlite3_close(mydb);
+    fflush(myStdout);
+}
+
 void cacheDump(void) {
     sqlite3 *mydb;
     char *dbName;
@@ -1439,6 +1535,17 @@ int processSpreadCommand(char *line, int *pRunFlag) {
             if (p1) spreadJoin(p1);
         } else if (!strcmp(cmd, "^leave")) {
             if (p1) spreadLeave(p1);
+        } else if(!strcmp(cmd,"^cache")) {
+            if (!p1) {
+                printf("\nCache\n");
+                cacheQuery(NULL);
+            } else if (!strcmp(p1, "uniq")) {
+//                char tmp[]="select distinct sp_group,name, state from nodes;";
+                char tmp[]="select distinct name from nodes;";
+                printf("\tUniq %s\n",tmp);
+                cacheQuery(p1);
+            }
+
         } else if (!strcmp(cmd, "^dump")) {
             if (!p1) {
                 dumpSymbols();

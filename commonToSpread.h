@@ -83,6 +83,7 @@ void cacheTouch(char *name);
 void cacheClean(void);
 void cacheSetConnected(char *name, char *group, int c);
 int isConnected(char *name);
+void cacheQuery(char *opt);
 void cacheDump(void);
 void disconnectCache(void);
 void emptyCache(char *all);
