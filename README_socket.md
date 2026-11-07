@@ -7,7 +7,7 @@
 - **TCP Server Socket:** Listens on a configurable TCP port (default: `9090`) for incoming client connections.
 - **Spread Integration:** Connects to a Spread daemon to multicast messages and join groups.
 - **SQLite Caching:** Tracks node states (`CONNECTED`, `DISCONNECTED`, `LEAVE`) and membership changes in an SQLite database.
-- **Interactive Control Commands:** Supports runtime configuration via command tokens (`^set`, `^get`, `^join`, `^leave`, `^dump`, `^start`, `^exit`).
+- **Interactive Control Commands:** Supports runtime configuration via command tokens (`^set`, `^get`, `^join`, `^leave`, `^cache`, `^dump`, `^start`, `^exit`).
 
 ---
 
@@ -90,6 +90,7 @@ Once connected via a TCP client, you can type commands prefixed with `^`:
 - `^start` : Connect to the Spread daemon and start listening for inbound messages.
 - `^join <group>` : Join a Spread group.
 - `^leave <group>` : Leave a Spread group.
+- `^cache [uniq]` : Query SQLite cache state (use `uniq` to list distinct connected node names).
 - `^set <key> <val>` : Set a runtime configuration variable.
 - `^get <key>` : Retrieve a configuration variable value.
 - `^dump` : Dump current symbol table and SQLite cache state.

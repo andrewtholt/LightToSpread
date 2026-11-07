@@ -471,6 +471,13 @@ void cacheQuery(char *opt) {
         sql = "select name, sp_group, state, touched from nodes order by name, sp_group, touched;";
     } else if (!strcmp(opt, "uniq")) {
         sql = "select distinct name from nodes where state = 'CONNECTED';";
+    } else {
+        if (myStdout) {
+            fprintf(myStdout, "Usage: ^cache [uniq]\n");
+            fflush(myStdout);
+        }
+        sqlite3_close(mydb);
+        return;
     }
     rc = sqlite3_get_table(mydb, sql, &results, &rows, &columns, &zErrMsg);
 
@@ -1540,6 +1547,10 @@ int processSpreadCommand(char *line, int *pRunFlag) {
                 cacheQuery(NULL);
             } else if (!strcmp(p1, "uniq")) {
                 cacheQuery(p1);
+            } else {
+                if (myStdout) {
+                    fprintf(myStdout, "Usage: ^cache [uniq]\n");
+                }
             }
 
         } else if (!strcmp(cmd, "^dump")) {
@@ -1612,26 +1623,31 @@ int processSpreadCommand(char *line, int *pRunFlag) {
             }
         } else if (!strcmp(cmd, "^help")) {
             if (myStdout) {
-                fprintf(myStdout, "Available commands:\n");
-                fprintf(myStdout, "  ^set <param> <value>\n");
-                fprintf(myStdout, "  ^lock <param>\n");
-                fprintf(myStdout, "  ^get <param>\n");
-                fprintf(myStdout, "  ^join <group>\n");
-                fprintf(myStdout, "  ^leave <group>\n");
-                fprintf(myStdout, "  ^dump [symbols|cache]\n");
-                fprintf(myStdout, "  ^save\n");
-                fprintf(myStdout, "  ^connect\n");
-                fprintf(myStdout, "  ^disconnect\n");
-                fprintf(myStdout, "  ^add <node> <grp>\n");
-                fprintf(myStdout, "  ^del <node> <grp>\n");
-                fprintf(myStdout, "  ^empty [all|stale]\n");
-                fprintf(myStdout, "  ^connected <name>\n");
-                fprintf(myStdout, "  ^multicast <group> <message>\n");
-                fprintf(myStdout, "  ^exec <command>\n");
-                fprintf(myStdout, "  ^start\tAction the settings and connect.\n");
-                fprintf(myStdout, "  ^send <group> <message>\n");
-                fprintf(myStdout, "  ^exit\n");
-                fprintf(myStdout, "  ^help\n");
+                if (p1 && !strcmp(p1, "cache")) {
+                    fprintf(myStdout, "Usage: ^cache [uniq]\n");
+                } else {
+                    fprintf(myStdout, "Available commands:\n");
+                    fprintf(myStdout, "  ^set <param> <value>\n");
+                    fprintf(myStdout, "  ^lock <param>\n");
+                    fprintf(myStdout, "  ^get <param>\n");
+                    fprintf(myStdout, "  ^join <group>\n");
+                    fprintf(myStdout, "  ^leave <group>\n");
+                    fprintf(myStdout, "  ^cache [uniq]\n");
+                    fprintf(myStdout, "  ^dump [symbols|cache]\n");
+                    fprintf(myStdout, "  ^save\n");
+                    fprintf(myStdout, "  ^connect\n");
+                    fprintf(myStdout, "  ^disconnect\n");
+                    fprintf(myStdout, "  ^add <node> <grp>\n");
+                    fprintf(myStdout, "  ^del <node> <grp>\n");
+                    fprintf(myStdout, "  ^empty [all|stale]\n");
+                    fprintf(myStdout, "  ^connected <name>\n");
+                    fprintf(myStdout, "  ^multicast <group> <message>\n");
+                    fprintf(myStdout, "  ^exec <command>\n");
+                    fprintf(myStdout, "  ^start\tAction the settings and connect.\n");
+                    fprintf(myStdout, "  ^send <group> <message>\n");
+                    fprintf(myStdout, "  ^exit\n");
+                    fprintf(myStdout, "  ^help\n");
+                }
             }
         } else {
             if (myStdout) {
