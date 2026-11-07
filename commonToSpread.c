@@ -474,7 +474,7 @@ void cacheQuery(char *opt) {
     }
     rc = sqlite3_get_table(mydb, sql, &results, &rows, &columns, &zErrMsg);
 
-    printf("Number of columns in result: %d\n", columns);
+//    printf("Number of columns in result: %d\n", columns);
 
     if (rc != SQLITE_OK) {
         if (debugOut) {
@@ -1537,12 +1537,8 @@ int processSpreadCommand(char *line, int *pRunFlag) {
             if (p1) spreadLeave(p1);
         } else if(!strcmp(cmd,"^cache")) {
             if (!p1) {
-                printf("\nCache\n");
                 cacheQuery(NULL);
             } else if (!strcmp(p1, "uniq")) {
-//                char tmp[]="select distinct sp_group,name, state from nodes;";
-                char tmp[]="select distinct name from nodes;";
-                printf("\tUniq %s\n",tmp);
                 cacheQuery(p1);
             }
 
